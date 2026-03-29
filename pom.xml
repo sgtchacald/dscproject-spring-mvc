@@ -2,22 +2,33 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.4</version>
-		<relativePath/>
+		<version>4.0.5</version>
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-
-	<groupId>br.com.diegocordeiro</groupId>
+	<groupId>br.com.diegocordeiro.dscproject</groupId>
 	<artifactId>dscproject</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-
+	<name/>
+	<description/>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
 	<properties>
-		<java.version>21</java.version>
+		<java.version>25</java.version>
 	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -28,12 +39,25 @@
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation</artifactId>
+			<groupId>nz.net.ultraq.thymeleaf</groupId>
+			<artifactId>thymeleaf-layout-dialect</artifactId>
+			<version>3.4.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.groovy</groupId>
+					<artifactId>groovy</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.groovy</groupId>
+			<artifactId>groovy</artifactId>
+			<version>4.0.24</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.mysql</groupId>
@@ -47,33 +71,28 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
+			<artifactId>spring-boot-starter-data-jpa-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
-			<groupId>org.webjars.npm</groupId>
-			<artifactId>locator</artifactId>
-			<version>2.0.0</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf-test</artifactId>
+			<scope>test</scope>
 		</dependency>
-
 		<dependency>
-			<groupId>org.webjars.npm</groupId>
-			<artifactId>github-com-twbs-bootstrap-</artifactId>
-			<version>5.3.8</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webmvc-test</artifactId>
+			<scope>test</scope>
 		</dependency>
-
-		<!-- Tabler via WebJars -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>tabler__core</artifactId>
-			<version>1.0.0-beta20</version>
+			<version>1.4.0</version>
 		</dependency>
-
 		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>jquery-mask-plugin</artifactId>
-			<version>1.14.13</version>
+			<groupId>org.webjars</groupId>
+			<artifactId>webjars-locator</artifactId>
+			<version>0.52</version>
 		</dependency>
 	</dependencies>
 
@@ -105,4 +124,5 @@
 			</plugin>
 		</plugins>
 	</build>
+
 </project>
