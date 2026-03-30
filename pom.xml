@@ -75,6 +75,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-envers</artifactId>
+			<version>3.3.10</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf-test</artifactId>
 			<scope>test</scope>
@@ -91,7 +96,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
-			<artifactId>webjars-locator</artifactId>
+			<artifactId>webjars-locator-core</artifactId>
 			<version>0.52</version>
 		</dependency>
 	</dependencies>
