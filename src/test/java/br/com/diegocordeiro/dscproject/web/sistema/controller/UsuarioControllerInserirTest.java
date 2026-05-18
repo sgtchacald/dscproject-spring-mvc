@@ -51,7 +51,9 @@ class UsuarioControllerInserirTest {
     }
 
     @Test
-    void inserir_senhasDivergentes_retornaErroNocampo() throws Exception {
+    void inserir_senhasDivergentes_retornaErroNegocioNocampo() throws Exception {
+        when(usuarioService.verificarSeExisteUsuario(any())).thenReturn(false);
+
         mockMvc.perform(post("/usuarios/inserir")
                 .with(csrf())
                 .param("nome", "João Silva")
@@ -63,11 +65,11 @@ class UsuarioControllerInserirTest {
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isUnprocessableEntity())
             .andExpect(jsonPath("$.sucesso").value(false))
-            .andExpect(jsonPath("$.erros.confirmacaoSenha").value("As senhas não conferem."));
+            .andExpect(jsonPath("$.errosNegocio.confirmacaoSenha").value("As senhas não conferem."));
     }
 
     @Test
-    void inserir_loginJaCadastrado_retornaErroNocampo() throws Exception {
+    void inserir_loginJaCadastrado_retornaErroNegocioNocampo() throws Exception {
         when(usuarioService.verificarSeExisteUsuario("joaosilva")).thenReturn(true);
         when(usuarioService.verificarSeExisteUsuario("joao@test.com")).thenReturn(false);
 
@@ -82,11 +84,11 @@ class UsuarioControllerInserirTest {
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isUnprocessableEntity())
             .andExpect(jsonPath("$.sucesso").value(false))
-            .andExpect(jsonPath("$.erros.login").value("Login já cadastrado."));
+            .andExpect(jsonPath("$.errosNegocio.login").value("Login já cadastrado."));
     }
 
     @Test
-    void inserir_nomeFaltando_retornaErroNocampo() throws Exception {
+    void inserir_nomeFaltando_retornaErroCampoInline() throws Exception {
         mockMvc.perform(post("/usuarios/inserir")
                 .with(csrf())
                 .param("nome", "")
@@ -98,6 +100,6 @@ class UsuarioControllerInserirTest {
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isUnprocessableEntity())
             .andExpect(jsonPath("$.sucesso").value(false))
-            .andExpect(jsonPath("$.erros.nome").exists());
+            .andExpect(jsonPath("$.errosCampos.nome").exists());
     }
 }

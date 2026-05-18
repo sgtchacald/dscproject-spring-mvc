@@ -33,28 +33,33 @@ public class UsuarioController {
     public ResponseEntity<Map<String, Object>> inserir(@Valid @ModelAttribute UsuarioDTO dto,
                                                        BindingResult bindingResult) {
 
-        Map<String, String> erros = new LinkedHashMap<>();
-
+        // Erros de campo (Bean Validation) — exibidos inline, sem alerta no topo
+        Map<String, String> errosCampos = new LinkedHashMap<>();
         if (bindingResult.hasErrors()) {
             bindingResult.getFieldErrors()
-                .forEach(fe -> erros.putIfAbsent(fe.getField(), fe.getDefaultMessage()));
+                .forEach(fe -> errosCampos.putIfAbsent(fe.getField(), fe.getDefaultMessage()));
         }
 
-        if (erros.isEmpty()) {
+        // Erros de negócio (servidor) — exibidos no alerta vermelho do topo + inline
+        Map<String, String> errosNegocio = new LinkedHashMap<>();
+        if (errosCampos.isEmpty()) {
             if (!dto.getSenha().equals(dto.getConfirmacaoSenha())) {
-                erros.put("confirmacaoSenha", "As senhas não conferem.");
+                errosNegocio.put("confirmacaoSenha", "As senhas não conferem.");
             }
             if (usuarioService.verificarSeExisteUsuario(dto.getLogin())) {
-                erros.put("login", "Login já cadastrado.");
+                errosNegocio.put("login", "Login já cadastrado.");
             }
             if (usuarioService.verificarSeExisteUsuario(dto.getEmail())) {
-                erros.put("email", "E-mail já cadastrado.");
+                errosNegocio.put("email", "E-mail já cadastrado.");
             }
         }
 
-        if (!erros.isEmpty()) {
-            return ResponseEntity.unprocessableEntity()
-                .body(Map.of("sucesso", false, "erros", erros));
+        if (!errosCampos.isEmpty() || !errosNegocio.isEmpty()) {
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("sucesso", false);
+            body.put("errosCampos", errosCampos);
+            body.put("errosNegocio", errosNegocio);
+            return ResponseEntity.unprocessableEntity().body(body);
         }
 
         usuarioService.inserir(dto);
