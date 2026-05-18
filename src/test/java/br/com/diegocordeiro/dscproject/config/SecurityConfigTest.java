@@ -21,7 +21,7 @@ class SecurityConfigTest {
     void acessoRaiz_semAutenticacao_redirecionaParaLogin() throws Exception {
         mockMvc.perform(get("/"))
             .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrlPattern("**/login"));
+            .andExpect(redirectedUrl("/login"));
     }
 
     @Test
