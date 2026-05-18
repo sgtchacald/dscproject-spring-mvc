@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,7 +33,7 @@ class UsuarioControllerInserirTest {
     private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
     @Test
-    void inserir_comDadosValidos_redirecionaComSucesso() throws Exception {
+    void inserir_comDadosValidos_retornaSucesso() throws Exception {
         when(usuarioService.verificarSeExisteUsuario(any())).thenReturn(false);
         when(usuarioService.inserir(any())).thenReturn(new Usuario());
 
@@ -43,13 +44,14 @@ class UsuarioControllerInserirTest {
                 .param("email", "joao@test.com")
                 .param("login", "joaosilva")
                 .param("senha", "senha123")
-                .param("confirmacaoSenha", "senha123"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/login?cadastroSucesso=true"));
+                .param("confirmacaoSenha", "senha123")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sucesso").value(true));
     }
 
     @Test
-    void inserir_senhasDivergentes_redirecionaComErro() throws Exception {
+    void inserir_senhasDivergentes_retornaErroNocampo() throws Exception {
         mockMvc.perform(post("/usuarios/inserir")
                 .with(csrf())
                 .param("nome", "João Silva")
@@ -57,13 +59,15 @@ class UsuarioControllerInserirTest {
                 .param("email", "joao@test.com")
                 .param("login", "joaosilva")
                 .param("senha", "senha123")
-                .param("confirmacaoSenha", "outrasenha"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/login"));
+                .param("confirmacaoSenha", "outrasenha")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(jsonPath("$.sucesso").value(false))
+            .andExpect(jsonPath("$.erros.confirmacaoSenha").value("As senhas não conferem."));
     }
 
     @Test
-    void inserir_loginJaCadastrado_redirecionaComErro() throws Exception {
+    void inserir_loginJaCadastrado_retornaErroNocampo() throws Exception {
         when(usuarioService.verificarSeExisteUsuario("joaosilva")).thenReturn(true);
         when(usuarioService.verificarSeExisteUsuario("joao@test.com")).thenReturn(false);
 
@@ -74,13 +78,15 @@ class UsuarioControllerInserirTest {
                 .param("email", "joao@test.com")
                 .param("login", "joaosilva")
                 .param("senha", "senha123")
-                .param("confirmacaoSenha", "senha123"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/login"));
+                .param("confirmacaoSenha", "senha123")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(jsonPath("$.sucesso").value(false))
+            .andExpect(jsonPath("$.erros.login").value("Login já cadastrado."));
     }
 
     @Test
-    void inserir_nomeFaltando_redirecionaComErro() throws Exception {
+    void inserir_nomeFaltando_retornaErroNocampo() throws Exception {
         mockMvc.perform(post("/usuarios/inserir")
                 .with(csrf())
                 .param("nome", "")
@@ -88,8 +94,10 @@ class UsuarioControllerInserirTest {
                 .param("email", "joao@test.com")
                 .param("login", "joaosilva")
                 .param("senha", "senha123")
-                .param("confirmacaoSenha", "senha123"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/login"));
+                .param("confirmacaoSenha", "senha123")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(jsonPath("$.sucesso").value(false))
+            .andExpect(jsonPath("$.erros.nome").exists());
     }
 }
