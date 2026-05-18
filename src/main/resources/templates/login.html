@@ -16,16 +16,19 @@
             <img th:src="@{/image/logo.svg}" alt="DSCProject" height="36" class="navbar-brand-image">
         </div>
 
+        <div th:if="${param.error}" class="alert alert-danger mb-3" role="alert">
+            Login ou senha incorretos. Verifique suas credenciais.
+        </div>
+        <div th:if="${param.logout}" class="alert alert-info mb-3" role="alert">
+            Você saiu com sucesso.
+        </div>
+        <div th:if="${param.cadastroSucesso}" class="alert alert-success mb-3" role="alert">
+            Cadastro realizado com sucesso! Faça login para continuar.
+        </div>
+
         <div class="card card-md">
             <div class="card-body">
                 <h2 class="h2 text-center mb-4">Acessar o sistema</h2>
-
-                <div th:if="${param.error}" class="alert alert-danger mb-3" role="alert">
-                    Login ou senha incorretos. Verifique suas credenciais.
-                </div>
-                <div th:if="${param.logout}" class="alert alert-info mb-3" role="alert">
-                    Você saiu com sucesso.
-                </div>
 
                 <form th:action="@{/login}" method="post">
                     <div class="mb-3">
@@ -65,10 +68,165 @@
         </div>
 
         <div class="text-center text-secondary mt-3">
+            Não tem conta?
+            <a href="#" data-bs-toggle="modal" data-bs-target="#modalCadastro" class="fw-bold">
+                Cadastre-se
+            </a>
+        </div>
+
+        <div class="text-center text-secondary mt-2">
             DSCProject &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span>
         </div>
     </div>
 </div>
+
+<!-- Modal de Cadastro -->
+<div class="modal modal-blur fade" id="modalCadastro" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round" class="icon icon-tabler icon-tabler-user-plus me-2">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/>
+                        <path d="M16 19h6"/>
+                        <path d="M19 16v6"/>
+                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4"/>
+                    </svg>
+                    Cadastrar Usuário
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+
+            <form th:action="@{/usuarios/inserir}" method="post">
+
+                <div class="modal-body">
+
+                    <div th:if="${cadastroErros != null}" class="alert alert-danger mb-3" role="alert">
+                        <ul class="mb-0">
+                            <li th:each="erro : ${cadastroErros}" th:text="${erro}"></li>
+                        </ul>
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-12">
+                            <label class="form-label required" for="nome">Nome completo</label>
+                            <input type="text"
+                                   id="nome"
+                                   name="nome"
+                                   class="form-control"
+                                   placeholder="seu nome completo"
+                                   th:value="${cadastroForm?.nome}"
+                                   maxlength="100"
+                                   autocomplete="name">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required" for="genero">Gênero</label>
+                            <select id="genero" name="genero" class="form-select">
+                                <option value="" disabled
+                                        th:selected="${cadastroForm?.genero == null}">
+                                    Selecione...
+                                </option>
+                                <option th:each="g : ${generos}"
+                                        th:value="${g.name()}"
+                                        th:text="${g.descricao}"
+                                        th:selected="${cadastroForm?.genero == g}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="nascimento">Data de nascimento</label>
+                            <input type="date"
+                                   id="nascimento"
+                                   name="nascimento"
+                                   class="form-control"
+                                   th:value="${cadastroForm?.nascimento != null ?
+                                       #dates.format(cadastroForm.nascimento, 'yyyy-MM-dd') : ''}">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label required" for="email">E-mail</label>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   class="form-control"
+                                   placeholder="seu@email.com"
+                                   th:value="${cadastroForm?.email}"
+                                   maxlength="512"
+                                   autocomplete="email">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label required" for="login">Login</label>
+                            <input type="text"
+                                   id="login"
+                                   name="login"
+                                   class="form-control"
+                                   placeholder="seu login de acesso"
+                                   th:value="${cadastroForm?.login}"
+                                   maxlength="40"
+                                   autocomplete="username">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required" for="senha">Senha</label>
+                            <input type="password"
+                                   id="senha"
+                                   name="senha"
+                                   class="form-control"
+                                   placeholder="mínimo 6 caracteres"
+                                   autocomplete="new-password">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required" for="confirmacaoSenha">Confirmar senha</label>
+                            <input type="password"
+                                   id="confirmacaoSenha"
+                                   name="confirmacaoSenha"
+                                   class="form-control"
+                                   placeholder="repita a senha"
+                                   autocomplete="new-password">
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary me-auto"
+                            data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round" class="icon icon-tabler icon-tabler-device-floppy">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"/>
+                            <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                            <path d="M14 4l0 4l-6 0l0 -4"/>
+                        </svg>
+                        Cadastrar
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
 <script th:src="@{/webjars/tabler__core/1.4.0/dist/js/tabler.min.js}"></script>
+
+<script th:if="${cadastroErros != null}">
+    document.addEventListener('DOMContentLoaded', function () {
+        new bootstrap.Modal(document.getElementById('modalCadastro')).show();
+    });
+</script>
+
 </body>
 </html>
