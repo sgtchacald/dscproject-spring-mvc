@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Login - DSCProject</title>
+    <link rel="icon" th:href="@{/image/favicon.png}">
+    <link th:href="@{/webjars/tabler__core/1.4.0/dist/css/tabler.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body class="antialiased">
+<div class="page page-center">
+    <div class="container container-tight py-4">
+
+        <div class="text-center mb-4">
+            <img th:src="@{/image/logo.svg}" alt="DSCProject" height="36" class="navbar-brand-image">
+        </div>
+
+        <div class="card card-md">
+            <div class="card-body">
+                <h2 class="h2 text-center mb-4">Acessar o sistema</h2>
+
+                <div th:if="${param.error}" class="alert alert-danger mb-3" role="alert">
+                    Login ou senha incorretos. Verifique suas credenciais.
+                </div>
+                <div th:if="${param.logout}" class="alert alert-info mb-3" role="alert">
+                    Você saiu com sucesso.
+                </div>
+
+                <form th:action="@{/login}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label" for="username">Login ou E-mail</label>
+                        <input type="text"
+                               id="username"
+                               name="username"
+                               class="form-control"
+                               placeholder="seu login ou e-mail"
+                               autofocus
+                               autocomplete="username">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="password">Senha</label>
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               class="form-control"
+                               placeholder="sua senha"
+                               autocomplete="current-password">
+                    </div>
+                    <div class="form-footer">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="icon icon-tabler icon-tabler-login-2">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M9 8v-2a2 2 0 0 1 2 -2h7a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-2"/>
+                                <path d="M3 12h13l-3 -3"/>
+                                <path d="M13 15l3 -3"/>
+                            </svg>
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center text-secondary mt-3">
+            DSCProject &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span>
+        </div>
+    </div>
+</div>
+<script th:src="@{/webjars/tabler__core/1.4.0/dist/js/tabler.min.js}"></script>
+</body>
+</html>
