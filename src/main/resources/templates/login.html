@@ -9,6 +9,19 @@
     <link th:href="@{/css/style.css}" rel="stylesheet">
 </head>
 <body class="antialiased">
+
+<!-- Toast de sucesso (canto inferior direito) -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="toastSucesso" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fw-medium">
+                Cadastro realizado com sucesso! Faça login para continuar.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+        </div>
+    </div>
+</div>
+
 <div class="page page-center">
     <div class="container container-tight py-4">
 
@@ -21,9 +34,6 @@
         </div>
         <div th:if="${param.logout}" class="alert alert-info mb-3" role="alert">
             Você saiu com sucesso.
-        </div>
-        <div id="alertaSucesso" class="alert alert-success mb-3" style="display:none;" role="alert">
-            Cadastro realizado com sucesso! Faça login para continuar.
         </div>
 
         <div class="card card-md">
@@ -104,6 +114,22 @@
             <form id="formCadastro" th:action="@{/usuarios/inserir}" method="post" novalidate>
 
                 <div class="modal-body">
+
+                    <!-- Alerta de erro geral (visível apenas quando há erros) -->
+                    <div id="alertaErroModal" class="alert alert-danger" style="display:none;" role="alert">
+                        <div class="d-flex align-items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="icon alert-icon me-2">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/>
+                                <path d="M12 8v4"/>
+                                <path d="M12 16h.01"/>
+                            </svg>
+                            <div id="alertaErroTexto"></div>
+                        </div>
+                    </div>
+
                     <div class="row g-3">
 
                         <div class="col-12">
@@ -213,12 +239,33 @@
 <script th:src="@{/webjars/tabler__core/1.4.0/dist/js/tabler.min.js}"></script>
 
 <script>
-    document.getElementById('formCadastro').addEventListener('submit', async function (e) {
-        e.preventDefault();
+    const formCadastro = document.getElementById('formCadastro');
+    const alertaErro   = document.getElementById('alertaErroModal');
+    const alertaTexto  = document.getElementById('alertaErroTexto');
 
-        // Limpa erros anteriores
-        this.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        this.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+    function limparErros() {
+        alertaErro.style.display = 'none';
+        alertaTexto.textContent = '';
+        formCadastro.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        formCadastro.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+    }
+
+    function exibirErros(erros) {
+        const msgs = Object.values(erros);
+        alertaTexto.textContent = msgs.length === 1 ? msgs[0] : msgs.join(' • ');
+        alertaErro.style.display = 'block';
+
+        Object.entries(erros).forEach(([campo, msg]) => {
+            const input    = document.getElementById(campo) || document.querySelector('[name="' + campo + '"]');
+            const feedback = document.getElementById('erro-' + campo);
+            if (input)    input.classList.add('is-invalid');
+            if (feedback) feedback.textContent = msg;
+        });
+    }
+
+    formCadastro.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        limparErros();
 
         const btn = document.getElementById('btnCadastrar');
         btn.disabled = true;
@@ -235,27 +282,21 @@
             if (data.sucesso) {
                 bootstrap.Modal.getInstance(document.getElementById('modalCadastro')).hide();
                 this.reset();
-                document.getElementById('alertaSucesso').style.display = 'block';
+                new bootstrap.Toast(document.getElementById('toastSucesso')).show();
             } else {
-                Object.entries(data.erros).forEach(([campo, msg]) => {
-                    const input = document.getElementById(campo) || document.querySelector('[name="' + campo + '"]');
-                    const feedback = document.getElementById('erro-' + campo);
-                    if (input) input.classList.add('is-invalid');
-                    if (feedback) feedback.textContent = msg;
-                });
+                exibirErros(data.erros);
             }
         } catch (err) {
-            console.error('Erro inesperado:', err);
+            alertaTexto.textContent = 'Erro inesperado. Tente novamente.';
+            alertaErro.style.display = 'block';
         } finally {
             btn.disabled = false;
         }
     });
 
     document.getElementById('modalCadastro').addEventListener('hidden.bs.modal', function () {
-        const form = document.getElementById('formCadastro');
-        form.reset();
-        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        form.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+        formCadastro.reset();
+        limparErros();
     });
 </script>
 
