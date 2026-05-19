@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Login</title>
+    <link rel="icon" th:href="@{/image/favicon.png}">
+    <link th:href="@{/webjars/tabler__core/1.4.0/dist/css/tabler.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .form-control.is-invalid {
+            background-size: 1rem 1rem;
+            background-position: right 5px center;
+        }
+
+    </style>
+</head>
+<body class="antialiased">
+
+<!-- Toasts (canto inferior direito) -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="toastSucesso" class="toast align-items-center text-bg-success border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fw-medium">Cadastro realizado com sucesso.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="esconderToast('toastSucesso')" aria-label="Fechar"></button>
+        </div>
+    </div>
+    <div id="toastLogout" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fw-medium">Você saiu com sucesso.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="esconderToast('toastLogout')" aria-label="Fechar"></button>
+        </div>
+    </div>
+</div>
+
+<div class="page page-center">
+    <div class="container container-tight py-4">
+
+        <div class="text-center mb-4">
+            <img th:src="@{/image/logo.svg}" alt="DSCPROJECT" class="navbar-brand-image" style="width: 400px; max-width: 85%; height: auto;">
+        </div>
+
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible mb-3" role="alert">
+            Login ou senha incorretos. Verifique suas credenciais.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+
+        <div class="card card-md">
+            <div class="card-body">
+                <h2 class="h2 text-center mb-4">Acessar o sistema</h2>
+
+                <form th:action="@{/login}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label" for="username">Login</label>
+                        <input type="text"
+                               id="username"
+                               name="username"
+                               class="form-control"
+                               placeholder="seu login ou e-mail"
+                               autofocus
+                               autocomplete="username">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="password">Senha</label>
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               class="form-control"
+                               placeholder="sua senha"
+                               autocomplete="current-password">
+                    </div>
+                    <div class="form-footer">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="icon icon-tabler icon-tabler-login-2">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M9 8v-2a2 2 0 0 1 2 -2h7a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-2"/>
+                                <path d="M3 12h13l-3 -3"/>
+                                <path d="M13 15l3 -3"/>
+                            </svg>
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center text-secondary mt-3">
+            Não tem conta?
+            <a href="#" data-bs-toggle="modal" data-bs-target="#modalCadastro" class="fw-bold">
+                Cadastre-se
+            </a>
+        </div>
+
+        <div class="text-center text-secondary mt-2">
+            DSCPROJECT &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Cadastro -->
+<div class="modal modal-blur fade" id="modalCadastro" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round" class="icon icon-tabler icon-tabler-user-plus me-2">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/>
+                        <path d="M16 19h6"/>
+                        <path d="M19 16v6"/>
+                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4"/>
+                    </svg>
+                    Cadastrar Usuário
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+
+            <form id="formCadastro" th:action="@{/usuarios/inserir}" method="post" novalidate>
+
+                <div class="modal-body">
+
+                    <!-- Alerta de erros de negócio — aparece somente para erros do servidor -->
+                    <div id="alertaErroModal" class="alert alert-danger alert-dismissible" style="display:none;" role="alert">
+                        <div class="d-flex align-items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="icon alert-icon me-2 flex-shrink-0 mt-1">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/>
+                                <path d="M12 8v4"/>
+                                <path d="M12 16h.01"/>
+                            </svg>
+                            <div id="alertaErroTexto"></div>
+                        </div>
+                        <button type="button" class="btn-close" onclick="fecharAlertaErro()" aria-label="Fechar"></button>
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-12">
+                            <label class="form-label required" for="nome">Nome completo</label>
+                            <input type="text"
+                                   id="nome"
+                                   name="nome"
+                                   class="form-control"
+                                   placeholder="seu nome completo"
+                                   maxlength="100"
+                                   autocomplete="name">
+                            <div class="invalid-feedback" id="erro-nome"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required" for="genero">Gênero</label>
+                            <select id="genero" name="genero" class="form-select">
+                                <option value="">Selecione</option>
+                                <option th:each="g : ${generos}"
+                                        th:value="${g.codigo}"
+                                        th:text="${g.descricao}">
+                                </option>
+                            </select>
+                            <div class="invalid-feedback" id="erro-genero"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required" for="nascimento">Data de nascimento</label>
+                            <input type="date"
+                                   id="nascimento"
+                                   name="nascimento"
+                                   class="form-control"
+                                   required>
+                            <div class="invalid-feedback" id="erro-nascimento"></div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label required" for="email">E-mail</label>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   class="form-control"
+                                   placeholder="seu@email.com"
+                                   maxlength="512"
+                                   autocomplete="email">
+                            <div class="invalid-feedback" id="erro-email"></div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label required" for="login">Login</label>
+                            <input type="text"
+                                   id="login"
+                                   name="login"
+                                   class="form-control"
+                                   placeholder="seu login de acesso"
+                                   maxlength="40"
+                                   autocomplete="username">
+                            <div class="invalid-feedback" id="erro-login"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required" for="senha">Senha</label>
+                            <input type="password"
+                                   id="senha"
+                                   name="senha"
+                                   class="form-control"
+                                   placeholder="mínimo 6 caracteres"
+                                   autocomplete="new-password">
+                            <div class="invalid-feedback" id="erro-senha"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required" for="confirmacaoSenha">Confirmar senha</label>
+                            <input type="password"
+                                   id="confirmacaoSenha"
+                                   name="confirmacaoSenha"
+                                   class="form-control"
+                                   placeholder="repita a senha"
+                                   autocomplete="new-password">
+                            <div class="invalid-feedback" id="erro-confirmacaoSenha"></div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger me-auto"
+                            data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btnCadastrar" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round" class="icon icon-tabler icon-tabler-device-floppy">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"/>
+                            <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                            <path d="M14 4l0 4l-6 0l0 -4"/>
+                        </svg>
+                        Cadastrar
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/webjars/tabler__core/1.4.0/dist/js/tabler.min.js}"></script>
+
+<script>
+    const formCadastro = document.getElementById('formCadastro');
+    const alertaErro   = document.getElementById('alertaErroModal');
+    const alertaTexto  = document.getElementById('alertaErroTexto');
+    let   toastTimer   = null;
+
+    function mostrarToast(id) {
+        const toast = document.getElementById(id);
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => esconderToast(id), 5000);
+    }
+
+    function esconderToast(id) {
+        document.getElementById(id).classList.remove('show');
+    }
+
+    function fecharAlertaErro() {
+        alertaErro.style.display = 'none';
+        alertaTexto.textContent  = '';
+    }
+
+    function limparErros() {
+        fecharAlertaErro();
+        formCadastro.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        formCadastro.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+    }
+
+    function aplicarErrosCampo(erros) {
+        Object.entries(erros).forEach(([campo, msg]) => {
+            const input    = document.getElementById(campo) || document.querySelector('[name="' + campo + '"]');
+            const feedback = document.getElementById('erro-' + campo);
+            if (input)    input.classList.add('is-invalid');
+            if (feedback) feedback.textContent = msg;
+        });
+    }
+
+    formCadastro.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        limparErros();
+
+        const btn = document.getElementById('btnCadastrar');
+        btn.disabled = true;
+
+        try {
+            const resp = await fetch(this.action, {
+                method: 'POST',
+                body: new URLSearchParams(new FormData(this)),
+                headers: { 'Accept': 'application/json' }
+            });
+
+            const text = await resp.text();
+            console.log('[Cadastro] status:', resp.status, '| body:', text);
+
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (parseErr) {
+                alertaTexto.textContent = 'Resposta inesperada do servidor (status ' + resp.status + '). Veja o console (F12).';
+                alertaErro.style.display = 'block';
+                return;
+            }
+
+            if (data.sucesso) {
+                // Fecha modal clicando no botão de dismiss (não depende de bootstrap global)
+                document.querySelector('#modalCadastro [data-bs-dismiss="modal"]').click();
+                this.reset();
+                mostrarToast('toastSucesso');
+            } else {
+                // Erros de campo (Bean Validation) — somente inline, sem alerta no topo
+                if (data.errosCampos && Object.keys(data.errosCampos).length > 0) {
+                    aplicarErrosCampo(data.errosCampos);
+                }
+                // Erros de negócio (servidor) — alerta vermelho no topo + inline no campo
+                if (data.errosNegocio && Object.keys(data.errosNegocio).length > 0) {
+                    const msgs = Object.values(data.errosNegocio).join(' • ');
+                    alertaTexto.textContent = msgs;
+                    alertaErro.style.display = 'block';
+                    aplicarErrosCampo(data.errosNegocio);
+                }
+            }
+        } catch (err) {
+            alertaTexto.textContent = 'Erro de comunicação com o servidor. Tente novamente.';
+            alertaErro.style.display = 'block';
+            console.error('Erro AJAX:', err);
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    document.getElementById('modalCadastro').addEventListener('hidden.bs.modal', function () {
+        formCadastro.reset();
+        limparErros();
+    });
+
+</script>
+
+<script th:if="${param.logout != null}">
+    mostrarToast('toastLogout');
+</script>
+
+</body>
+</html>

@@ -7,19 +7,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.envers.Audited;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
 
 @Data @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode
 @Entity
 @Table(name="USUARIOS")
-@Audited
 @EntityListeners(AuditingEntityListener.class)
-public class Usuario {
+public class Usuario implements UserDetails, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -50,4 +51,24 @@ public class Usuario {
     @Column(name = "USU_PERFIL", nullable = false)
     private Perfis perfil;
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (this.perfil == Perfis.ADMIN) {
+            return List.of(
+                new SimpleGrantedAuthority("ROLE_ADMIN"),
+                new SimpleGrantedAuthority("ROLE_USER")
+            );
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public String getPassword() {
+        return this.senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.login;
+    }
 }
