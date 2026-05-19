@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt" xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -8,11 +8,11 @@
     <link th:href="@{/webjars/tabler__core/1.4.0/dist/css/tabler.min.css}" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <style>
-        /* Ícone de validação inline menor */
-        .form-control.is-invalid,
-        .form-select.is-invalid {
+        .form-control.is-invalid {
             background-size: 1rem 1rem;
+            background-position: right 5px center;
         }
+
     </style>
 </head>
 <body class="antialiased">
@@ -157,7 +157,7 @@
                         <div class="col-md-6">
                             <label class="form-label required" for="genero">Gênero</label>
                             <select id="genero" name="genero" class="form-select">
-                                <option value="">Selecione...</option>
+                                <option value="">Selecione</option>
                                 <option th:each="g : ${generos}"
                                         th:value="${g.codigo}"
                                         th:text="${g.descricao}">
@@ -167,11 +167,13 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label" for="nascimento">Data de nascimento</label>
+                            <label class="form-label required" for="nascimento">Data de nascimento</label>
                             <input type="date"
                                    id="nascimento"
                                    name="nascimento"
-                                   class="form-control">
+                                   class="form-control"
+                                   required>
+                            <div class="invalid-feedback" id="erro-nascimento"></div>
                         </div>
 
                         <div class="col-12">
