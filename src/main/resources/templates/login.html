@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Login - DSCProject</title>
+    <title>Login</title>
     <link rel="icon" th:href="@{/image/favicon.png}">
     <link th:href="@{/webjars/tabler__core/1.4.0/dist/css/tabler.min.css}" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
@@ -17,16 +17,18 @@
 </head>
 <body class="antialiased">
 
-<!-- Toast de sucesso (canto inferior direito) -->
+<!-- Toasts (canto inferior direito) -->
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
-    <div id="toastSucesso" class="toast align-items-center text-bg-success border-0"
-         role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="toastSucesso" class="toast align-items-center text-bg-success border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
-            <div class="toast-body fw-medium">
-                Cadastro realizado com sucesso! Faça login para continuar.
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto"
-                    onclick="esconderToast()" aria-label="Fechar"></button>
+            <div class="toast-body fw-medium">Cadastro realizado com sucesso.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="esconderToast('toastSucesso')" aria-label="Fechar"></button>
+        </div>
+    </div>
+    <div id="toastLogout" class="toast align-items-center text-bg-info border-0" role="alert" aria-live="polite" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fw-medium">Você saiu com sucesso.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="esconderToast('toastLogout')" aria-label="Fechar"></button>
         </div>
     </div>
 </div>
@@ -35,15 +37,11 @@
     <div class="container container-tight py-4">
 
         <div class="text-center mb-4">
-            <img th:src="@{/image/logo.svg}" alt="DSCProject" height="80" class="navbar-brand-image">
+            <img th:src="@{/image/logo.svg}" alt="DSCProject" class="navbar-brand-image" style="width: 280px; max-width: 85%; height: auto;">
         </div>
 
         <div th:if="${param.error}" class="alert alert-danger alert-dismissible mb-3" role="alert">
             Login ou senha incorretos. Verifique suas credenciais.
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-        </div>
-        <div th:if="${param.logout}" class="alert alert-info alert-dismissible mb-3" role="alert">
-            Você saiu com sucesso.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
         </div>
 
@@ -256,15 +254,15 @@
     const alertaTexto  = document.getElementById('alertaErroTexto');
     let   toastTimer   = null;
 
-    function mostrarToast() {
-        const toast = document.getElementById('toastSucesso');
+    function mostrarToast(id) {
+        const toast = document.getElementById(id);
         toast.classList.add('show');
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(esconderToast, 5000);
+        toastTimer = setTimeout(() => esconderToast(id), 5000);
     }
 
-    function esconderToast() {
-        document.getElementById('toastSucesso').classList.remove('show');
+    function esconderToast(id) {
+        document.getElementById(id).classList.remove('show');
     }
 
     function fecharAlertaErro() {
@@ -317,7 +315,7 @@
                 // Fecha modal clicando no botão de dismiss (não depende de bootstrap global)
                 document.querySelector('#modalCadastro [data-bs-dismiss="modal"]').click();
                 this.reset();
-                mostrarToast();
+                mostrarToast('toastSucesso');
             } else {
                 // Erros de campo (Bean Validation) — somente inline, sem alerta no topo
                 if (data.errosCampos && Object.keys(data.errosCampos).length > 0) {
@@ -344,6 +342,10 @@
         formCadastro.reset();
         limparErros();
     });
+
+    if (/*[[${param.logout != null}]]*/ false) {
+        mostrarToast('toastLogout');
+    }
 </script>
 
 </body>
