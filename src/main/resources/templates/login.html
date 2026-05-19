@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -25,7 +25,7 @@
             <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="esconderToast('toastSucesso')" aria-label="Fechar"></button>
         </div>
     </div>
-    <div id="toastLogout" class="toast align-items-center text-bg-info border-0" role="alert" aria-live="polite" aria-atomic="true">
+    <div id="toastLogout" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body fw-medium">Você saiu com sucesso.</div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="esconderToast('toastLogout')" aria-label="Fechar"></button>
@@ -37,7 +37,7 @@
     <div class="container container-tight py-4">
 
         <div class="text-center mb-4">
-            <img th:src="@{/image/logo.svg}" alt="DSCProject" class="navbar-brand-image" style="width: 280px; max-width: 85%; height: auto;">
+            <img th:src="@{/image/logo.svg}" alt="DSCPROJECT" class="navbar-brand-image" style="width: 400px; max-width: 85%; height: auto;">
         </div>
 
         <div th:if="${param.error}" class="alert alert-danger alert-dismissible mb-3" role="alert">
@@ -51,7 +51,7 @@
 
                 <form th:action="@{/login}" method="post">
                     <div class="mb-3">
-                        <label class="form-label" for="username">Login ou E-mail</label>
+                        <label class="form-label" for="username">Login</label>
                         <input type="text"
                                id="username"
                                name="username"
@@ -94,7 +94,7 @@
         </div>
 
         <div class="text-center text-secondary mt-2">
-            DSCProject &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span>
+            DSCPROJECT &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span>
         </div>
     </div>
 </div>
@@ -159,7 +159,7 @@
                             <select id="genero" name="genero" class="form-select">
                                 <option value="">Selecione...</option>
                                 <option th:each="g : ${generos}"
-                                        th:value="${g.name()}"
+                                        th:value="${g.codigo}"
                                         th:text="${g.descricao}">
                                 </option>
                             </select>
@@ -343,9 +343,10 @@
         limparErros();
     });
 
-    if (/*[[${param.logout != null}]]*/ false) {
-        mostrarToast('toastLogout');
-    }
+</script>
+
+<script th:if="${param.logout != null}">
+    mostrarToast('toastLogout');
 </script>
 
 </body>
