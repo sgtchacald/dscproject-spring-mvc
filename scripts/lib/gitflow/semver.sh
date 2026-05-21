@@ -68,7 +68,8 @@ tipo_bump() {
 }
 
 # Retorna a próxima versão calculada (ex: "1.3.0").
-# Sempre retorna uma versão — NOCHANGE é tratado como PATCH pelo chamador após confirmação.
+# Para NOCHANGE aplica PATCH conservador — o orquestrador usa tipo_bump() para detectar
+# esse caso e pedir confirmação interativa antes de prosseguir.
 calcular_proxima_versao() {
   local ultima_tag versao_base tipo
   ultima_tag=$(_get_ultima_tag)
