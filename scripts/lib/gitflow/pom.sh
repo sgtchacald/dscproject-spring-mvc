@@ -19,7 +19,7 @@ atualizar_versao_pom() {
     /<parent>/     { in_parent=1 }
     /<\/parent>/   { in_parent=0 }
     !in_parent && !done && /<version>/ {
-      sub(/<version>[^<]*<\/version>/, "<version>" ver "<\/version>")
+      sub(/<version>[^<]*<\/version>/, "<version>" ver "</version>")
       done=1
     }
     { print }
