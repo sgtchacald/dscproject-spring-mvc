@@ -115,3 +115,21 @@ setup() {
   result=$(_aplicar_bump "0.0.0" "PATCH")
   [[ "$result" == "0.0.1" ]]
 }
+
+@test "_aplicar_bump: NOCHANGE em 1.2.3 → 1.2.4 (fallback conservador)" {
+  local result
+  result=$(_aplicar_bump "1.2.3" "NOCHANGE")
+  [[ "$result" == "1.2.4" ]]
+}
+
+@test "_aplicar_bump: tipo inválido → retorna versão sem alteração" {
+  local result
+  result=$(_aplicar_bump "1.2.3" "INVALIDO")
+  [[ "$result" == "1.2.3" ]]
+}
+
+@test "_detectar_tipo_bump: string vazia → NOCHANGE" {
+  local result
+  result=$(_detectar_tipo_bump "")
+  [[ "$result" == "NOCHANGE" ]]
+}

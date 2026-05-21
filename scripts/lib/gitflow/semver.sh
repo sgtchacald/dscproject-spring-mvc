@@ -54,6 +54,7 @@ _aplicar_bump() {
   case "$tipo" in
     MAJOR) echo "$((major + 1)).0.0" ;;
     MINOR) echo "${major}.$((minor + 1)).0" ;;
+    # NOCHANGE: fallback conservador — orquestrador intercepta antes de chegar aqui
     PATCH|NOCHANGE) echo "${major}.${minor}.$((patch + 1))" ;;
     *) echo "$versao" ;;
   esac
@@ -71,15 +72,11 @@ tipo_bump() {
 # Para NOCHANGE aplica PATCH conservador — o orquestrador usa tipo_bump() para detectar
 # esse caso e pedir confirmação interativa antes de prosseguir.
 calcular_proxima_versao() {
-  local ultima_tag versao_base tipo
+  local ultima_tag versao_base commits tipo
   ultima_tag=$(_get_ultima_tag)
-
-  if [[ -n "$ultima_tag" ]]; then
-    versao_base="${ultima_tag#v}"
-  else
-    versao_base="0.0.0"
-  fi
-
-  tipo=$(tipo_bump)
+  versao_base="${ultima_tag:+${ultima_tag#v}}"
+  versao_base="${versao_base:-0.0.0}"
+  commits=$(_get_commits_log "$ultima_tag")
+  tipo=$(_detectar_tipo_bump "$commits")
   _aplicar_bump "$versao_base" "$tipo"
 }
