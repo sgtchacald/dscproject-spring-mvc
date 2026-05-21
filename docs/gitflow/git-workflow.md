@@ -118,3 +118,22 @@ git push origin main
 ```
 feature/... ──► release/x.x.x ──► homologacao ──► (aprovação) ──► tag vx.x.x + merge main
 ```
+
+---
+
+## Automação via Script (Recomendado)
+
+Em vez de executar o fluxo manualmente, use o script após concluir a aprovação em homologação:
+
+```bash
+./scripts/gitflow.sh
+```
+
+O script executa automaticamente:
+1. Verifica que você está em uma branch de feature (não em `main` ou `homologacao`)
+2. Verifica que a branch já foi mergeada em `homologacao`
+3. Calcula a próxima versão pelos Conventional Commits (feat → MINOR, fix → PATCH, BREAKING CHANGE → MAJOR)
+4. Cria a branch `release/X.Y.Z`, atualiza o `pom.xml`, commita, cria a tag `vX.Y.Z` e mergeia em `main`
+5. Pergunta se deve deletar a branch de release
+
+**Pré-requisito:** A branch `homologacao` deve existir no repositório remoto.
