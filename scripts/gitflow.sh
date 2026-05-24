@@ -43,6 +43,21 @@ _confirmar() {
   [[ "${resposta,,}" == "s" ]]
 }
 
+_instrucao_fim_fase1() {
+  local versao="$1"
+  echo ""
+  echo "══════════════════════════════════════════════════════════════"
+  echo "  Release ${versao} enviada para homologacao."
+  echo ""
+  echo "  Faça o deploy em homologacao e aguarde a aprovação."
+  echo "  Quando aprovada, execute:"
+  echo ""
+  echo "    ./gitflow.sh aprovar ${versao}"
+  echo ""
+  echo "══════════════════════════════════════════════════════════════"
+  echo ""
+}
+
 # Fase 1: feature → release → homologacao
 _fase_release() {
   echo "[Pré-verificação] Verificando branch atual..."
@@ -59,11 +74,11 @@ _fase_release() {
 
   echo ""
 
-  # Detecta se a release já existe no remoto (novos commits na feature com release pendente)
+  # Verifica se a release já existe no remoto (re-execução com novos commits)
   git fetch origin 2>/dev/null || true
   if git branch -r 2>/dev/null | grep -q " *origin/release/${nova_versao}$"; then
-    echo "Branch release/${nova_versao} já existe."
-    echo "Novos commits de '${branch_feature}' serão incorporados e reenviados para homologacao."
+    echo "Branch release/${nova_versao} já existe em homologacao."
+    echo "Novos commits de '${branch_feature}' serão incorporados e reenviados."
     echo ""
     _confirmar "Atualizar release/${nova_versao} com os commits mais recentes?" \
       || { echo "Operação cancelada pelo usuário."; exit 0; }
@@ -83,51 +98,45 @@ _fase_release() {
 
     echo "[3/3] Mergeando release/${nova_versao} em homologacao..."
     merge_para_homologacao "$nova_versao"
-  else
-    if [[ "$tipo" == "NOCHANGE" ]]; then
-      echo "⚠  AVISO: Nenhum commit de versão encontrado (feat:, fix:, perf:, BREAKING CHANGE)."
-      echo "   Commits encontrados são apenas de manutenção (chore:, docs:, style:, etc.)."
-      echo "   Versão sugerida por PATCH conservador: ${nova_versao}"
-      echo ""
-      _confirmar "Deseja prosseguir com a versão ${nova_versao}?" \
-        || { echo "Operação cancelada pelo usuário."; exit 0; }
-    else
-      echo "Tipo de bump detectado : ${tipo}"
-      echo "Próxima versão         : ${nova_versao}"
-      echo ""
-      _confirmar "Confirmar criação da release/${nova_versao}?" \
-        || { echo "Operação cancelada pelo usuário."; exit 0; }
-    fi
 
+    _instrucao_fim_fase1 "$nova_versao"
+    return
+  fi
+
+  # Release nova: pede confirmação antes de criar
+  if [[ "$tipo" == "NOCHANGE" ]]; then
+    echo "⚠  AVISO: Nenhum commit de versão encontrado (feat:, fix:, perf:, BREAKING CHANGE)."
+    echo "   Commits encontrados são apenas de manutenção (chore:, docs:, style:, etc.)."
+    echo "   Versão sugerida por PATCH conservador: ${nova_versao}"
     echo ""
-    echo "[1/5] Criando branch release/${nova_versao}..."
-    criar_branch_release "$nova_versao"
-
-    echo "[2/5] Atualizando versão no pom.xml..."
-    atualizar_versao_pom "$nova_versao" "$POM_XML"
-
-    echo "[3/5] Commitando alteração de versão..."
-    git add "$POM_XML"
-    git commit -m "chore: Atualizando o número de versão para ${nova_versao}"
-
-    echo "[4/5] Enviando branch release/${nova_versao} para o remoto..."
-    git push origin "release/${nova_versao}"
-
-    echo "[5/5] Mergeando release/${nova_versao} em homologacao..."
-    merge_para_homologacao "$nova_versao"
+    _confirmar "Deseja prosseguir com a versão ${nova_versao}?" \
+      || { echo "Operação cancelada pelo usuário."; exit 0; }
+  else
+    echo "Tipo de bump detectado : ${tipo}"
+    echo "Próxima versão         : ${nova_versao}"
+    echo ""
+    _confirmar "Confirmar criação da release/${nova_versao}?" \
+      || { echo "Operação cancelada pelo usuário."; exit 0; }
   fi
 
   echo ""
-  echo "══════════════════════════════════════════════════════════════"
-  echo "  Release ${nova_versao} enviada para homologacao."
-  echo ""
-  echo "  Faça o deploy em homologacao e aguarde a aprovação."
-  echo "  Quando aprovada, execute:"
-  echo ""
-  echo "    ./gitflow.sh aprovar ${nova_versao}"
-  echo ""
-  echo "══════════════════════════════════════════════════════════════"
-  echo ""
+  echo "[1/5] Criando branch release/${nova_versao}..."
+  criar_branch_release "$nova_versao"
+
+  echo "[2/5] Atualizando versão no pom.xml..."
+  atualizar_versao_pom "$nova_versao" "$POM_XML"
+
+  echo "[3/5] Commitando alteração de versão..."
+  git add "$POM_XML"
+  git commit -m "chore: Atualizando o número de versão para ${nova_versao}"
+
+  echo "[4/5] Enviando branch release/${nova_versao} para o remoto..."
+  git push origin "release/${nova_versao}"
+
+  echo "[5/5] Mergeando release/${nova_versao} em homologacao..."
+  merge_para_homologacao "$nova_versao"
+
+  _instrucao_fim_fase1 "$nova_versao"
 }
 
 # Fase 2: aprovação → tag → main
@@ -147,7 +156,11 @@ _fase_aprovacao() {
     || { echo "Operação cancelada."; exit 0; }
 
   echo ""
-  git checkout "release/${versao}"
+  if git branch --list "release/${versao}" | grep -q "release/${versao}"; then
+    git checkout "release/${versao}"
+  else
+    git checkout -b "release/${versao}" "origin/release/${versao}"
+  fi
 
   echo "[1/2] Criando e enviando tag v${versao}..."
   criar_tag "$versao"
@@ -171,6 +184,9 @@ _fase_aprovacao() {
 main() {
   _verificar_prerequisitos
 
+  local branch_atual
+  branch_atual=$(git rev-parse --abbrev-ref HEAD)
+
   case "${1:-}" in
     aprovar)
       echo ""
@@ -182,11 +198,34 @@ main() {
       ;;
     *)
       echo ""
-      echo "══════════════════════════════════════════"
-      echo "   DSC Gitflow — Automação de Release     "
-      echo "══════════════════════════════════════════"
-      echo ""
-      _fase_release
+      if [[ "$branch_atual" == "homologacao" ]]; then
+        echo "══════════════════════════════════════════"
+        echo "   DSC Gitflow — Aprovação de Release     "
+        echo "══════════════════════════════════════════"
+        echo ""
+        echo "Branch atual: homologacao."
+        echo "Buscando release pendente de aprovação..."
+        git fetch origin 2>/dev/null || true
+        local versao_pendente
+        versao_pendente=$(git branch -r 2>/dev/null \
+          | grep -oE 'origin/release/[0-9]+\.[0-9]+\.[0-9]+' \
+          | sed 's|origin/release/||' \
+          | sort -V | tail -1)
+        if [[ -z "$versao_pendente" ]]; then
+          echo "ERRO: Nenhuma release pendente encontrada no remoto." >&2
+          echo "       Execute o script a partir de uma branch de feature para criar uma release." >&2
+          exit 1
+        fi
+        echo "Release pendente detectada: ${versao_pendente}"
+        echo ""
+        _fase_aprovacao "$versao_pendente"
+      else
+        echo "══════════════════════════════════════════"
+        echo "   DSC Gitflow — Automação de Release     "
+        echo "══════════════════════════════════════════"
+        echo ""
+        _fase_release
+      fi
       ;;
   esac
 }
