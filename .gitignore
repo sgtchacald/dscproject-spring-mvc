@@ -35,3 +35,6 @@ build/
 ### Claude Code ###
 .claude/
 .superpowers/
+
+### Scripts ###
+scripts/tests/bats-core/
