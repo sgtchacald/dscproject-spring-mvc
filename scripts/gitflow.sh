@@ -43,15 +43,8 @@ _confirmar() {
   [[ "${resposta,,}" == "s" ]]
 }
 
-main() {
-  echo ""
-  echo "══════════════════════════════════════════"
-  echo "   DSC Gitflow — Automação de Release     "
-  echo "══════════════════════════════════════════"
-  echo ""
-
-  _verificar_prerequisitos
-
+# Fase 1: feature → release → homologacao
+_fase_release() {
   echo "[Pré-verificação] Verificando branch atual..."
   verificar_branch_atual
 
@@ -78,51 +71,94 @@ main() {
   fi
 
   echo ""
-  echo "[1/7] Criando branch release/${nova_versao}..."
+  echo "[1/5] Criando branch release/${nova_versao}..."
   criar_branch_release "$nova_versao"
 
-  echo "[2/7] Atualizando versão no pom.xml..."
+  echo "[2/5] Atualizando versão no pom.xml..."
   atualizar_versao_pom "$nova_versao" "$POM_XML"
 
-  echo "[3/7] Commitando alteração de versão..."
+  echo "[3/5] Commitando alteração de versão..."
   git add "$POM_XML"
   git commit -m "chore: Atualizando o número de versão para ${nova_versao}"
 
-  echo "[4/7] Enviando branch release/${nova_versao} para o remoto..."
+  echo "[4/5] Enviando branch release/${nova_versao} para o remoto..."
   git push origin "release/${nova_versao}"
 
-  echo "[5/7] Mergeando release/${nova_versao} em homologacao..."
+  echo "[5/5] Mergeando release/${nova_versao} em homologacao..."
   merge_para_homologacao "$nova_versao"
 
   echo ""
-  echo "══════════════════════════════════════════════════════════"
+  echo "══════════════════════════════════════════════════════════════"
+  echo "  Release ${nova_versao} enviada para homologacao."
+  echo ""
   echo "  Faça o deploy em homologacao e aguarde a aprovação."
-  echo "══════════════════════════════════════════════════════════"
+  echo "  Quando aprovada, execute:"
   echo ""
-  _confirmar "Homologacao aprovada? Continuar com tag e merge em main?" \
-    || { echo "Operação pausada. Branch release/${nova_versao} mantida para revisão."; exit 0; }
+  echo "    ./gitflow.sh aprovar ${nova_versao}"
+  echo ""
+  echo "══════════════════════════════════════════════════════════════"
+  echo ""
+}
+
+# Fase 2: aprovação → tag → main
+_fase_aprovacao() {
+  local versao="${1:-}"
+
+  if [[ -z "$versao" ]]; then
+    echo "ERRO: Informe a versão a aprovar. Ex: ./gitflow.sh aprovar 1.0.0" >&2
+    exit 1
+  fi
+
+  echo "[Pré-verificação] Verificando release/${versao} em homologacao..."
+  verificar_release_para_aprovacao "$versao"
 
   echo ""
-  git checkout "release/${nova_versao}"
-
-  echo "[6/7] Criando e enviando tag v${nova_versao}..."
-  criar_tag "$nova_versao"
-
-  echo "[7/7] Mergeando release/${nova_versao} em main..."
-  merge_para_main "$nova_versao"
+  _confirmar "Confirmar criação de tag e merge em main para release/${versao}?" \
+    || { echo "Operação cancelada."; exit 0; }
 
   echo ""
-  deletar_branch_release "$nova_versao"
+  git checkout "release/${versao}"
+
+  echo "[1/2] Criando e enviando tag v${versao}..."
+  criar_tag "$versao"
+
+  echo "[2/2] Mergeando release/${versao} em main..."
+  merge_para_main "$versao"
+
+  echo ""
+  deletar_branch_release "$versao"
 
   echo ""
   echo "══════════════════════════════════════════"
-  echo "  Release ${nova_versao} concluída com sucesso!"
+  echo "  Release ${versao} em produção!"
   echo ""
-  echo "  Homologacao : release/${nova_versao} mergeada"
-  echo "  Tag         : v${nova_versao}"
-  echo "  Main        : atualizado"
+  echo "  Tag  : v${versao}"
+  echo "  Main : atualizado"
   echo "══════════════════════════════════════════"
   echo ""
+}
+
+main() {
+  _verificar_prerequisitos
+
+  case "${1:-}" in
+    aprovar)
+      echo ""
+      echo "══════════════════════════════════════════"
+      echo "   DSC Gitflow — Aprovação de Release     "
+      echo "══════════════════════════════════════════"
+      echo ""
+      _fase_aprovacao "${2:-}"
+      ;;
+    *)
+      echo ""
+      echo "══════════════════════════════════════════"
+      echo "   DSC Gitflow — Automação de Release     "
+      echo "══════════════════════════════════════════"
+      echo ""
+      _fase_release
+      ;;
+  esac
 }
 
 main "$@"
