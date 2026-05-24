@@ -20,27 +20,6 @@ verificar_branch_atual() {
   fi
 }
 
-# Verifica via git que a branch atual já foi mergeada em homologacao.
-verificar_branch_homologacao() {
-  local branch_atual
-  branch_atual=$(git rev-parse --abbrev-ref HEAD)
-
-  echo "Buscando estado remoto de homologacao..."
-  if ! git fetch origin homologacao 2>/dev/null; then
-    echo "ERRO: Branch 'homologacao' não encontrada no repositório remoto." >&2
-    echo "       Crie a branch homologacao antes de usar este script." >&2
-    return 1
-  fi
-
-  if ! git branch -r --merged origin/homologacao | grep -q "origin/${branch_atual}$"; then
-    echo "ERRO: A branch '${branch_atual}' não foi mergeada em homologacao." >&2
-    echo "       Faça o merge, aguarde a aprovação e tente novamente." >&2
-    return 1
-  fi
-
-  echo "OK: '${branch_atual}' já está em homologacao."
-}
-
 # Cria a branch release/<versao> a partir do HEAD atual.
 criar_branch_release() {
   local versao="$1"
@@ -66,6 +45,17 @@ criar_tag() {
   git tag -a "v${versao}" -m "Release ${versao}"
   git push origin "v${versao}"
   echo "Tag 'v${versao}' criada e enviada."
+}
+
+# Faz merge --no-ff da release em homologacao e push.
+merge_para_homologacao() {
+  local versao="$1"
+
+  git checkout homologacao
+  git pull origin homologacao
+  git merge --no-ff "release/${versao}" -m "chore: Merge release/${versao} em homologacao"
+  git push origin homologacao
+  echo "Release '${versao}' mergeada em homologacao com sucesso."
 }
 
 # Faz merge --no-ff da release em main e push.

@@ -52,11 +52,8 @@ main() {
 
   _verificar_prerequisitos
 
-  echo "[Pré-verificação 1/2] Verificando branch atual..."
+  echo "[Pré-verificação] Verificando branch atual..."
   verificar_branch_atual
-
-  echo "[Pré-verificação 2/2] Verificando merge em homologacao..."
-  verificar_branch_homologacao
 
   echo ""
   echo "Analisando commits para calcular próxima versão..."
@@ -81,23 +78,37 @@ main() {
   fi
 
   echo ""
-  echo "[1/6] Criando branch release/${nova_versao}..."
+  echo "[1/7] Criando branch release/${nova_versao}..."
   criar_branch_release "$nova_versao"
 
-  echo "[2/6] Atualizando versão no pom.xml..."
+  echo "[2/7] Atualizando versão no pom.xml..."
   atualizar_versao_pom "$nova_versao" "$POM_XML"
 
-  echo "[3/6] Commitando alteração de versão..."
+  echo "[3/7] Commitando alteração de versão..."
   git add "$POM_XML"
   git commit -m "chore: Atualizando o número de versão para ${nova_versao}"
 
-  echo "[4/6] Enviando branch release/${nova_versao} para o remoto..."
+  echo "[4/7] Enviando branch release/${nova_versao} para o remoto..."
   git push origin "release/${nova_versao}"
 
-  echo "[5/6] Criando e enviando tag v${nova_versao}..."
+  echo "[5/7] Mergeando release/${nova_versao} em homologacao..."
+  merge_para_homologacao "$nova_versao"
+
+  echo ""
+  echo "══════════════════════════════════════════════════════════"
+  echo "  Faça o deploy em homologacao e aguarde a aprovação."
+  echo "══════════════════════════════════════════════════════════"
+  echo ""
+  _confirmar "Homologacao aprovada? Continuar com tag e merge em main?" \
+    || { echo "Operação pausada. Branch release/${nova_versao} mantida para revisão."; exit 0; }
+
+  echo ""
+  git checkout "release/${nova_versao}"
+
+  echo "[6/7] Criando e enviando tag v${nova_versao}..."
   criar_tag "$nova_versao"
 
-  echo "[6/6] Mergeando release/${nova_versao} em main..."
+  echo "[7/7] Mergeando release/${nova_versao} em main..."
   merge_para_main "$nova_versao"
 
   echo ""
@@ -107,9 +118,9 @@ main() {
   echo "══════════════════════════════════════════"
   echo "  Release ${nova_versao} concluída com sucesso!"
   echo ""
-  echo "  Branch : release/${nova_versao}"
-  echo "  Tag    : v${nova_versao}"
-  echo "  Main   : atualizado"
+  echo "  Homologacao : release/${nova_versao} mergeada"
+  echo "  Tag         : v${nova_versao}"
+  echo "  Main        : atualizado"
   echo "══════════════════════════════════════════"
   echo ""
 }
