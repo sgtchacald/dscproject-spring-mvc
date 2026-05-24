@@ -20,6 +20,28 @@ verificar_branch_atual() {
   fi
 }
 
+# Verifica que a release existe no remoto e já foi mergeada em homologacao.
+verificar_release_para_aprovacao() {
+  local versao="$1"
+
+  echo "Buscando estado remoto..."
+  git fetch origin 2>/dev/null || true
+
+  if ! git branch -r | grep -q "origin/release/${versao}$"; then
+    echo "ERRO: Branch 'release/${versao}' não encontrada no remoto." >&2
+    echo "       Execute './gitflow.sh' primeiro para criar a release." >&2
+    return 1
+  fi
+
+  if ! git branch -r --merged origin/homologacao | grep -q "origin/release/${versao}$"; then
+    echo "ERRO: Branch 'release/${versao}' ainda não foi mergeada em homologacao." >&2
+    echo "       Execute './gitflow.sh' para enviar a release para homologacao." >&2
+    return 1
+  fi
+
+  echo "OK: release/${versao} está em homologacao."
+}
+
 # Cria a branch release/<versao> a partir do HEAD atual.
 criar_branch_release() {
   local versao="$1"
