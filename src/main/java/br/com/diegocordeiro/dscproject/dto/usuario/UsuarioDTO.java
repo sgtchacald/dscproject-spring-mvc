@@ -27,6 +27,7 @@ public class UsuarioDTO {
     @NotNull(message = "Gênero é obrigatório.")
     private Genero genero;
 
+    @NotNull(message = "Data de nascimento é obrigatória.")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date nascimento;
 
@@ -42,6 +43,7 @@ public class UsuarioDTO {
     @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres.")
     private String senha;
 
+    @NotBlank(message = "Confirmação de senha é obrigatória.")
     private String confirmacaoSenha;
 
     private Perfis perfil;

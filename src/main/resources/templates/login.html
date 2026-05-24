@@ -8,10 +8,7 @@
     <link th:href="@{/webjars/tabler__core/1.4.0/dist/css/tabler.min.css}" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <style>
-        .form-control.is-invalid {
-            background-size: 1rem 1rem;
-            background-position: right 5px center;
-        }
+
 
     </style>
 </head>
@@ -172,8 +169,8 @@
                                    id="nascimento"
                                    name="nascimento"
                                    class="form-control"
-                                   required>
-                            <div class="invalid-feedback" id="erro-nascimento"></div>
+                                   lang="pt-BR">
+                            <div class="invalid-feedback" id="erro-nascimento">Data de nascimento é obrigatória.</div>
                         </div>
 
                         <div class="col-12">
@@ -248,108 +245,10 @@
     </div>
 </div>
 
+<div id="js-auto-logout" th:if="${param.logout != null}" style="display:none;"></div>
 <script th:src="@{/webjars/tabler__core/1.4.0/dist/js/tabler.min.js}"></script>
-
-<script>
-    const formCadastro = document.getElementById('formCadastro');
-    const alertaErro   = document.getElementById('alertaErroModal');
-    const alertaTexto  = document.getElementById('alertaErroTexto');
-    let   toastTimer   = null;
-
-    function mostrarToast(id) {
-        const toast = document.getElementById(id);
-        toast.classList.add('show');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => esconderToast(id), 5000);
-    }
-
-    function esconderToast(id) {
-        document.getElementById(id).classList.remove('show');
-    }
-
-    function fecharAlertaErro() {
-        alertaErro.style.display = 'none';
-        alertaTexto.textContent  = '';
-    }
-
-    function limparErros() {
-        fecharAlertaErro();
-        formCadastro.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        formCadastro.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
-    }
-
-    function aplicarErrosCampo(erros) {
-        Object.entries(erros).forEach(([campo, msg]) => {
-            const input    = document.getElementById(campo) || document.querySelector('[name="' + campo + '"]');
-            const feedback = document.getElementById('erro-' + campo);
-            if (input)    input.classList.add('is-invalid');
-            if (feedback) feedback.textContent = msg;
-        });
-    }
-
-    formCadastro.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        limparErros();
-
-        const btn = document.getElementById('btnCadastrar');
-        btn.disabled = true;
-
-        try {
-            const resp = await fetch(this.action, {
-                method: 'POST',
-                body: new URLSearchParams(new FormData(this)),
-                headers: { 'Accept': 'application/json' }
-            });
-
-            const text = await resp.text();
-            console.log('[Cadastro] status:', resp.status, '| body:', text);
-
-            let data;
-            try {
-                data = JSON.parse(text);
-            } catch (parseErr) {
-                alertaTexto.textContent = 'Resposta inesperada do servidor (status ' + resp.status + '). Veja o console (F12).';
-                alertaErro.style.display = 'block';
-                return;
-            }
-
-            if (data.sucesso) {
-                // Fecha modal clicando no botão de dismiss (não depende de bootstrap global)
-                document.querySelector('#modalCadastro [data-bs-dismiss="modal"]').click();
-                this.reset();
-                mostrarToast('toastSucesso');
-            } else {
-                // Erros de campo (Bean Validation) — somente inline, sem alerta no topo
-                if (data.errosCampos && Object.keys(data.errosCampos).length > 0) {
-                    aplicarErrosCampo(data.errosCampos);
-                }
-                // Erros de negócio (servidor) — alerta vermelho no topo + inline no campo
-                if (data.errosNegocio && Object.keys(data.errosNegocio).length > 0) {
-                    const msgs = Object.values(data.errosNegocio).join(' • ');
-                    alertaTexto.textContent = msgs;
-                    alertaErro.style.display = 'block';
-                    aplicarErrosCampo(data.errosNegocio);
-                }
-            }
-        } catch (err) {
-            alertaTexto.textContent = 'Erro de comunicação com o servidor. Tente novamente.';
-            alertaErro.style.display = 'block';
-            console.error('Erro AJAX:', err);
-        } finally {
-            btn.disabled = false;
-        }
-    });
-
-    document.getElementById('modalCadastro').addEventListener('hidden.bs.modal', function () {
-        formCadastro.reset();
-        limparErros();
-    });
-
-</script>
-
-<script th:if="${param.logout != null}">
-    mostrarToast('toastLogout');
-</script>
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/login.js}"></script>
 
 </body>
 </html>

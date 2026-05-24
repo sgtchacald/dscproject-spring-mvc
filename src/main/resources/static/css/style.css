@@ -1,0 +1,8 @@
+.is-invalid,
+.form-control.is-invalid,
+.form-select.is-invalid,
+.was-validated .form-control:invalid,
+.was-validated .form-select:invalid {
+    background-image: none !important;
+    padding-right: 0.75rem !important;
+}
