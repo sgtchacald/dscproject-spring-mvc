@@ -74,8 +74,13 @@ tipo_bump() {
 calcular_proxima_versao() {
   local ultima_tag versao_base commits tipo
   ultima_tag=$(_get_ultima_tag)
-  versao_base="${ultima_tag:+${ultima_tag#v}}"
-  versao_base="${versao_base:-0.0.0}"
+
+  if [[ -z "$ultima_tag" ]]; then
+    echo "1.0.0"
+    return
+  fi
+
+  versao_base="${ultima_tag#v}"
   commits=$(_get_commits_log "$ultima_tag")
   tipo=$(_detectar_tipo_bump "$commits")
   _aplicar_bump "$versao_base" "$tipo"
