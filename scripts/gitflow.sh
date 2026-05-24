@@ -48,6 +48,9 @@ _fase_release() {
   echo "[Pré-verificação] Verificando branch atual..."
   verificar_branch_atual
 
+  local branch_feature
+  branch_feature=$(git rev-parse --abbrev-ref HEAD)
+
   echo ""
   echo "Analisando commits para calcular próxima versão..."
   local tipo nova_versao
@@ -55,37 +58,64 @@ _fase_release() {
   nova_versao=$(calcular_proxima_versao)
 
   echo ""
-  if [[ "$tipo" == "NOCHANGE" ]]; then
-    echo "⚠  AVISO: Nenhum commit de versão encontrado (feat:, fix:, perf:, BREAKING CHANGE)."
-    echo "   Commits encontrados são apenas de manutenção (chore:, docs:, style:, etc.)."
-    echo "   Versão sugerida por PATCH conservador: ${nova_versao}"
+
+  # Detecta se a release já existe no remoto (novos commits na feature com release pendente)
+  git fetch origin 2>/dev/null || true
+  if git branch -r 2>/dev/null | grep -q " *origin/release/${nova_versao}$"; then
+    echo "Branch release/${nova_versao} já existe."
+    echo "Novos commits de '${branch_feature}' serão incorporados e reenviados para homologacao."
     echo ""
-    _confirmar "Deseja prosseguir com a versão ${nova_versao}?" \
+    _confirmar "Atualizar release/${nova_versao} com os commits mais recentes?" \
       || { echo "Operação cancelada pelo usuário."; exit 0; }
+
+    echo ""
+    echo "[1/3] Incorporando '${branch_feature}' em release/${nova_versao}..."
+    if git branch --list "release/${nova_versao}" | grep -q "release/${nova_versao}"; then
+      git checkout "release/${nova_versao}"
+      git pull origin "release/${nova_versao}"
+    else
+      git checkout -b "release/${nova_versao}" "origin/release/${nova_versao}"
+    fi
+    git merge --no-ff "$branch_feature" -m "chore: Incorporando commits de ${branch_feature} em release/${nova_versao}"
+
+    echo "[2/3] Enviando release/${nova_versao} atualizada para o remoto..."
+    git push origin "release/${nova_versao}"
+
+    echo "[3/3] Mergeando release/${nova_versao} em homologacao..."
+    merge_para_homologacao "$nova_versao"
   else
-    echo "Tipo de bump detectado : ${tipo}"
-    echo "Próxima versão         : ${nova_versao}"
+    if [[ "$tipo" == "NOCHANGE" ]]; then
+      echo "⚠  AVISO: Nenhum commit de versão encontrado (feat:, fix:, perf:, BREAKING CHANGE)."
+      echo "   Commits encontrados são apenas de manutenção (chore:, docs:, style:, etc.)."
+      echo "   Versão sugerida por PATCH conservador: ${nova_versao}"
+      echo ""
+      _confirmar "Deseja prosseguir com a versão ${nova_versao}?" \
+        || { echo "Operação cancelada pelo usuário."; exit 0; }
+    else
+      echo "Tipo de bump detectado : ${tipo}"
+      echo "Próxima versão         : ${nova_versao}"
+      echo ""
+      _confirmar "Confirmar criação da release/${nova_versao}?" \
+        || { echo "Operação cancelada pelo usuário."; exit 0; }
+    fi
+
     echo ""
-    _confirmar "Confirmar criação da release/${nova_versao}?" \
-      || { echo "Operação cancelada pelo usuário."; exit 0; }
+    echo "[1/5] Criando branch release/${nova_versao}..."
+    criar_branch_release "$nova_versao"
+
+    echo "[2/5] Atualizando versão no pom.xml..."
+    atualizar_versao_pom "$nova_versao" "$POM_XML"
+
+    echo "[3/5] Commitando alteração de versão..."
+    git add "$POM_XML"
+    git commit -m "chore: Atualizando o número de versão para ${nova_versao}"
+
+    echo "[4/5] Enviando branch release/${nova_versao} para o remoto..."
+    git push origin "release/${nova_versao}"
+
+    echo "[5/5] Mergeando release/${nova_versao} em homologacao..."
+    merge_para_homologacao "$nova_versao"
   fi
-
-  echo ""
-  echo "[1/5] Criando branch release/${nova_versao}..."
-  criar_branch_release "$nova_versao"
-
-  echo "[2/5] Atualizando versão no pom.xml..."
-  atualizar_versao_pom "$nova_versao" "$POM_XML"
-
-  echo "[3/5] Commitando alteração de versão..."
-  git add "$POM_XML"
-  git commit -m "chore: Atualizando o número de versão para ${nova_versao}"
-
-  echo "[4/5] Enviando branch release/${nova_versao} para o remoto..."
-  git push origin "release/${nova_versao}"
-
-  echo "[5/5] Mergeando release/${nova_versao} em homologacao..."
-  merge_para_homologacao "$nova_versao"
 
   echo ""
   echo "══════════════════════════════════════════════════════════════"

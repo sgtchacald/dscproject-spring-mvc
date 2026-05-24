@@ -123,17 +123,63 @@ feature/... ──► release/x.x.x ──► homologacao ──► (aprovação
 
 ## Automação via Script (Recomendado)
 
-Em vez de executar o fluxo manualmente, use o script após concluir a aprovação em homologação:
+O script divide o fluxo em duas fases independentes, executadas em momentos diferentes.
+
+### Fase 1 — Criar e enviar a release para homologação
+
+Execute a partir da branch de feature:
 
 ```bash
 ./scripts/gitflow.sh
 ```
 
-O script executa automaticamente:
-1. Verifica que você está em uma branch de feature (não em `main` ou `homologacao`)
-2. Verifica que a branch já foi mergeada em `homologacao`
-3. Calcula a próxima versão pelos Conventional Commits (feat → MINOR, fix → PATCH, BREAKING CHANGE → MAJOR)
-4. Cria a branch `release/X.Y.Z`, atualiza o `pom.xml`, commita, cria a tag `vX.Y.Z` e mergeia em `main`
-5. Pergunta se deve deletar a branch de release
+O script:
+1. Verifica que você está em uma branch de feature (bloqueia `main`, `homologacao` e `release/*`)
+2. Calcula a próxima versão pelos Conventional Commits:
+   - `feat:` → MINOR | `fix:` / `perf:` → PATCH | `BREAKING CHANGE` → MAJOR
+   - Primeira release (sem tags anteriores): sempre `1.0.0`
+3. Cria a branch `release/X.Y.Z` a partir da feature, atualiza o `pom.xml` e commita
+4. Faz push da release e merge em `homologacao`
+5. Encerra exibindo o comando para a fase 2
+
+Ao final, faça o deploy em homologação e aguarde a aprovação.
+
+#### Re-execução com novos commits (release pendente)
+
+Se a release ainda não foi aprovada e você fez novos commits na feature, execute o script novamente da mesma branch. Ele detecta que `release/X.Y.Z` já existe e incorpora os novos commits sem criar uma nova release:
+
+```bash
+# novos commits feitos na feature branch
+./scripts/gitflow.sh
+# → mergeia os commits novos na release existente e reenvia para homologacao
+```
+
+> **Atenção:** enquanto a tag `vX.Y.Z` não for criada (fase 2 pendente), qualquer outra feature branch que rodar `./scripts/gitflow.sh` também será incorporada à mesma release, pois a versão calculada será idêntica.
+
+---
+
+### Fase 2 — Aprovar: criar tag e mergear em main
+
+Após a aprovação em homologação, execute de qualquer branch:
+
+```bash
+./scripts/gitflow.sh aprovar X.Y.Z
+```
+
+O script:
+1. Verifica que `release/X.Y.Z` existe no remoto e está mergeada em `homologacao`
+2. Cria a tag anotada `vX.Y.Z` e faz push
+3. Mergeia `release/X.Y.Z` em `main` e faz push
+4. Pergunta se deve deletar a branch de release (local e remota)
+
+---
+
+### Resumo dos comandos
+
+| Momento | Comando |
+|---|---|
+| Após concluir a feature | `./scripts/gitflow.sh` |
+| Novos commits na feature (release pendente) | `./scripts/gitflow.sh` (mesma branch) |
+| Após aprovação em homologação | `./scripts/gitflow.sh aprovar X.Y.Z` |
 
 **Pré-requisito:** A branch `homologacao` deve existir no repositório remoto.
