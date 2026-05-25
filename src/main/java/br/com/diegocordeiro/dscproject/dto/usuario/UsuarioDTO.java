@@ -20,30 +20,30 @@ public class UsuarioDTO {
 
     private Long id;
 
-    @NotBlank(message = "Nome é obrigatório.")
-    @Size(max = 100, message = "Nome deve ter no máximo 100 caracteres.")
+    @NotBlank(message = "{usuario.nome.obrigatorio}")
+    @Size(max = 100, message = "{usuario.nome.tamanho}")
     private String nome;
 
-    @NotNull(message = "Gênero é obrigatório.")
+    @NotNull(message = "{usuario.genero.obrigatorio}")
     private Genero genero;
 
-    @NotNull(message = "Data de nascimento é obrigatória.")
+    @NotNull(message = "{usuario.nascimento.obrigatoria}")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date nascimento;
 
-    @NotBlank(message = "E-mail é obrigatório.")
-    @Email(message = "E-mail inválido.")
+    @NotBlank(message = "{usuario.email.obrigatorio}")
+    @Email(message = "{usuario.email.invalido}")
     private String email;
 
-    @NotBlank(message = "Login é obrigatório.")
-    @Size(max = 40, message = "Login deve ter no máximo 40 caracteres.")
+    @NotBlank(message = "{usuario.login.obrigatorio}")
+    @Size(max = 40, message = "{usuario.login.tamanho}")
     private String login;
 
-    @NotBlank(message = "Senha é obrigatória.")
-    @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres.")
+    @NotBlank(message = "{usuario.senha.obrigatoria}")
+    @Size(min = 6, message = "{usuario.senha.tamanho}")
     private String senha;
 
-    @NotBlank(message = "Confirmação de senha é obrigatória.")
+    @NotBlank(message = "{usuario.confirmacaoSenha.obrigatoria}")
     private String confirmacaoSenha;
 
     private Perfis perfil;
