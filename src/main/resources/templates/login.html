@@ -90,8 +90,11 @@
         </div>
 
         <div class="text-center text-secondary mt-2">
-            DSCPROJECT &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span>
+            <p>DSCPROJECT &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span></p>
+            <p><a href="./changelog.html" class="link-secondary" rel="noopener" th:text="${appVersao}">v1.0.0</a></p>
         </div>
+
+
     </div>
 </div>
 

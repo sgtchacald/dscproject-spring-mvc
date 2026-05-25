@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>br.com.diegocordeiro.dscproject</groupId>
 	<artifactId>dscproject</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name/>
 	<description/>
 	<url/>
@@ -146,6 +146,13 @@
 						</exclude>
 					</excludes>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
