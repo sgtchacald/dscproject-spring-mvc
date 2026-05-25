@@ -39,22 +39,20 @@ formCadastro.addEventListener('submit', async function (e) {
         const data = await resp.json();
 
         if (data.sucesso) {
-            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCadastro')).hide();
+            window.tabler.Modal.getOrCreateInstance(document.getElementById('modalCadastro')).hide();
             this.reset();
             mostrarToast('toastSucesso');
         } else {
             // Erros de campo (Bean Validation) — somente inline
             if (data.errosCampos) aplicarErros(data.errosCampos);
 
-            // Erros de negócio (duplicidade, senha) — banner + inline
+            // Erros de negócio (duplicidade, senha) — somente inline
             if (data.errosNegocio && Object.keys(data.errosNegocio).length) {
                 aplicarErros(data.errosNegocio);
-                alertaTexto.textContent = Object.values(data.errosNegocio).join(' • ');
-                alertaErro.style.display = 'block';
             }
         }
     } catch (err) {
-        alertaTexto.textContent = 'Erro de comunicação com o servidor. Tente novamente.';
+        alertaTexto.textContent = formCadastro.dataset.erroComunicacao;
         alertaErro.style.display = 'block';
     } finally {
         btn.disabled = false;
