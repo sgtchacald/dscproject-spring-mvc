@@ -6,6 +6,7 @@ import br.com.diegocordeiro.dscproject.service.UsuarioService;
 import br.com.diegocordeiro.dscproject.web.sistema.validator.UsuarioValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -13,8 +14,8 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.beans.PropertyEditorSupport;
-
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @Controller
@@ -24,15 +25,18 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private MessageSource messageSource;
+
     @InitBinder("usuarioDTO")
-    public void initBinder(WebDataBinder binder) {
+    public void initBinder(WebDataBinder binder, Locale locale) {
         binder.registerCustomEditor(Genero.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String text) {
                 setValue((text == null || text.isBlank()) ? null : Genero.toEnum(text));
             }
         });
-        binder.addValidators(new UsuarioValidator(usuarioService));
+        binder.addValidators(new UsuarioValidator(usuarioService, messageSource, locale));
     }
 
     @GetMapping("/listar")
