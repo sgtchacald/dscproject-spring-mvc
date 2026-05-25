@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Login</title>
+    <title th:text="#{login.pagina.titulo}">Login</title>
     <link rel="icon" th:href="@{/image/favicon.png}">
     <link th:href="@{/webjars/tabler__core/1.4.0/dist/css/tabler.min.css}" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <style>
-        .form-control.is-invalid {
-            background-size: 1rem 1rem;
-            background-position: right 5px center;
-        }
+
 
     </style>
 </head>
@@ -21,13 +18,13 @@
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
     <div id="toastSucesso" class="toast align-items-center text-bg-success border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
-            <div class="toast-body fw-medium">Cadastro realizado com sucesso.</div>
+            <div class="toast-body fw-medium" th:text="#{toast.cadastro.sucesso}"></div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="esconderToast('toastSucesso')" aria-label="Fechar"></button>
         </div>
     </div>
     <div id="toastLogout" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
-            <div class="toast-body fw-medium">Você saiu com sucesso.</div>
+            <div class="toast-body fw-medium" th:text="#{toast.logout.sucesso}"></div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="esconderToast('toastLogout')" aria-label="Fechar"></button>
         </div>
     </div>
@@ -41,32 +38,32 @@
         </div>
 
         <div th:if="${param.error}" class="alert alert-danger alert-dismissible mb-3" role="alert">
-            Login ou senha incorretos. Verifique suas credenciais.
+            <span th:text="#{login.credenciais.incorretas}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
         </div>
 
         <div class="card card-md">
             <div class="card-body">
-                <h2 class="h2 text-center mb-4">Acessar o sistema</h2>
+                <h2 class="h2 text-center mb-4" th:text="#{login.form.titulo}">Acessar o sistema</h2>
 
                 <form th:action="@{/login}" method="post">
                     <div class="mb-3">
-                        <label class="form-label" for="username">Login</label>
+                        <label class="form-label" for="username" th:text="#{login.campo.login.label}">Login</label>
                         <input type="text"
                                id="username"
                                name="username"
                                class="form-control"
-                               placeholder="seu login ou e-mail"
+                               th:placeholder="#{login.campo.login.placeholder}"
                                autofocus
                                autocomplete="username">
                     </div>
                     <div class="mb-2">
-                        <label class="form-label" for="password">Senha</label>
+                        <label class="form-label" for="password" th:text="#{login.campo.senha.label}">Senha</label>
                         <input type="password"
                                id="password"
                                name="password"
                                class="form-control"
-                               placeholder="sua senha"
+                               th:placeholder="#{login.campo.senha.placeholder}"
                                autocomplete="current-password">
                     </div>
                     <div class="form-footer">
@@ -79,7 +76,7 @@
                                 <path d="M3 12h13l-3 -3"/>
                                 <path d="M13 15l3 -3"/>
                             </svg>
-                            Entrar
+                            <span th:text="#{login.botao.entrar}">Entrar</span>
                         </button>
                     </div>
                 </form>
@@ -87,15 +84,17 @@
         </div>
 
         <div class="text-center text-secondary mt-3">
-            Não tem conta?
-            <a href="#" data-bs-toggle="modal" data-bs-target="#modalCadastro" class="fw-bold">
-                Cadastre-se
-            </a>
+            <span th:text="#{login.nao.tem.conta}">Não tem conta?</span>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#modalCadastro" class="fw-bold"
+               th:text="#{login.cadastrese}">Cadastre-se</a>
         </div>
 
         <div class="text-center text-secondary mt-2">
-            DSCPROJECT &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span>
+            <p>DSCPROJECT &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span></p>
+            <p><a href="./changelog.html" class="link-secondary" rel="noopener" th:text="${appVersao}">v1.0.0</a></p>
         </div>
+
+
     </div>
 </div>
 
@@ -115,12 +114,12 @@
                         <path d="M19 16v6"/>
                         <path d="M6 21v-2a4 4 0 0 1 4 -4h4"/>
                     </svg>
-                    Cadastrar Usuário
+                    <span th:text="#{cadastro.modal.titulo}">Cadastrar Usuário</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
 
-            <form id="formCadastro" th:action="@{/usuarios/inserir}" method="post" novalidate>
+            <form id="formCadastro" th:action="@{/usuarios/inserir}" method="post" novalidate th:data-erro-comunicacao="#{erro.comunicacao}">
 
                 <div class="modal-body">
 
@@ -143,21 +142,21 @@
                     <div class="row g-3">
 
                         <div class="col-12">
-                            <label class="form-label required" for="nome">Nome completo</label>
+                            <label class="form-label required" for="nome" th:text="#{cadastro.campo.nome.label}">Nome completo</label>
                             <input type="text"
                                    id="nome"
                                    name="nome"
                                    class="form-control"
-                                   placeholder="seu nome completo"
+                                   th:placeholder="#{cadastro.campo.nome.placeholder}"
                                    maxlength="100"
                                    autocomplete="name">
                             <div class="invalid-feedback" id="erro-nome"></div>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label required" for="genero">Gênero</label>
+                            <label class="form-label required" for="genero" th:text="#{cadastro.campo.genero.label}">Gênero</label>
                             <select id="genero" name="genero" class="form-select">
-                                <option value="">Selecione</option>
+                                <option value="" th:text="#{cadastro.campo.selecione}">Selecione</option>
                                 <option th:each="g : ${generos}"
                                         th:value="${g.codigo}"
                                         th:text="${g.descricao}">
@@ -167,57 +166,57 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label required" for="nascimento">Data de nascimento</label>
+                            <label class="form-label required" for="nascimento" th:text="#{cadastro.campo.nascimento.label}">Data de nascimento</label>
                             <input type="date"
                                    id="nascimento"
                                    name="nascimento"
                                    class="form-control"
-                                   required>
+                                   lang="pt-BR">
                             <div class="invalid-feedback" id="erro-nascimento"></div>
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label required" for="email">E-mail</label>
+                            <label class="form-label required" for="email" th:text="#{cadastro.campo.email.label}">E-mail</label>
                             <input type="email"
                                    id="email"
                                    name="email"
                                    class="form-control"
-                                   placeholder="seu@email.com"
+                                   th:placeholder="#{cadastro.campo.email.placeholder}"
                                    maxlength="512"
                                    autocomplete="email">
                             <div class="invalid-feedback" id="erro-email"></div>
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label required" for="login">Login</label>
+                            <label class="form-label required" for="login" th:text="#{cadastro.campo.login.label}">Login</label>
                             <input type="text"
                                    id="login"
                                    name="login"
                                    class="form-control"
-                                   placeholder="seu login de acesso"
+                                   th:placeholder="#{cadastro.campo.login.placeholder}"
                                    maxlength="40"
                                    autocomplete="username">
                             <div class="invalid-feedback" id="erro-login"></div>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label required" for="senha">Senha</label>
+                            <label class="form-label required" for="senha" th:text="#{cadastro.campo.senha.label}">Senha</label>
                             <input type="password"
                                    id="senha"
                                    name="senha"
                                    class="form-control"
-                                   placeholder="mínimo 6 caracteres"
+                                   th:placeholder="#{cadastro.campo.senha.placeholder}"
                                    autocomplete="new-password">
                             <div class="invalid-feedback" id="erro-senha"></div>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label required" for="confirmacaoSenha">Confirmar senha</label>
+                            <label class="form-label required" for="confirmacaoSenha" th:text="#{cadastro.campo.confirmacaoSenha.label}">Confirmar senha</label>
                             <input type="password"
                                    id="confirmacaoSenha"
                                    name="confirmacaoSenha"
                                    class="form-control"
-                                   placeholder="repita a senha"
+                                   th:placeholder="#{cadastro.campo.confirmacaoSenha.placeholder}"
                                    autocomplete="new-password">
                             <div class="invalid-feedback" id="erro-confirmacaoSenha"></div>
                         </div>
@@ -227,9 +226,8 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger me-auto"
-                            data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
+                            data-bs-dismiss="modal"
+                            th:text="#{cadastro.botao.cancelar}">Cancelar</button>
                     <button type="submit" id="btnCadastrar" class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -239,7 +237,7 @@
                             <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
                             <path d="M14 4l0 4l-6 0l0 -4"/>
                         </svg>
-                        Cadastrar
+                        <span th:text="#{cadastro.botao.cadastrar}">Cadastrar</span>
                     </button>
                 </div>
 
@@ -248,108 +246,10 @@
     </div>
 </div>
 
+<div id="js-auto-logout" th:if="${param.logout != null}" style="display:none;"></div>
 <script th:src="@{/webjars/tabler__core/1.4.0/dist/js/tabler.min.js}"></script>
-
-<script>
-    const formCadastro = document.getElementById('formCadastro');
-    const alertaErro   = document.getElementById('alertaErroModal');
-    const alertaTexto  = document.getElementById('alertaErroTexto');
-    let   toastTimer   = null;
-
-    function mostrarToast(id) {
-        const toast = document.getElementById(id);
-        toast.classList.add('show');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => esconderToast(id), 5000);
-    }
-
-    function esconderToast(id) {
-        document.getElementById(id).classList.remove('show');
-    }
-
-    function fecharAlertaErro() {
-        alertaErro.style.display = 'none';
-        alertaTexto.textContent  = '';
-    }
-
-    function limparErros() {
-        fecharAlertaErro();
-        formCadastro.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        formCadastro.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
-    }
-
-    function aplicarErrosCampo(erros) {
-        Object.entries(erros).forEach(([campo, msg]) => {
-            const input    = document.getElementById(campo) || document.querySelector('[name="' + campo + '"]');
-            const feedback = document.getElementById('erro-' + campo);
-            if (input)    input.classList.add('is-invalid');
-            if (feedback) feedback.textContent = msg;
-        });
-    }
-
-    formCadastro.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        limparErros();
-
-        const btn = document.getElementById('btnCadastrar');
-        btn.disabled = true;
-
-        try {
-            const resp = await fetch(this.action, {
-                method: 'POST',
-                body: new URLSearchParams(new FormData(this)),
-                headers: { 'Accept': 'application/json' }
-            });
-
-            const text = await resp.text();
-            console.log('[Cadastro] status:', resp.status, '| body:', text);
-
-            let data;
-            try {
-                data = JSON.parse(text);
-            } catch (parseErr) {
-                alertaTexto.textContent = 'Resposta inesperada do servidor (status ' + resp.status + '). Veja o console (F12).';
-                alertaErro.style.display = 'block';
-                return;
-            }
-
-            if (data.sucesso) {
-                // Fecha modal clicando no botão de dismiss (não depende de bootstrap global)
-                document.querySelector('#modalCadastro [data-bs-dismiss="modal"]').click();
-                this.reset();
-                mostrarToast('toastSucesso');
-            } else {
-                // Erros de campo (Bean Validation) — somente inline, sem alerta no topo
-                if (data.errosCampos && Object.keys(data.errosCampos).length > 0) {
-                    aplicarErrosCampo(data.errosCampos);
-                }
-                // Erros de negócio (servidor) — alerta vermelho no topo + inline no campo
-                if (data.errosNegocio && Object.keys(data.errosNegocio).length > 0) {
-                    const msgs = Object.values(data.errosNegocio).join(' • ');
-                    alertaTexto.textContent = msgs;
-                    alertaErro.style.display = 'block';
-                    aplicarErrosCampo(data.errosNegocio);
-                }
-            }
-        } catch (err) {
-            alertaTexto.textContent = 'Erro de comunicação com o servidor. Tente novamente.';
-            alertaErro.style.display = 'block';
-            console.error('Erro AJAX:', err);
-        } finally {
-            btn.disabled = false;
-        }
-    });
-
-    document.getElementById('modalCadastro').addEventListener('hidden.bs.modal', function () {
-        formCadastro.reset();
-        limparErros();
-    });
-
-</script>
-
-<script th:if="${param.logout != null}">
-    mostrarToast('toastLogout');
-</script>
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/login.js}"></script>
 
 </body>
 </html>
