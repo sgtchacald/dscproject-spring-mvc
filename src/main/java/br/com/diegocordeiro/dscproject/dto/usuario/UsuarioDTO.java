@@ -48,6 +48,8 @@ public class UsuarioDTO {
 
     private Perfis perfil;
 
+    private boolean teste;
+
     public UsuarioDTO(Usuario usuario) {
         this.id      = usuario.getId();
         this.nome    = usuario.getNome();
