@@ -59,7 +59,7 @@ const ICONES = {
 };
 
 function botaoAcao(acao, rotulo, u, classeCor) {
-    return '<button type="button" class="btn btn-icon' + classeCor + '"'
+    return '<button type="button" class="btn btn-action' + classeCor + '"'
         + ' data-acao="' + acao + '" data-id="' + u.id + '"'
         + (acao === 'excluir' ? ' data-nome="' + u.nome + '"' : '')
         + ' title="' + rotulo + '" aria-label="' + rotulo + '">'
