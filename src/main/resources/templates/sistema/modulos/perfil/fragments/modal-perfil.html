@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div class="modal modal-blur fade" id="modalPerfil" tabindex="-1" th:fragment="modal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formPerfil" novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalPerfilTitulo" th:text="#{perfil.modal.novo}">Novo perfil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alertaFormPerfil" class="alert alert-danger" style="display:none;"></div>
+                    <input type="hidden" name="id" id="perfId">
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label required" for="perfCodigo" th:text="#{perfil.campo.codigo.label}">Código</label>
+                            <input type="text" id="perfCodigo" name="codigo" class="form-control" maxlength="30">
+                            <div class="invalid-feedback" id="erro-codigo"></div>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label required" for="perfNome" th:text="#{perfil.campo.nome.label}">Nome</label>
+                            <input type="text" id="perfNome" name="nome" class="form-control" maxlength="100">
+                            <div class="invalid-feedback" id="erro-nome"></div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="perfDescricao" th:text="#{perfil.campo.descricao.label}">Descrição</label>
+                            <textarea id="perfDescricao" name="descricao" class="form-control" rows="2" maxlength="255"></textarea>
+                            <div class="invalid-feedback" id="erro-descricao"></div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <label class="form-label mb-0" th:text="#{perfil.seletor.titulo}">Permissões do perfil</label>
+                                <span class="text-secondary small" id="contadorPermissoes"></span>
+                            </div>
+                            <div class="invalid-feedback d-block" id="erro-geral"></div>
+                            <div id="seletorPermissoes" class="border rounded p-3 mt-1"
+                                 style="max-height: 320px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                            th:text="#{perfil.modal.cancelar}">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarPerfil"
+                            th:text="#{perfil.modal.salvar}">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -56,7 +56,8 @@
                     </div>
                 </li>-->
 
-                <li class="nav-item dropdown" sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR')">
+                <li class="nav-item dropdown"
+                    sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR') or hasAuthority('PERM_PERFIS_LISTAR')">
                     <a class="nav-link dropdown-toggle" href="#navbar-admin" data-bs-toggle="dropdown"
                        data-bs-auto-close="false" role="button" aria-expanded="false">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -75,7 +76,11 @@
                         <span class="nav-link-title">Administração</span>
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" th:href="@{/usuarios/listar}">Usuários</a>
+                        <a class="dropdown-item" th:href="@{/usuarios/listar}"
+                           sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR')">Usuários</a>
+                        <a class="dropdown-item" th:href="@{/perfis/listar}"
+                           sec:authorize="hasAuthority('PERM_PERFIS_LISTAR')"
+                           th:text="#{menu.perfis-permissoes}">Perfis e Permissões</a>
                     </div>
                 </li>
 

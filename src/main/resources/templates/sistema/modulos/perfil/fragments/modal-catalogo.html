@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div class="modal modal-blur fade" id="modalCatalogo" tabindex="-1" th:fragment="modal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{permissao.catalogo.titulo}">Catálogo de Permissões</h5>
+                <button type="button" class="btn" id="btnSincronizarCatalogo"
+                        sec:authorize="hasAuthority('PERM_PERFIS_SINCRONIZAR_CATALOGO')"
+                        th:text="#{permissao.catalogo.botao.sincronizar}">Sincronizar catálogo</button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body table-responsive" style="max-height: 60vh; overflow-y: auto;">
+                <table class="table table-sm table-vcenter">
+                    <thead>
+                    <tr>
+                        <th th:text="#{permissao.catalogo.col.codigo}">Código</th>
+                        <th th:text="#{permissao.catalogo.col.nome}">Nome</th>
+                        <th th:text="#{permissao.catalogo.col.modulo}">Módulo</th>
+                        <th th:text="#{permissao.catalogo.col.porPlano}">Concedível por plano</th>
+                        <th th:text="#{permissao.catalogo.col.situacao}">Situação</th>
+                    </tr>
+                    </thead>
+                    <tbody id="corpoCatalogo"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal"
+                        th:text="#{permissao.catalogo.botao.fechar}">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

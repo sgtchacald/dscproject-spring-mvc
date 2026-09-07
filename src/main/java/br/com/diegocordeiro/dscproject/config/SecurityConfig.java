@@ -53,6 +53,20 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/usuarios/historico/**")
                     .hasAuthority("PERM_USUARIOS_VER_HISTORICO")
 
+                // Perfis e Permissões — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/perfis/listar", "/perfis/listar-dados", "/permissoes/listar-dados")
+                    .hasAuthority("PERM_PERFIS_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/perfis/buscar/**")
+                    .hasAuthority("PERM_PERFIS_MANTER")
+                .requestMatchers(HttpMethod.POST, "/perfis/inserir")
+                    .hasAuthority("PERM_PERFIS_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/perfis/editar/**")
+                    .hasAuthority("PERM_PERFIS_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/perfis/excluir/**")
+                    .hasAuthority("PERM_PERFIS_MANTER")
+                .requestMatchers(HttpMethod.POST, "/permissoes/sincronizar-catalogo")
+                    .hasAuthority("PERM_PERFIS_SINCRONIZAR_CATALOGO")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
