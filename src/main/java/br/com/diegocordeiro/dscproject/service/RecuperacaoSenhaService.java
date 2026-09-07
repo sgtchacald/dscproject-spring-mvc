@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Fluxo de recuperação de senha por token (EDP10 / EDP11 — RN13 a RN16).
+ * Fluxo de recuperação de senha por token.
  * O token nunca é persistido em claro; grava-se apenas o hash SHA-256.
  */
 @Service
@@ -54,19 +54,19 @@ public class RecuperacaoSenhaService {
         this.baseUrl = baseUrl;
     }
 
-    /** EDP10 — sempre silencioso para o chamador (RN13/RN16); a resposta é MSG15. */
+    /** Sempre silencioso para o chamador: exista a conta ou não, a resposta é a mesma. */
     @Transactional
     public void solicitar(String email) {
         Optional<Usuario> encontrado = usuarioRepository.findByEmailAndDataExclusaoIsNull(email.trim());
         if (encontrado.isEmpty()) {
-            return;                                                             // RN13
+            return;   // e-mail não confere: nada a fazer, sem vazar a informação
         }
         Usuario usuario = encontrado.get();
 
         Instant limiteJanela = Instant.now().minus(janelaSolicitacoesMinutos, ChronoUnit.MINUTES);
         long recentes = recuperacaoRepository.countByUsuarioIdAndDataCriacaoAfter(usuario.getId(), limiteJanela);
         if (recentes >= maxSolicitacoesJanela) {
-            return;                                                             // RN16
+            return;   // limite de solicitações na janela atingido
         }
 
         List<UsuarioRecuperacaoSenha> pendentes =
@@ -85,32 +85,32 @@ public class RecuperacaoSenhaService {
         emailService.enviarLinkRecuperacaoSenha(usuario.getEmail(), usuario.getNome(), link);
     }
 
-    /** EDP11 — valida o token (RN14) e troca a senha (RN15). */
+    /** Valida o token e troca a senha. */
     @Transactional(noRollbackFor = TokenRecuperacaoException.class)
     public void confirmar(String token, String novaSenha) {
         UsuarioRecuperacaoSenha registro = recuperacaoRepository
             .findByTokenHashAndDataExclusaoIsNull(TokenUtils.hash(token))
-            .orElseThrow(TokenRecuperacaoException::invalido);                  // MSG17
+            .orElseThrow(TokenRecuperacaoException::invalido);
 
         if (registro.isUtilizado()) {
-            throw TokenRecuperacaoException.invalido();                        // MSG17
+            throw TokenRecuperacaoException.invalido();
         }
 
         registro.registrarTentativa();
         recuperacaoRepository.save(registro);
 
         if (registro.getTentativas() > maxTentativas) {
-            throw TokenRecuperacaoException.tentativasExcedidas();             // MSG19
+            throw TokenRecuperacaoException.tentativasExcedidas();
         }
         if (registro.expirado(Instant.now())) {
-            throw TokenRecuperacaoException.expirado();                        // MSG18
+            throw TokenRecuperacaoException.expirado();
         }
 
         Usuario usuario = registro.getUsuario();
-        usuario.setSenha(passwordEncoder.encode(novaSenha));                   // RN02 / RN15
+        usuario.setSenha(passwordEncoder.encode(novaSenha));
         usuarioRepository.save(usuario);
 
-        registro.setUtilizado(true);                                          // RN15
+        registro.setUtilizado(true);   // token de uso único
         recuperacaoRepository.save(registro);
     }
 }

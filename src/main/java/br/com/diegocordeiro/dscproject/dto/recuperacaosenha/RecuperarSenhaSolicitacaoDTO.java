@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Etapa 1 de recuperação de senha (EDP10). */
+/** Etapa 1 de recuperação de senha: o usuário informa o e-mail. */
 @Getter
 @Setter
 @NoArgsConstructor

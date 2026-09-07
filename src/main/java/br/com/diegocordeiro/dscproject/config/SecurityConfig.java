@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, PUBLICO_GET).permitAll()
                 .requestMatchers(HttpMethod.POST, PUBLICO_POST).permitAll()
 
-                // CRUD administrativo — cada operação exige a sua permissão (RN01)
+                // CRUD administrativo — cada operação exige a sua permissão
                 .requestMatchers(HttpMethod.GET, "/usuarios/listar", "/usuarios/listar-dados")
                     .hasAuthority("PERM_USUARIOS_LISTAR")
                 .requestMatchers(HttpMethod.GET, "/usuarios/buscar/**")

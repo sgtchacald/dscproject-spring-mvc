@@ -7,7 +7,7 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HexFormat;
 
-/** Geração e hash do token de recuperação de senha (D9 / C3). */
+/** Geração e hash do token de recuperação de senha. */
 public final class TokenUtils {
 
     private static final SecureRandom RANDOM = new SecureRandom();

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 /**
  * Perfil de acesso do usuário. Substitui o enum {@code Perfis} da geração 1.
- * Documento 0 — QUADRO_DESCRITIVO_25. {@code codigo} vira {@code ROLE_{CODIGO}}.
+ * O {@code codigo} vira a authority {@code ROLE_{CODIGO}}.
  */
 @Getter
 @Setter

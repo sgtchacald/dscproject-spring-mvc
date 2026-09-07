@@ -16,7 +16,7 @@ import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 /**
- * Vínculo N:N perfil × permissão. Documento 0 — QUADRO_DESCRITIVO_27.
+ * Vínculo N:N entre perfil e permissão.
  * Entidade própria (PK e auditoria) porque a tela {@code manter-perfil-permissao}
  * liga/desliga estes vínculos e o histórico é auditado.
  */

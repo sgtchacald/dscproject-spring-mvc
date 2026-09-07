@@ -63,7 +63,7 @@ public class Usuario extends AbstractAuditoria implements UserDetails {
     private Perfil perfil;
 
     /**
-     * Autoridades resolvidas do perfil (RN01): {@code ROLE_{PERF_CODIGO}} mais
+     * Autoridades resolvidas do perfil: {@code ROLE_{PERF_CODIGO}} mais
      * {@code PERM_{CODIGO}} de cada permissão vinculada ao perfil.
      */
     @Override
@@ -90,7 +90,7 @@ public class Usuario extends AbstractAuditoria implements UserDetails {
         return this.login;
     }
 
-    /** RN12 — usuário excluído logicamente não autentica. */
+    /** Usuário excluído logicamente não autentica. */
     @Override
     public boolean isEnabled() {
         return !isExcluido();

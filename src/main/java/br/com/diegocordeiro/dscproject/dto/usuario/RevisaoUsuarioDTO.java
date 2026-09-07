@@ -9,8 +9,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 /**
- * Uma revisão do histórico de um usuário (EDP08 / Hibernate Envers).
- * A senha (e o hash) nunca é exibida em nenhuma revisão (RN03 / RT10).
+ * Uma revisão do histórico de um usuário (Hibernate Envers).
+ * A senha (e o hash) nunca aparece em nenhuma revisão.
  */
 @Getter
 public class RevisaoUsuarioDTO {

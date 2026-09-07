@@ -133,7 +133,7 @@ public class UsuarioController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> cadastrarSite(@ModelAttribute UsuarioDTO dto, Locale locale) {
         dto.setId(null);
-        dto.setPerfilCodigo(null);              // RN08 — perfil enviado é ignorado
+        dto.setPerfilCodigo(null);   // no auto-cadastro o perfil vindo do formulário é ignorado
         BindingResult resultado = validar(dto, locale);
         if (resultado.hasErrors()) {
             return respostaErros(resultado);

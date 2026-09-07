@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 
 /**
- * Linha do grid de listagem (EDP02 / C1). Nunca expõe a senha (RN03).
+ * Linha do grid de listagem. Nunca expõe a senha.
  */
 @Getter
 public class UsuarioListaDTO {

@@ -9,8 +9,8 @@ import org.springframework.validation.Validator;
 import java.util.Locale;
 
 /**
- * Validação de fronteira que depende do banco / do estado (RN04, RT08)
- * e a obrigatoriedade condicional da senha (criação x edição — RN07).
+ * Validação de fronteira que depende do banco / do estado (unicidade de login
+ * e e-mail) e a obrigatoriedade condicional da senha entre criação e edição.
  *
  * <p>Prefixo do código de erro carrega a natureza:
  * {@code Duplicate.} / {@code Differ.} = erro de negócio; os demais = erro de campo.</p>
@@ -36,19 +36,19 @@ public class UsuarioValidator implements Validator {
     public void validate(Object target, Errors errors) {
         UsuarioDTO dto = (UsuarioDTO) target;
 
-        // Senha é obrigatória na criação; opcional na edição (RN07).
+        // senha obrigatória na criação, opcional na edição
         if (!dto.isEdicao() && !dto.senhaInformada() && !errors.hasFieldErrors("senha")) {
             errors.rejectValue("senha", "NotBlank.usuarioDTO.senha",
                 mensagem("usuario.senha.obrigatoria"));
         }
 
-        // RT08 / MSG07 — confirmação só é exigida quando a senha foi informada.
+        // confirmação só é exigida quando a senha foi informada
         if (dto.senhaInformada() && !dto.getSenha().equals(dto.getConfirmacaoSenha())) {
             errors.rejectValue("confirmacaoSenha", "Differ.usuarioDTO.confirmacaoSenha",
                 mensagem("usuario.confirmacaoSenha.diferente"));
         }
 
-        // RN04 / C2 — login e e-mail únicos entre usuários não excluídos.
+        // login e e-mail únicos entre usuários não excluídos
         if (hasTexto(dto.getLogin())
                 && !errors.hasFieldErrors("login")
                 && service.verificarSeExiste(dto.getLogin(), dto.getId())) {

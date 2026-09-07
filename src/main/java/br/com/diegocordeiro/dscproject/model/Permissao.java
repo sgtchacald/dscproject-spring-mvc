@@ -13,8 +13,7 @@ import org.hibernate.envers.Audited;
 
 /**
  * Capacidade granular verificável em tela e serviço. Código domínio-primeiro
- * (ex.: {@code USUARIOS_LISTAR}); vira a autoridade {@code PERM_{CODIGO}}.
- * Documento 0 — QUADRO_DESCRITIVO_26.
+ * (ex.: {@code USUARIOS_LISTAR}); vira a authority {@code PERM_{CODIGO}}.
  */
 @Getter
 @Setter

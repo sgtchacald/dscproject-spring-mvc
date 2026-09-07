@@ -11,12 +11,12 @@ import java.util.Optional;
 @Repository
 public interface UsuarioRecuperacaoSenhaRepository extends JpaRepository<UsuarioRecuperacaoSenha, Long> {
 
-    /** C3 — busca o registro pelo hash do token (RN14). */
+    /** Busca o registro pelo hash do token. */
     Optional<UsuarioRecuperacaoSenha> findByTokenHashAndDataExclusaoIsNull(String tokenHash);
 
-    /** Tokens pendentes do usuário — a invalidar a cada nova solicitação (RN13). */
+    /** Tokens pendentes do usuário, a invalidar a cada nova solicitação. */
     List<UsuarioRecuperacaoSenha> findByUsuarioIdAndUtilizadoFalseAndDataExclusaoIsNull(Long usuarioId);
 
-    /** RN16 — quantas solicitações o usuário fez desde {@code limite}. */
+    /** Quantas solicitações o usuário fez desde {@code limite} (controle de flood). */
     long countByUsuarioIdAndDataCriacaoAfter(Long usuarioId, Instant limite);
 }

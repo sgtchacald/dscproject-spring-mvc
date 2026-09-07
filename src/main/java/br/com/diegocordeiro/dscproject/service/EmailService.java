@@ -33,7 +33,7 @@ public class EmailService {
         this.remetente = remetente;
     }
 
-    /** MSG20 — link de redefinição de senha. */
+    /** E-mail com o link de redefinição de senha. */
     public void enviarLinkRecuperacaoSenha(String destinatario, String nome, String link) {
         if (mailSender == null) {
             log.warn("JavaMailSender ausente — e-mail de recuperação de senha não enviado para {}", destinatario);

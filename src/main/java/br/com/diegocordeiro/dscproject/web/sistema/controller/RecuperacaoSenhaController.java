@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-/** Fluxo público de recuperação de senha (QUADRO_DESCRITIVO_6 — EDP10 / EDP11). */
+/** Fluxo público de recuperação de senha. */
 @Controller
 @RequestMapping("/usuarios/recuperar-senha")
 public class RecuperacaoSenhaController {
@@ -44,7 +44,7 @@ public class RecuperacaoSenhaController {
         return "sistema/publico/recuperar-senha";
     }
 
-    /** EDP10 — resposta sempre MSG15, exista ou não a conta (RNF07). */
+    /** Resposta idêntica exista ou não a conta, para não revelar cadastro. */
     @PostMapping("/solicitar")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> solicitar(@ModelAttribute RecuperarSenhaSolicitacaoDTO dto, Locale locale) {
@@ -59,7 +59,7 @@ public class RecuperacaoSenhaController {
             "mensagem", mensagem("msg.recuperacao.solicitacao.enviada", locale)));
     }
 
-    /** EDP11 — troca a senha; token inválido/expirado/excedido cai no advice (422). */
+    /** Troca a senha; token inválido/expirado/excedido cai no advice (422). */
     @PostMapping("/confirmar")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> confirmar(@ModelAttribute RecuperarSenhaConfirmacaoDTO dto, Locale locale) {

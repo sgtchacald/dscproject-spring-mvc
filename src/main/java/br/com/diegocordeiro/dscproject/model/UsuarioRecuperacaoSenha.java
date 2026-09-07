@@ -18,7 +18,7 @@ import org.hibernate.envers.Audited;
 import java.time.Instant;
 
 /**
- * Tabela auxiliar do fluxo de recuperação de senha (manter-usuario — QUADRO_DESCRITIVO_1).
+ * Tabela auxiliar do fluxo de recuperação de senha.
  * Guarda apenas o hash de um token de uso único, com validade e limite de tentativas.
  */
 @Getter

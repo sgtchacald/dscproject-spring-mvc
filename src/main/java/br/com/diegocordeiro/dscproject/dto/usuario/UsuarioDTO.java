@@ -16,8 +16,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 
 /**
- * Formulário de cadastro / edição / auto-cadastro (QUADRO_DESCRITIVO_4 e _5).
- * Em edição, {@code senha} e {@code confirmacaoSenha} são opcionais (RN07) —
+ * Formulário de cadastro / edição / auto-cadastro.
+ * Em edição, {@code senha} e {@code confirmacaoSenha} são opcionais —
  * a obrigatoriedade na criação é aplicada pelo {@code UsuarioValidator}.
  */
 @Getter
@@ -54,7 +54,7 @@ public class UsuarioDTO {
 
     private String confirmacaoSenha;
 
-    /** Código do perfil (ADMIN / USER). Ignorado no auto-cadastro (RN08). */
+    /** Código do perfil (ADMIN / USER). Ignorado no auto-cadastro. */
     private String perfilCodigo;
 
     public UsuarioDTO(Usuario usuario) {

@@ -19,7 +19,7 @@ public class AutorizacaoService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         Usuario usuario = usuarioRepository.findByLoginOrEmail(login, login);
-        // RN12 — usuário excluído logicamente não autentica (mesma mensagem genérica).
+        // usuário excluído logicamente não autentica (mesma mensagem genérica)
         if (usuario == null || usuario.isExcluido()) {
             throw new UsernameNotFoundException("Usuário não encontrado: " + login);
         }

@@ -48,7 +48,7 @@ public class UsuarioService {
         return new UsuarioEdicaoDTO(buscarPorId(id));
     }
 
-    /** C2 / RN04 — {@code idAtual} nulo na criação; preenchido na edição. */
+    /** {@code idAtual} é nulo na criação e traz o próprio id na edição. */
     @Transactional(readOnly = true)
     public boolean verificarSeExiste(String valor, Long idAtual) {
         if (valor == null || valor.isBlank()) {
@@ -57,17 +57,17 @@ public class UsuarioService {
         return usuarioRepository.contarPorLoginOuEmail(valor.trim(), idAtual) > 0;
     }
 
-    /** EDP04 — cadastro administrativo. */
+    /** Cadastro administrativo. */
     @Transactional
     public Usuario inserir(UsuarioDTO dto) {
         Usuario usuario = new Usuario();
         aplicarDados(usuario, dto);
-        usuario.setSenha(passwordEncoder.encode(dto.getSenha()));  // RN02
-        usuario.setPerfil(resolverPerfil(dto.getPerfilCodigo()));  // RN09 — caller já autorizado
+        usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+        usuario.setPerfil(resolverPerfil(dto.getPerfilCodigo()));  // quem chega aqui já passou pela autorização do endpoint
         return usuarioRepository.save(usuario);
     }
 
-    /** EDP09 — auto-cadastro público: sempre perfil USER (RN08). */
+    /** Auto-cadastro público: sempre perfil USER. */
     @Transactional
     public Usuario autoCadastrar(UsuarioDTO dto) {
         Usuario usuario = new Usuario();
@@ -77,7 +77,7 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    /** EDP05 — edição administrativa. */
+    /** Edição administrativa. */
     @Transactional
     public Usuario editar(Long id, UsuarioDTO dto) {
         Usuario usuario = buscarPorId(id);
@@ -85,30 +85,30 @@ public class UsuarioService {
 
         boolean eraAdmin = PERFIL_ADMIN.equals(usuario.getPerfil().getCodigo());
         boolean seraAdmin = PERFIL_ADMIN.equals(novoPerfil.getCodigo());
-        if (eraAdmin && !seraAdmin && usuarioRepository.contarAdminsAtivos() <= 1) {   // RN11
+        if (eraAdmin && !seraAdmin && usuarioRepository.contarAdminsAtivos() <= 1) {   // não deixa o sistema sem ADMIN ativo
             throw new RegraNegocioException("usuario.ultimo.admin");
         }
 
         aplicarDados(usuario, dto);
         usuario.setPerfil(novoPerfil);
-        if (dto.senhaInformada()) {                                                    // RN07
+        if (dto.senhaInformada()) {   // a senha só troca quando o formulário manda uma nova
             usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
         }
         return usuarioRepository.save(usuario);
     }
 
-    /** EDP06 — exclusão lógica com as travas RN10 e RN11. */
+    /** Exclusão lógica, com as travas de não excluir a si mesmo nem o último ADMIN. */
     @Transactional
     public void excluir(Long id, String loginUsuarioLogado) {
         Usuario usuario = buscarPorId(id);
 
         if (loginUsuarioLogado != null
                 && (loginUsuarioLogado.equals(usuario.getLogin())
-                    || loginUsuarioLogado.equals(usuario.getEmail()))) {               // RN10
+                    || loginUsuarioLogado.equals(usuario.getEmail()))) {   // ninguém exclui a própria conta
             throw new RegraNegocioException("usuario.exclusao.proprio");
         }
         if (PERFIL_ADMIN.equals(usuario.getPerfil().getCodigo())
-                && usuarioRepository.contarAdminsAtivos() <= 1) {                       // RN11
+                && usuarioRepository.contarAdminsAtivos() <= 1) {   // não deixa o sistema sem ADMIN ativo
             throw new RegraNegocioException("usuario.ultimo.admin");
         }
         if (usuario.isExcluido()) {
@@ -119,7 +119,7 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
 
-    /** EDP08 — histórico (Envers). A senha é zerada pelo DTO (RN03). */
+    /** Histórico via Envers; o DTO nunca traz a senha. */
     @Transactional(readOnly = true)
     public Page<RevisaoUsuarioDTO> buscarHistorico(Long id, Pageable pageable) {
         buscarPorId(id);

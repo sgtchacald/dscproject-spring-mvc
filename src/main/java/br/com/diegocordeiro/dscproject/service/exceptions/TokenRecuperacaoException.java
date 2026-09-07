@@ -1,7 +1,7 @@
 package br.com.diegocordeiro.dscproject.service.exceptions;
 
 /**
- * Token de recuperação de senha rejeitado (EDP11 / RN14).
+ * Token de recuperação de senha rejeitado.
  * A mensagem é uma chave de i18n resolvida pelo advice —
  * {@code msg.recuperacao.token.invalido} / {@code .expirado} / {@code .tentativas}.
  */

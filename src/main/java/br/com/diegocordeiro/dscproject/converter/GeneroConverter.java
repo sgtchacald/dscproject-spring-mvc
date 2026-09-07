@@ -6,7 +6,7 @@ import jakarta.persistence.Converter;
 
 /**
  * Persiste {@link Genero} como o código de 1 caractere na coluna {@code USU_GENERO}
- * ({@code CHAR(1)} — F/M/O), conforme o Documento 0 (§7.3).
+ * ({@code CHAR(1)} — F/M/O).
  */
 @Converter(autoApply = true)
 public class GeneroConverter implements AttributeConverter<Genero, String> {

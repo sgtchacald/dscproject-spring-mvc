@@ -6,8 +6,8 @@ import lombok.Getter;
 import java.time.LocalDate;
 
 /**
- * Retorno de EDP03 — dados de um usuário para o modal de edição.
- * A senha (e o hash) nunca é incluída (RN03).
+ * Dados de um usuário para o modal de edição.
+ * A senha (e o hash) nunca é incluída.
  */
 @Getter
 public class UsuarioEdicaoDTO {

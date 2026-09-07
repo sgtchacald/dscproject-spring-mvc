@@ -17,16 +17,16 @@ public interface UsuarioRepository
     /** Autenticação por login OU e-mail (AutorizacaoService). */
     Usuario findByLoginOrEmail(String login, String email);
 
-    /** Recuperação de senha — usuário ativo com o e-mail informado (RN13). */
+    /** Recuperação de senha: usuário ativo com o e-mail informado. */
     Optional<Usuario> findByEmailAndDataExclusaoIsNull(String email);
 
-    /** C1 — listagem para o grid (client-side). Traz o perfil no mesmo select; sem filtro de situação. */
+    /** Listagem do grid (client-side): traz o perfil no mesmo select, sem filtro de situação. */
     @Query("SELECT u FROM Usuario u JOIN FETCH u.perfil p ORDER BY u.nome ASC")
     List<Usuario> listarParaGrid();
 
     /**
-     * C2 — conta usuários NÃO excluídos cujo login OU e-mail é {@code valor},
-     * ignorando o próprio registro quando {@code idAtual} vem preenchido (RN04).
+     * Conta usuários NÃO excluídos cujo login OU e-mail é {@code valor},
+     * ignorando o próprio registro quando {@code idAtual} vem preenchido.
      */
     @Query("""
         SELECT COUNT(u) FROM Usuario u
@@ -36,7 +36,7 @@ public interface UsuarioRepository
         """)
     long contarPorLoginOuEmail(@Param("valor") String valor, @Param("idAtual") Long idAtual);
 
-    /** C4 — conta os usuários ADMIN ativos (RN11). */
+    /** Conta os usuários ADMIN ativos. */
     @Query("""
         SELECT COUNT(u) FROM Usuario u
         WHERE u.perfil.codigo = 'ADMIN'

@@ -1,7 +1,7 @@
 package br.com.diegocordeiro.dscproject.enums;
 
 /**
- * Catálogo, no código, das permissões do módulo Usuários (Documento 0, Obs. 23).
+ * Catálogo, no código, das permissões do módulo Usuários.
  * A carga inicial reflete estas entradas na tabela {@code PERMISSOES}.
  * Cada uma vira a autoridade {@code PERM_{CODIGO}}.
  */

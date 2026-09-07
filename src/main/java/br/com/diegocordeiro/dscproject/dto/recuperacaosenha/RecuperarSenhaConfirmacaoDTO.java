@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Etapa 2 de recuperação de senha (EDP11). */
+/** Etapa 2 de recuperação de senha: token + nova senha. */
 @Getter
 @Setter
 @NoArgsConstructor
