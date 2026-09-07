@@ -20,10 +20,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Carga inicial idempotente do RBAC (Documento 0 §6.4):
- * perfis {@code ADMIN}/{@code USER}, catálogo de permissões do módulo Usuários,
- * vínculos do perfil ADMIN e — se o banco não tiver nenhum usuário — o ADMIN
- * inicial (lido de {@code app.admin.*}, sem senha em código: Obs. 2 do documento).
+ * Carga inicial idempotente do RBAC: perfis ADMIN/USER, catálogo de permissões,
+ * vínculos do perfil ADMIN e — quando o banco não tem nenhum usuário — o ADMIN
+ * inicial, lido de {@code app.admin.*} (a senha nunca fica em código).
  */
 @Component
 public class CargaInicialRunner implements ApplicationRunner {
@@ -40,6 +39,7 @@ public class CargaInicialRunner implements ApplicationRunner {
     private final String adminEmail;
     private final String adminSenha;
     private final String adminNome;
+    private final boolean adminObrigatorio;
 
     public CargaInicialRunner(PerfilRepository perfilRepository,
                               PermissaoRepository permissaoRepository,
@@ -49,7 +49,8 @@ public class CargaInicialRunner implements ApplicationRunner {
                               @Value("${app.admin.login:}") String adminLogin,
                               @Value("${app.admin.email:}") String adminEmail,
                               @Value("${app.admin.senha:}") String adminSenha,
-                              @Value("${app.admin.nome:Administrador}") String adminNome) {
+                              @Value("${app.admin.nome:Administrador}") String adminNome,
+                              @Value("${app.admin.obrigatorio:false}") boolean adminObrigatorio) {
         this.perfilRepository = perfilRepository;
         this.permissaoRepository = permissaoRepository;
         this.perfilPermissaoRepository = perfilPermissaoRepository;
@@ -59,6 +60,7 @@ public class CargaInicialRunner implements ApplicationRunner {
         this.adminEmail = adminEmail;
         this.adminSenha = adminSenha;
         this.adminNome = adminNome;
+        this.adminObrigatorio = adminObrigatorio;
     }
 
     @Override
@@ -104,8 +106,12 @@ public class CargaInicialRunner implements ApplicationRunner {
             return;
         }
         if (adminLogin.isBlank() || adminEmail.isBlank() || adminSenha.isBlank()) {
-            log.warn("Nenhum usuário no banco e app.admin.login/email/senha não configurados — "
-                + "ADMIN inicial NÃO criado. Configure as três propriedades e reinicie.");
+            String situacao = "Banco sem usuários e app.admin.login/email/senha não configurados";
+            if (adminObrigatorio) {
+                throw new IllegalStateException(situacao
+                    + ". Com app.admin.obrigatorio=true a aplicação não sobe sem o ADMIN inicial.");
+            }
+            log.warn("{} — ADMIN inicial NÃO criado. Configure as três propriedades e reinicie.", situacao);
             return;
         }
         Usuario usuario = new Usuario();
