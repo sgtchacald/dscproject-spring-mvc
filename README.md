@@ -7,9 +7,20 @@ Este projeto visa fazer tanto o backend quanto o frontend do projeto dscproject 
 - Java 21+
 - Docker
 
+### Credenciais locais (`.env`)
+
+Copie `.env.example` para `.env` e preencha. O `.env` fica **fora do git** e alimenta
+tanto o `docker-compose.yml` quanto o `application-dev.properties` (que só tem
+referências `${VAR}`, sem segredo).
+
+```bash
+cp .env.example .env
+$EDITOR .env
+```
+
 ### Subindo o banco de dados
 
-O banco MySQL roda em container Docker. Para subir manualmente:
+O banco MySQL roda em container Docker (lê `MYSQL_*` do `.env`). Para subir manualmente:
 
 ```bash
 docker compose up -d
@@ -39,6 +50,14 @@ Repita para a configuração de Debug se existir separada.
 
 ### Rodando o projeto
 
+Pela linha de comando, use o `./dev.sh` (exporta o `.env` e chama o Maven wrapper):
+
 ```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+./dev.sh spring-boot:run -Dspring-boot.run.profiles=dev
+./dev.sh test
 ```
+
+Na IntelliJ, a Run Configuration precisa das variáveis do `.env` no ambiente
+(plugin **EnvFile** apontando para `.env`, ou copiando os valores em
+*Environment variables*). Sem elas, os `${MYSQL_*}` / `${GMAIL_*}` do
+`application-dev.properties` não resolvem.
