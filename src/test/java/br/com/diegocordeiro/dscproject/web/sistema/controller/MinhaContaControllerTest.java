@@ -91,6 +91,22 @@ class MinhaContaControllerTest {
             .andExpect(jsonPath("$.mensagem").value("Dados atualizados com sucesso."));
     }
 
+    @Test
+    @WithMockUser(username = "diego")
+    void putMinhaConta_camposDeSenhaVaziosNoFormulario_naoValidaSenha() throws Exception {
+        when(usuarioService.buscarPorLogin("diego")).thenReturn(usuario(9L, "diego", perfil("USER")));
+        when(usuarioService.verificarSeExiste(any(), any())).thenReturn(false);
+        when(usuarioService.atualizarPropriaConta(eq("diego"), any())).thenReturn(new Usuario());
+
+        mockMvc.perform(put("/minha-conta").with(csrf())
+                .param("nome", "Diego").param("genero", "M").param("nascimento", "1986-05-20")
+                .param("email", "diego@test.com").param("login", "diego")
+                .param("senha", "").param("confirmacaoSenha", "")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sucesso").value(true));
+    }
+
     // ---------- BDD 16.17 — troca a própria senha ----------
 
     @Test

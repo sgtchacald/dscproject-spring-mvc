@@ -14,6 +14,7 @@ import br.com.diegocordeiro.dscproject.service.UsuarioService;
 import br.com.diegocordeiro.dscproject.util.SecurityUtils;
 import br.com.diegocordeiro.dscproject.web.sistema.validator.MinhaContaValidator;
 import br.com.diegocordeiro.dscproject.web.sistema.validator.UsuarioValidator;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -60,8 +61,14 @@ public class UsuarioController {
         this.smartValidator = smartValidator;
     }
 
+    @InitBinder
+    public void binderComum(WebDataBinder binder) {
+        // campo de texto vazio no formulário chega como null — senha em branco não vira erro de tamanho
+        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+    }
+
     @InitBinder({"usuarioDTO", "minhaContaDTO"})
-    public void initBinder(WebDataBinder binder) {
+    public void binderGenero(WebDataBinder binder) {
         binder.registerCustomEditor(Genero.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String text) {
