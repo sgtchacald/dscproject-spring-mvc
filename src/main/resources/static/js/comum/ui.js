@@ -10,12 +10,15 @@ export function dataBr(iso) {
     return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : iso;
 }
 
+// O bundle do Tabler 1.x expõe o Bootstrap em window.tabler, não em window.bootstrap.
+const bootstrap = () => window.bootstrap || window.tabler;
+
 export function abrirModal(id) {
-    window.bootstrap.Modal.getOrCreateInstance(document.getElementById(id)).show();
+    bootstrap().Modal.getOrCreateInstance(document.getElementById(id)).show();
 }
 
 export function fecharModal(id) {
-    window.bootstrap.Modal.getOrCreateInstance(document.getElementById(id)).hide();
+    bootstrap().Modal.getOrCreateInstance(document.getElementById(id)).hide();
 }
 
 export function toast(texto, erro) {
