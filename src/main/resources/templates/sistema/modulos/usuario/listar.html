@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{sistema/template-admin/layout}">
+<head>
+    <title th:text="#{usuario.lista.titulo}">Usuários</title>
+</head>
+<body>
+<section layout:fragment="corpo">
+
+    <div class="page-header d-print-none">
+        <div class="row align-items-center">
+            <div class="col">
+                <div class="page-pretitle" th:text="#{usuario.lista.breadcrumb}">Administração &gt; Usuários</div>
+                <h2 class="page-title" th:text="#{usuario.lista.titulo}">Usuários</h2>
+                <div class="text-secondary" th:text="#{usuario.lista.descricao}">Gerencie os usuários do sistema.</div>
+            </div>
+            <div class="col-auto ms-auto">
+                <button class="btn" id="btnFiltrar" data-bs-toggle="modal" data-bs-target="#modalFiltro">
+                    <span th:text="#{usuario.lista.botao.filtrar}">Filtrar</span>
+                </button>
+                <button class="btn btn-primary" id="btnNovo" sec:authorize="hasAuthority('PERM_USUARIOS_INSERIR')"
+                        data-bs-toggle="modal" data-bs-target="#modalUsuario">
+                    <span th:text="#{usuario.lista.botao.novo}">Novo usuário</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table" id="tabelaUsuarios">
+                <thead>
+                <tr>
+                    <th data-col="nome" class="sortable" role="button" th:text="#{usuario.col.nome}">Nome</th>
+                    <th data-col="login" class="sortable" role="button" th:text="#{usuario.col.login}">Login</th>
+                    <th data-col="email" class="sortable" role="button" th:text="#{usuario.col.email}">E-mail</th>
+                    <th data-col="perfilNome" class="sortable" role="button" th:text="#{usuario.col.perfil}">Perfil</th>
+                    <th th:text="#{usuario.col.genero}">Gênero</th>
+                    <th data-col="criadoEm" class="sortable" role="button" th:text="#{usuario.col.criadoEm}">Criado em</th>
+                    <th data-col="excluido" class="sortable" role="button" th:text="#{usuario.col.situacao}">Situação</th>
+                    <th class="w-1"></th>
+                </tr>
+                </thead>
+                <tbody id="corpoTabela"></tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-secondary" id="rodapeContagem"></p>
+        </div>
+    </div>
+
+    <!-- Modal: Filtrar -->
+    <div class="modal modal-blur fade" id="modalFiltro" tabindex="-1">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:text="#{usuario.filtro.titulo}">Filtrar Usuários</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="filtroBusca" th:text="#{usuario.filtro.busca.label}">Busca</label>
+                        <input type="text" id="filtroBusca" class="form-control"
+                               th:placeholder="#{usuario.filtro.busca.placeholder}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="filtroPerfil" th:text="#{usuario.col.perfil}">Perfil</label>
+                        <select id="filtroPerfil" class="form-select">
+                            <option value="" th:text="#{usuario.filtro.todos}">Todos</option>
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="USER">USER</option>
+                        </select>
+                    </div>
+                    <div class="mb-1">
+                        <label class="form-label" for="filtroSituacao" th:text="#{usuario.col.situacao}">Situação</label>
+                        <select id="filtroSituacao" class="form-select">
+                            <option value="ATIVO" th:text="#{usuario.situacao.ativo}">Ativo</option>
+                            <option value="EXCLUIDO" th:text="#{usuario.situacao.excluido}">Excluído</option>
+                            <option value="TODOS" th:text="#{usuario.filtro.todos}">Todos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" id="btnLimparFiltro" th:text="#{usuario.filtro.limpar}">Limpar</button>
+                    <button type="button" class="btn btn-primary" id="btnAplicarFiltro" data-bs-dismiss="modal"
+                            th:text="#{usuario.filtro.aplicar}">Aplicar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Cadastro / Edição -->
+    <div class="modal modal-blur fade" id="modalUsuario" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <form id="formUsuario" novalidate th:data-erro-comunicacao="#{erro.comunicacao}"
+                      th:data-url-inserir="@{/usuarios/inserir}" th:data-url-editar="@{/usuarios/editar}">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalUsuarioTitulo" th:text="#{usuario.modal.novo}">Novo usuário</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="alertaFormUsuario" class="alert alert-danger" style="display:none;"></div>
+                        <input type="hidden" name="id" id="usuId">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label required" for="nome" th:text="#{cadastro.campo.nome.label}">Nome</label>
+                                <input type="text" id="nome" name="nome" class="form-control" maxlength="100">
+                                <div class="invalid-feedback" id="erro-nome"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label required" for="genero" th:text="#{cadastro.campo.genero.label}">Gênero</label>
+                                <select id="genero" name="genero" class="form-select">
+                                    <option value="" th:text="#{cadastro.campo.selecione}">Selecione</option>
+                                    <option value="F" th:text="#{genero.feminino}">Feminino</option>
+                                    <option value="M" th:text="#{genero.masculino}">Masculino</option>
+                                    <option value="O" th:text="#{genero.outro}">Outro</option>
+                                </select>
+                                <div class="invalid-feedback" id="erro-genero"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label required" for="nascimento" th:text="#{cadastro.campo.nascimento.label}">Nascimento</label>
+                                <input type="date" id="nascimento" name="nascimento" class="form-control">
+                                <div class="invalid-feedback" id="erro-nascimento"></div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label required" for="email" th:text="#{cadastro.campo.email.label}">E-mail</label>
+                                <input type="email" id="email" name="email" class="form-control" maxlength="512">
+                                <div class="invalid-feedback" id="erro-email"></div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label required" for="login" th:text="#{cadastro.campo.login.label}">Login</label>
+                                <input type="text" id="login" name="login" class="form-control" maxlength="40" minlength="4">
+                                <div class="invalid-feedback" id="erro-login"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="senha" th:text="#{cadastro.campo.senha.label}">Senha</label>
+                                <input type="password" id="senha" name="senha" class="form-control" autocomplete="new-password">
+                                <div class="form-hint" id="hintSenha" th:text="#{usuario.modal.senha.edicao.hint}"></div>
+                                <div class="invalid-feedback" id="erro-senha"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="confirmacaoSenha" th:text="#{cadastro.campo.confirmacaoSenha.label}">Confirmar senha</label>
+                                <input type="password" id="confirmacaoSenha" name="confirmacaoSenha" class="form-control" autocomplete="new-password">
+                                <div class="invalid-feedback" id="erro-confirmacaoSenha"></div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label required" for="perfilCodigo" th:text="#{usuario.col.perfil}">Perfil</label>
+                                <select id="perfilCodigo" name="perfilCodigo" class="form-select">
+                                    <option value="USER">USER</option>
+                                    <option value="ADMIN">ADMIN</option>
+                                </select>
+                                <div class="invalid-feedback" id="erro-perfilCodigo"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link" data-bs-dismiss="modal" th:text="#{cadastro.botao.cancelar}">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="btnSalvarUsuario" th:text="#{usuario.modal.salvar}">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Histórico -->
+    <div class="modal modal-blur fade" id="modalHistorico" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:text="#{usuario.historico.titulo}">Histórico do usuário</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th th:text="#{usuario.historico.data}">Data</th>
+                            <th th:text="#{usuario.historico.autor}">Autor</th>
+                            <th th:text="#{usuario.historico.tipo}">Tipo</th>
+                            <th th:text="#{usuario.col.nome}">Nome</th>
+                            <th th:text="#{usuario.col.login}">Login</th>
+                            <th th:text="#{usuario.col.perfil}">Perfil</th>
+                        </tr>
+                        </thead>
+                        <tbody id="corpoHistorico"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
+
+    <span sec:authorize="hasAuthority('PERM_USUARIOS_EDITAR')" data-perm="editar" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_USUARIOS_EXCLUIR')" data-perm="excluir" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_USUARIOS_VER_HISTORICO')" data-perm="historico" hidden></span>
+
+    <div id="dadosTela"
+         th:data-login-atual="${#authentication?.name}"
+         th:data-url-dados="@{/usuarios/listar-dados}"
+         th:data-url-buscar="@{/usuarios/buscar}"
+         th:data-url-excluir="@{/usuarios/excluir}"
+         th:data-url-historico="@{/usuarios/historico}"
+         th:data-msg-confirma-exclusao="#{msg.usuario.confirma.exclusao}"
+         th:data-msg-cadastrado="#{msg.usuario.cadastrado}"
+         th:data-msg-atualizado="#{msg.usuario.atualizado}"
+         th:data-msg-excluido="#{msg.usuario.excluido}"
+         th:data-msg-filtro-vazio="#{msg.usuario.filtro.vazio}"
+         hidden></div>
+</section>
+
+<th:block layout:fragment="js">
+    <script th:src="@{/js/usuario/listar.js}"></script>
+</th:block>
+</body>
+</html>

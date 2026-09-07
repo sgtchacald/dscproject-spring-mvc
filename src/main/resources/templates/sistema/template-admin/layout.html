@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     <head>
         <title>DSCPROJECT</title>
 
@@ -9,12 +10,16 @@
         <meta name="description" content="Nesse sistema vc irá encontrar módulos diversos para auxilio no dia-a-dia." />
         <meta name="author" content="Diego Santos" />
 
+        <meta name="_csrf" th:content="${_csrf != null} ? ${_csrf.token} : ''" />
+        <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : 'X-CSRF-TOKEN'" />
+
         <link rel="icon" th:href="@{/image/favicon.png}" />
         <link th:href="@{/webjars/tabler__core/1.4.0/dist/css/tabler.min.css}" rel="stylesheet" />
         <link th:href="@{/css/style.css}" rel="stylesheet" />
+        <th:block layout:fragment="css"></th:block>
     </head>
 
-    <body class="layout-fluid" cz-shortcut-listen="true">
+    <body class="layout-fluid">
         <div class="page">
 
             <th:block th:replace="~{sistema/template-admin/fragments/sidebar :: sidebar}"></th:block>
@@ -29,10 +34,13 @@
                         <section layout:fragment="corpo"></section>
                     </div>
                 </div>
-                <footer th:replace="~{sistema/template-admin/fragments/footer :: footer}">
+
+                <footer th:replace="~{sistema/template-admin/fragments/footer :: footer}"></footer>
             </div>
 
-            <script src="/webjars/tabler__core/1.4.0/dist/js/tabler.min.js"></script>
+            <script th:src="@{/webjars/tabler__core/1.4.0/dist/js/tabler.min.js}"></script>
+            <script th:src="@{/js/script.js}"></script>
+            <th:block layout:fragment="js"></th:block>
         </div>
     </body>
 </html>

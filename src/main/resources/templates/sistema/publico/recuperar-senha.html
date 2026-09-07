@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title th:text="#{recuperacao.pagina.titulo}">Recuperar senha</title>
+    <link rel="icon" th:href="@{/image/favicon.png}">
+    <link th:href="@{/webjars/tabler__core/1.4.0/dist/css/tabler.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body class="antialiased">
+<div class="page page-center">
+    <div class="container container-tight py-4">
+
+        <div class="text-center mb-4">
+            <img th:src="@{/image/logo.svg}" alt="DSCPROJECT" style="width: 320px; max-width: 85%; height: auto;">
+        </div>
+
+        <div class="card card-md">
+            <div class="card-body">
+
+                <div id="mensagemInfo" class="alert alert-info" style="display:none;" role="alert"></div>
+                <div id="mensagemErro" class="alert alert-danger" style="display:none;" role="alert"></div>
+
+                <!-- Etapa 1 — informar o e-mail -->
+                <form th:if="${etapa == 1}" id="formSolicitar"
+                      th:action="@{/usuarios/recuperar-senha/solicitar}" method="post" novalidate
+                      th:data-erro-comunicacao="#{erro.comunicacao}">
+                    <h2 class="h2 text-center mb-3" th:text="#{recuperacao.etapa1.titulo}">Recuperar senha</h2>
+                    <p class="text-secondary" th:text="#{recuperacao.etapa1.instrucao}">Informe seu e-mail e enviaremos um link.</p>
+                    <div class="mb-3">
+                        <label class="form-label required" for="email" th:text="#{cadastro.campo.email.label}">E-mail</label>
+                        <input type="email" id="email" name="email" class="form-control" autocomplete="email">
+                        <div class="invalid-feedback" id="erro-email"></div>
+                    </div>
+                    <div class="form-footer">
+                        <button type="submit" id="btnEnviarLink" class="btn btn-primary w-100"
+                                th:text="#{recuperacao.etapa1.botao}">Enviar link</button>
+                    </div>
+                </form>
+
+                <!-- Etapa 2 — definir nova senha -->
+                <form th:if="${etapa == 2}" id="formConfirmar"
+                      th:action="@{/usuarios/recuperar-senha/confirmar}" method="post" novalidate
+                      th:data-erro-comunicacao="#{erro.comunicacao}" th:data-login-url="@{/login}">
+                    <h2 class="h2 text-center mb-3" th:text="#{recuperacao.etapa2.titulo}">Definir nova senha</h2>
+                    <input type="hidden" name="token" th:value="${token}">
+                    <div class="mb-3">
+                        <label class="form-label required" for="senha" th:text="#{recuperacao.etapa2.novaSenha}">Nova senha</label>
+                        <input type="password" id="senha" name="senha" class="form-control" autocomplete="new-password">
+                        <div class="invalid-feedback" id="erro-senha"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required" for="confirmacaoSenha" th:text="#{cadastro.campo.confirmacaoSenha.label}">Confirmar senha</label>
+                        <input type="password" id="confirmacaoSenha" name="confirmacaoSenha" class="form-control" autocomplete="new-password">
+                        <div class="invalid-feedback" id="erro-confirmacaoSenha"></div>
+                    </div>
+                    <div class="form-footer">
+                        <button type="submit" id="btnDefinirSenha" class="btn btn-primary w-100"
+                                th:text="#{recuperacao.etapa2.botao}">Definir nova senha</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+        <div class="text-center text-secondary mt-3">
+            <a th:href="@{/login}" th:text="#{cadastro.ja.tenho.conta}">Voltar ao login</a>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/webjars/tabler__core/1.4.0/dist/js/tabler.min.js}"></script>
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/publico/recuperar-senha.js}"></script>
+</body>
+</html>

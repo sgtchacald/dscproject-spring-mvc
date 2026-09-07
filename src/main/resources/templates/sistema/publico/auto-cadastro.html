@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title th:text="#{cadastro.pagina.titulo}">Cadastrar Usuário</title>
+    <link rel="icon" th:href="@{/image/favicon.png}">
+    <link th:href="@{/webjars/tabler__core/1.4.0/dist/css/tabler.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body class="antialiased">
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="toastSucesso" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fw-medium" th:text="#{msg.usuario.cadastrado}">Usuário cadastrado com sucesso.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+        </div>
+    </div>
+</div>
+
+<div class="page page-center">
+    <div class="container container-tight py-4">
+
+        <div class="text-center mb-4">
+            <img th:src="@{/image/logo.svg}" alt="DSCPROJECT" style="width: 320px; max-width: 85%; height: auto;">
+        </div>
+
+        <div class="card card-md">
+            <div class="card-body">
+                <h2 class="h2 text-center mb-4" th:text="#{cadastro.modal.titulo}">Cadastrar Usuário</h2>
+
+                <div id="alertaErro" class="alert alert-danger" style="display:none;" role="alert">
+                    <span id="alertaErroTexto"></span>
+                </div>
+
+                <form id="formCadastro" th:action="@{/usuarios/cadastrar-site}" method="post" novalidate
+                      th:data-erro-comunicacao="#{erro.comunicacao}" th:data-login-url="@{/login}">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label required" for="nome" th:text="#{cadastro.campo.nome.label}">Nome completo</label>
+                            <input type="text" id="nome" name="nome" class="form-control" maxlength="100" autocomplete="name">
+                            <div class="invalid-feedback" id="erro-nome"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required" for="genero" th:text="#{cadastro.campo.genero.label}">Gênero</label>
+                            <select id="genero" name="genero" class="form-select">
+                                <option value="" th:text="#{cadastro.campo.selecione}">Selecione</option>
+                                <option th:each="g : ${generos}" th:value="${g.codigo}" th:text="${g.descricao}"></option>
+                            </select>
+                            <div class="invalid-feedback" id="erro-genero"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required" for="nascimento" th:text="#{cadastro.campo.nascimento.label}">Data de nascimento</label>
+                            <input type="date" id="nascimento" name="nascimento" class="form-control" lang="pt-BR">
+                            <div class="invalid-feedback" id="erro-nascimento"></div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label required" for="email" th:text="#{cadastro.campo.email.label}">E-mail</label>
+                            <input type="email" id="email" name="email" class="form-control" maxlength="512" autocomplete="email">
+                            <div class="invalid-feedback" id="erro-email"></div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label required" for="login" th:text="#{cadastro.campo.login.label}">Login</label>
+                            <input type="text" id="login" name="login" class="form-control" maxlength="40" minlength="4" autocomplete="username">
+                            <div class="invalid-feedback" id="erro-login"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required" for="senha" th:text="#{cadastro.campo.senha.label}">Senha</label>
+                            <input type="password" id="senha" name="senha" class="form-control" autocomplete="new-password">
+                            <div class="invalid-feedback" id="erro-senha"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required" for="confirmacaoSenha" th:text="#{cadastro.campo.confirmacaoSenha.label}">Confirmar senha</label>
+                            <input type="password" id="confirmacaoSenha" name="confirmacaoSenha" class="form-control" autocomplete="new-password">
+                            <div class="invalid-feedback" id="erro-confirmacaoSenha"></div>
+                        </div>
+                    </div>
+                    <div class="form-footer">
+                        <button type="submit" id="btnCadastrar" class="btn btn-primary w-100" th:text="#{cadastro.botao.cadastrar}">Cadastrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center text-secondary mt-3">
+            <a th:href="@{/login}" th:text="#{cadastro.ja.tenho.conta}">Já tenho conta</a>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/webjars/tabler__core/1.4.0/dist/js/tabler.min.js}"></script>
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/publico/auto-cadastro.js}"></script>
+</body>
+</html>
