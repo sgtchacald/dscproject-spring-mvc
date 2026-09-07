@@ -9,14 +9,19 @@ Este projeto visa fazer tanto o backend quanto o frontend do projeto dscproject 
 
 ### Credenciais locais (`.env`)
 
-Copie `.env.example` para `.env` e preencha. O `.env` fica **fora do git** e alimenta
-tanto o `docker-compose.yml` quanto o `application-dev.properties` (que só tem
-referências `${VAR}`, sem segredo).
+Copie `.env.example` para `.env` e preencha:
 
 ```bash
 cp .env.example .env
 $EDITOR .env
 ```
+
+O `.env` fica **fora do git** e alimenta tudo:
+- o `docker-compose.yml` (interpolação nativa do Compose);
+- o `application-dev.properties` — que só tem referências `${MYSQL_*}` / `${GMAIL_*}`,
+  sem segredo. Um `EnvironmentPostProcessor` (`DotenvEnvironmentPostProcessor`) carrega
+  o `.env` na subida da aplicação, então `./mvnw` e o ▶ da IntelliJ funcionam sem
+  configuração de ambiente por Run Configuration.
 
 ### Subindo o banco de dados
 
@@ -50,14 +55,10 @@ Repita para a configuração de Debug se existir separada.
 
 ### Rodando o projeto
 
-Pela linha de comando, use o `./dev.sh` (exporta o `.env` e chama o Maven wrapper):
-
 ```bash
-./dev.sh spring-boot:run -Dspring-boot.run.profiles=dev
-./dev.sh test
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+./mvnw test
 ```
 
-Na IntelliJ, a Run Configuration precisa das variáveis do `.env` no ambiente
-(plugin **EnvFile** apontando para `.env`, ou copiando os valores em
-*Environment variables*). Sem elas, os `${MYSQL_*}` / `${GMAIL_*}` do
-`application-dev.properties` não resolvem.
+O `.env` é carregado automaticamente (ver seção _Credenciais locais_). O container
+do MySQL precisa estar de pé (`docker compose up -d`).
