@@ -51,8 +51,8 @@ class CargaInicialRunnerTest {
     }
 
     @Test
-    void bancoVazioSemCredencialEObrigatorio_falhaNoBoot() {
-        when(usuarioRepository.count()).thenReturn(0L);
+    void semAdminAtivoSemCredencialEObrigatorio_falhaNoBoot() {
+        when(usuarioRepository.contarAdminsAtivos()).thenReturn(0L);
 
         assertThatThrownBy(() -> runner("", "", "", true).run(null))
             .isInstanceOf(IllegalStateException.class);
@@ -61,8 +61,8 @@ class CargaInicialRunnerTest {
     }
 
     @Test
-    void bancoVazioSemCredencialENaoObrigatorio_apenasAvisa() {
-        when(usuarioRepository.count()).thenReturn(0L);
+    void semAdminAtivoSemCredencialENaoObrigatorio_apenasAvisa() {
+        when(usuarioRepository.contarAdminsAtivos()).thenReturn(0L);
 
         runner("", "", "", false).run(null);
 
@@ -70,8 +70,9 @@ class CargaInicialRunnerTest {
     }
 
     @Test
-    void bancoVazioComCredencial_criaAdmin() {
-        when(usuarioRepository.count()).thenReturn(0L);
+    void semAdminAtivoComCredencial_criaAdmin() {
+        when(usuarioRepository.contarAdminsAtivos()).thenReturn(0L);
+        when(usuarioRepository.findByLoginOrEmail(any(), any())).thenReturn(null);
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
 
         runner("admin", "admin@dsc.com", "s3nha", true).run(null);
@@ -80,17 +81,30 @@ class CargaInicialRunnerTest {
     }
 
     @Test
-    void bancoComUsuario_naoRecria() {
-        when(usuarioRepository.count()).thenReturn(3L);
+    void jaExisteAdminAtivo_naoRecria() {
+        when(usuarioRepository.contarAdminsAtivos()).thenReturn(1L);
 
-        runner("", "", "", true).run(null);
+        runner("admin", "admin@dsc.com", "s3nha", true).run(null);
+
+        verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void loginDoAdminJaEmUsoPorOutroUsuario_naoCriaEFalhaSeObrigatorio() {
+        when(usuarioRepository.contarAdminsAtivos()).thenReturn(0L);
+        when(usuarioRepository.findByLoginOrEmail(any(), any()))
+            .thenReturn(new Usuario());
+
+        assertThatThrownBy(() -> runner("admin", "admin@dsc.com", "s3nha", true).run(null))
+            .isInstanceOf(IllegalStateException.class);
 
         verify(usuarioRepository, never()).save(any());
     }
 
     @Test
     void encodaASenhaDoAdmin() {
-        when(usuarioRepository.count()).thenReturn(0L);
+        when(usuarioRepository.contarAdminsAtivos()).thenReturn(0L);
+        when(usuarioRepository.findByLoginOrEmail(any(), any())).thenReturn(null);
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
 
         runner("admin", "admin@dsc.com", "s3nha", false).run(null);

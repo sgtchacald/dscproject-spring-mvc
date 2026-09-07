@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Carga inicial idempotente do RBAC: perfis ADMIN/USER, catálogo de permissões,
- * vínculos do perfil ADMIN e — quando o banco não tem nenhum usuário — o ADMIN
+ * vínculos do perfil ADMIN e — quando não há nenhum usuário ADMIN ativo — o ADMIN
  * inicial, lido de {@code app.admin.*} (a senha nunca fica em código).
  */
 @Component
@@ -102,16 +102,25 @@ public class CargaInicialRunner implements ApplicationRunner {
     }
 
     private void criarAdminInicialSeNecessario(Perfil admin) {
-        if (usuarioRepository.count() > 0) {
+        if (usuarioRepository.contarAdminsAtivos() > 0) {
             return;
         }
         if (adminLogin.isBlank() || adminEmail.isBlank() || adminSenha.isBlank()) {
-            String situacao = "Banco sem usuários e app.admin.login/email/senha não configurados";
+            String situacao = "Nenhum usuário ADMIN ativo e app.admin.login/email/senha não configurados";
             if (adminObrigatorio) {
                 throw new IllegalStateException(situacao
-                    + ". Com app.admin.obrigatorio=true a aplicação não sobe sem o ADMIN inicial.");
+                    + ". Com app.admin.obrigatorio=true a aplicação não sobe sem um ADMIN.");
             }
             log.warn("{} — ADMIN inicial NÃO criado. Configure as três propriedades e reinicie.", situacao);
+            return;
+        }
+        if (usuarioRepository.findByLoginOrEmail(adminLogin.trim(), adminEmail.trim()) != null) {
+            String situacao = "Já existe usuário com o login ou e-mail de app.admin.* — ADMIN inicial não criado";
+            if (adminObrigatorio) {
+                throw new IllegalStateException(situacao
+                    + ". Promova esse usuário ao perfil ADMIN ou ajuste app.admin.*.");
+            }
+            log.warn("{}. Promova esse usuário ao perfil ADMIN pela tela.", situacao);
             return;
         }
         Usuario usuario = new Usuario();
