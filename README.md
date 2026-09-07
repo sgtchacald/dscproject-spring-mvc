@@ -73,3 +73,16 @@ parâmetros numa linha; 6+ um por linha).
 
 O `.env` é carregado automaticamente (ver seção _Credenciais locais_). O container
 do MySQL precisa estar de pé (`docker compose up -d`).
+
+### Loop de desenvolvimento (recarga sem reiniciar)
+
+- **`spring-boot-devtools`** já está no `pom.xml`: mudança em `.java` reinicia só
+  o contexto Spring (~1-2s), sem derrubar a JVM.
+- **IntelliJ** → Run/Debug Configuration da app:
+  - `On 'Update' action` e `On frame deactivation` → **Update classes and resources**.
+  - Assim, mudança em `.html` / `.js` / `.css` entra com `Ctrl+F9` (ou alt-tab
+    para o navegador), sem reiniciar — a sessão é mantida. Para o JS, deixe o
+    DevTools do navegador aberto com _Disable cache_.
+- **"Manter-me conectado"** no login usa remember-me: o cookie sobrevive aos
+  restarts do devtools, então você não precisa logar de novo. Em
+  homologação/produção, defina `APP_REMEMBER_ME_KEY` no ambiente.
