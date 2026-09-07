@@ -32,7 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 
-### Claude Code ###
+### Ferramentas locais ###
 .claude/
 .superpowers/
 
