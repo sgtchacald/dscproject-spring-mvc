@@ -47,16 +47,37 @@ function ordenar(lista) {
     });
 }
 
+// Ícones do Tabler (tabler.io/icons) — mesmo traço/tamanho do resto da UI.
+const ICONES = {
+    editar: '<path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />'
+        + '<path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />'
+        + '<path d="M16 5l3 3" />',
+    excluir: '<path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" />'
+        + '<path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />'
+        + '<path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />',
+    historico: '<path d="M12 8l0 4l2 2" /><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />'
+};
+
+function botaoAcao(acao, rotulo, u, classeCor) {
+    return '<button type="button" class="btn btn-icon' + classeCor + '"'
+        + ' data-acao="' + acao + '" data-id="' + u.id + '"'
+        + (acao === 'excluir' ? ' data-nome="' + u.nome + '"' : '')
+        + ' title="' + rotulo + '" aria-label="' + rotulo + '">'
+        + '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"'
+        + ' stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'
+        + ' class="icon" aria-hidden="true">' + ICONES[acao] + '</svg></button> ';
+}
+
 function acoes(u) {
     let html = '';
     if (pode.editar && !u.excluido) {
-        html += '<button class="btn btn-icon btn-sm" data-acao="editar" data-id="' + u.id + '" title="Editar">✎</button> ';
+        html += botaoAcao('editar', 'Editar', u, '');
     }
     if (pode.excluir && !u.excluido && u.login !== loginAtual) {
-        html += '<button class="btn btn-icon btn-sm text-danger" data-acao="excluir" data-id="' + u.id + '" data-nome="' + u.nome + '" title="Excluir">🗑</button> ';
+        html += botaoAcao('excluir', 'Excluir', u, ' text-danger');
     }
     if (pode.historico) {
-        html += '<button class="btn btn-icon btn-sm" data-acao="historico" data-id="' + u.id + '" title="Histórico">⟲</button>';
+        html += botaoAcao('historico', 'Ver histórico', u, '');
     }
     return html;
 }

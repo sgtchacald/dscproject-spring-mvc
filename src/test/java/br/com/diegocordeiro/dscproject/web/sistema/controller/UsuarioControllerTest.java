@@ -103,6 +103,7 @@ class UsuarioControllerTest {
                 org.hamcrest.Matchers.containsString("Gerenciar Usuários"),
                 org.hamcrest.Matchers.containsString("<ol class=\"breadcrumb\">"),
                 org.hamcrest.Matchers.containsString("aria-current=\"page\""),
+                org.hamcrest.Matchers.containsString(">Ações<"),
                 org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(">Dashboard<")))));
     }
 
