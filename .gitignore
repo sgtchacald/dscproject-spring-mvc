@@ -44,3 +44,6 @@ scripts/tests/bats-core/
 
 ### Config local (nao versionar) ###
 src/main/resources/application-dev.properties
+
+### Docker (senha local) ###
+.env

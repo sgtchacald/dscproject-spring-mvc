@@ -4,7 +4,7 @@ services:
     container_name: dsc-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: __SENHA_MYSQL_LOCAL__
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?defina MYSQL_ROOT_PASSWORD no arquivo .env (ver .env.example)}
       MYSQL_DATABASE: dsc_dev_bd
       MYSQL_CHARACTER_SET_SERVER: utf8mb4
       MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
@@ -17,7 +17,7 @@ services:
       - dsc-network
     command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p__SENHA_MYSQL_LOCAL__"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 10
