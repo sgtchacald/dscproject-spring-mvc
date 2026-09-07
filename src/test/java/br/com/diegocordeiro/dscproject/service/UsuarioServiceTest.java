@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static br.com.diegocordeiro.dscproject.support.TestFixtures.perfil;
@@ -65,6 +66,17 @@ class UsuarioServiceTest {
         dto.setConfirmacaoSenha("senha123");
         dto.setPerfilCodigo("USER");
         return dto;
+    }
+
+    // ---------- perfis do select vêm da tabela ----------
+
+    @Test
+    void listarPerfis_mapeiaCodigoENomeDaTabela() {
+        when(perfilRepository.findAllByOrderByNomeAsc()).thenReturn(List.of(admin, user));
+
+        var opcoes = usuarioService.listarPerfis();
+
+        assertThat(opcoes).extracting("codigo").containsExactly("ADMIN", "USER");
     }
 
     // ---------- RN02 ----------

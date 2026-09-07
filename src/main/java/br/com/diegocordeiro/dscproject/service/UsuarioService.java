@@ -1,6 +1,7 @@
 package br.com.diegocordeiro.dscproject.service;
 
 import br.com.diegocordeiro.dscproject.dto.minhaconta.MinhaContaDTO;
+import br.com.diegocordeiro.dscproject.dto.usuario.PerfilOpcaoDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.RevisaoUsuarioDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioEdicaoDTO;
@@ -47,6 +48,14 @@ public class UsuarioService {
     @Transactional(readOnly = true)
     public UsuarioEdicaoDTO buscarParaEdicao(Long id) {
         return new UsuarioEdicaoDTO(buscarPorId(id));
+    }
+
+    /** Perfis para os selects das telas de usuário, ordenados por nome. */
+    @Transactional(readOnly = true)
+    public List<PerfilOpcaoDTO> listarPerfis() {
+        return perfilRepository.findAllByOrderByNomeAsc().stream()
+            .map(perfil -> new PerfilOpcaoDTO(perfil.getCodigo(), perfil.getNome()))
+            .toList();
     }
 
     /** {@code idAtual} é nulo na criação e traz o próprio id na edição. */

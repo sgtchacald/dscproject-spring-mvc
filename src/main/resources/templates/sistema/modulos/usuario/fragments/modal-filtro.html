@@ -20,8 +20,7 @@
                     <label class="form-label" for="filtroPerfil" th:text="#{usuario.col.perfil}">Perfil</label>
                     <select id="filtroPerfil" class="form-select">
                         <option value="" th:text="#{usuario.filtro.todos}">Todos</option>
-                        <option value="ADMIN">ADMIN</option>
-                        <option value="USER">USER</option>
+                        <option th:each="p : ${perfis}" th:value="${p.codigo}" th:text="${p.nome}"></option>
                     </select>
                 </div>
                 <div class="mb-1">

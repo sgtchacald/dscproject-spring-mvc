@@ -3,6 +3,7 @@ package br.com.diegocordeiro.dscproject.web.sistema.controller;
 import br.com.diegocordeiro.dscproject.config.SecurityConfig;
 import br.com.diegocordeiro.dscproject.service.AutorizacaoService;
 import br.com.diegocordeiro.dscproject.service.RecuperacaoSenhaService;
+import br.com.diegocordeiro.dscproject.service.UsuarioService;
 import br.com.diegocordeiro.dscproject.service.exceptions.TokenRecuperacaoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(RecuperacaoSenhaController.class)
+@WebMvcTest(UsuarioController.class)
 @Import(SecurityConfig.class)
 class RecuperacaoSenhaControllerTest {
 
@@ -32,6 +33,8 @@ class RecuperacaoSenhaControllerTest {
 
     @MockitoBean
     private RecuperacaoSenhaService recuperacaoSenhaService;
+    @MockitoBean
+    private UsuarioService usuarioService;
     @MockitoBean
     private AutorizacaoService autorizacaoService;
     @MockitoBean

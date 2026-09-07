@@ -4,6 +4,7 @@ import br.com.diegocordeiro.dscproject.config.SecurityConfig;
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioListaDTO;
 import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.service.AutorizacaoService;
+import br.com.diegocordeiro.dscproject.service.RecuperacaoSenhaService;
 import br.com.diegocordeiro.dscproject.service.UsuarioService;
 import br.com.diegocordeiro.dscproject.service.exceptions.RegraNegocioException;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,8 @@ class UsuarioControllerTest {
 
     @MockitoBean
     private UsuarioService usuarioService;
+    @MockitoBean
+    private RecuperacaoSenhaService recuperacaoSenhaService;
     @MockitoBean
     private AutorizacaoService autorizacaoService;
     @MockitoBean

@@ -3,6 +3,7 @@ package br.com.diegocordeiro.dscproject.web.sistema.controller;
 import br.com.diegocordeiro.dscproject.config.SecurityConfig;
 import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.service.AutorizacaoService;
+import br.com.diegocordeiro.dscproject.service.RecuperacaoSenhaService;
 import br.com.diegocordeiro.dscproject.service.UsuarioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(MinhaContaController.class)
+@WebMvcTest(UsuarioController.class)
 @Import(SecurityConfig.class)
 class MinhaContaControllerTest {
 
@@ -38,6 +39,8 @@ class MinhaContaControllerTest {
 
     @MockitoBean
     private UsuarioService usuarioService;
+    @MockitoBean
+    private RecuperacaoSenhaService recuperacaoSenhaService;
     @MockitoBean
     private AutorizacaoService autorizacaoService;
     @MockitoBean
