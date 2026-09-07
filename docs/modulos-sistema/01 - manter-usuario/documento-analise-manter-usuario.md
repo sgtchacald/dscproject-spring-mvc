@@ -63,7 +63,7 @@ Este documento **mescla as duas gerações** e define, para a geração 2, o CRU
 **Não contempla:**
 - Tela "Meu Perfil" (usuário comum editando os próprios dados) — documento futuro. Aqui, a edição é sempre administrativa.
 - Tela de **editor de perfil × permissão** (`NN - manter-perfil-permissao`) — documento de admin futuro. Aqui, perfis e permissões vêm de carga inicial.
-- Login e logout (Spring Security form login) — já implementado; ver `docs/superpowers/specs/2026-05-18-login-spring-security.md`.
+- Login e logout (Spring Security form login) — já implementado.
 - Planos pagos e cotas — módulo futuro (`NN - planos-e-assinaturas`); ver Observação 24 do Documento 0.
 
 **Perfis com acesso:** [PERF01](#perf01) (ADMIN) para o CRUD administrativo. Auto-cadastro e recuperação de senha são públicos.
@@ -234,7 +234,7 @@ Nenhuma. Hash de senha, geração/validação do token de recuperação e resolu
 
 ## 7. Protótipos de Interface
 
-Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html` (ou o link do Artifact). Wireframes abaixo: `prototipo/manter-usuario-prototipo.drawio`. Os números em destaque nas telas correspondem aos IDs dos itens do respectivo QUADRO_DESCRITIVO.
+Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wireframes abaixo: `prototipo/manter-usuario-prototipo.drawio`. Os números em destaque nas telas correspondem aos IDs dos itens do respectivo QUADRO_DESCRITIVO.
 
 ### <a id="quadro-descritivo-2"></a>7.1 Tela: Usuários (Listagem) — QUADRO_DESCRITIVO_2
 
@@ -633,5 +633,3 @@ Descrição: Levantamento feito a partir do código das gerações 1 (`dsc-backe
 - Documento 0 — Fundação: `../00 - analise-geral/documento-0-fundacao.md`
 - Código de referência geração 1: `dsc-backend` (`UsuarioController`, `UsuarioService`, `AuthenticationController`, `AutorizationService`, `UsuarioValidation`), `dsc-frontend` (`usuario.service.ts`).
 - Código de referência geração 2: `dsc-spring-mvc` (`UsuarioController`, `UsuarioService`, `UsuarioValidator`, `UsuarioDTO`, `AutorizacaoService`, `SecurityConfig`, `login.html`).
-- Spec de login: `docs/superpowers/specs/2026-05-18-login-spring-security.md`
-- Spec de cadastro (geração 2): `docs/superpowers/specs/2026-05-18-cadastro-usuario-design.md`
