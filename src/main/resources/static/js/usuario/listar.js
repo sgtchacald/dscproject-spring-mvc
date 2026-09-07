@@ -70,8 +70,8 @@ function render() {
         lista.forEach(function (u) {
             const tr = document.createElement('tr');
             const situacao = u.excluido
-                ? '<span class="badge bg-secondary">Excluído</span>'
-                : '<span class="badge bg-success">Ativo</span>';
+                ? '<span class="badge bg-red text-red-fg">Excluído</span>'
+                : '<span class="badge bg-green text-green-fg">Ativo</span>';
             tr.innerHTML = '<td>' + u.nome + '</td><td>' + u.login + '</td><td>' + u.email + '</td>'
                 + '<td><span class="badge bg-blue-lt">' + (u.perfilNome || '') + '</span></td>'
                 + '<td>' + (u.generoDescricao || '') + '</td>'
