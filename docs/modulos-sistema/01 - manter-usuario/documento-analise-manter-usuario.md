@@ -2,7 +2,7 @@
 ## Módulo Usuário — ADMIN — Manter Usuário
 
 **Gerado em:** 06/09/2026
-**Versão:** 1.3
+**Versão:** 1.3.1
 **Projeto:** `dscproject-spring-mvc` (geração 2)
 
 ---
@@ -28,6 +28,7 @@
 | 1.1 | 06/09/2026 | Diego dos Santos Cordeiro | Fecha os itens "A Confirmar": verificação de e-mail no auto-cadastro **fica fora da v1** ([RN17](#rn17)); limite de recuperação de senha fixado em 3 a cada 15 min ([RN16](#rn16)); consulta [C3](#c3) passa a buscar pelo hash do token. Protótipos de interface incluídos na Seção 7 |
 | 1.2 | 07/09/2026 | Diego dos Santos Cordeiro | A permissão única `ADMINISTRAR_USUARIOS` vira cinco, granulares por operação: `USUARIOS_LISTAR`, `USUARIOS_INSERIR`, `USUARIOS_EDITAR`, `USUARIOS_EXCLUIR`, `USUARIOS_VER_HISTORICO` (convenção domínio-primeiro). Nova Seção 13.1 com a matriz Perfil × Permissão. Cada EDP passa a exigir a permissão da sua operação ([RN01](#rn01)) |
 | 1.3 | 07/09/2026 | Diego dos Santos Cordeiro | Separa a troca de senha da edição cadastral: [EDP05](#edp05) não altera mais senha; nova ação dedicada no grid ([RT13](#rt13) / [EDP12](#edp12) / [QUADRO_DESCRITIVO_7](#quadro-descritivo-7)). Nova tela **Configurações da Conta** (self-service) — [QUADRO_DESCRITIVO_8](#quadro-descritivo-8), [EDP13](#edp13)/[EDP14](#edp14), [RN18](#rn18)/[RN19](#rn19), [RT14](#rt14) —, em que o usuário edita os próprios dados e a própria senha sem alterar o perfil. Novas [MSG21](#msg21) e [MSG22](#msg22); novos [RF12](#rf12)/[RF13](#rf13), [CAUS09](#caus09)/[CAUS10](#caus10). A Seção 6 (Banco de Dados) permanece inalterada |
+| 1.3.1 | 07/09/2026 | Diego dos Santos Cordeiro | Ajustes de revisão: o combobox de PERFIL ([SB01](#sb01), [QUADRO_DESCRITIVO_3](#quadro-descritivo-3) e [_4](#quadro-descritivo-4)) passa a carregar os registros da tabela `PERFIS`, não uma lista fixa. A tela Configurações da Conta ([QUADRO_DESCRITIVO_8](#quadro-descritivo-8)) é acessada ao **clicar no nome do usuário na sidebar**, não por item de menu próprio |
 
 ---
 
@@ -152,7 +153,7 @@ Este documento **mescla as duas gerações** e define, para a geração 2, o CRU
 
 **Caminho de Navegação:**
 - Menu principal > Administração > Usuários (CRUD administrativo)
-- Menu do usuário (dropdown do nome no header) > Configurações da Conta → `/minha-conta` (disponível a qualquer usuário autenticado — ADMIN e USER)
+- Clicar no nome do usuário na sidebar → `/minha-conta` (Configurações da Conta; disponível a qualquer usuário autenticado — ADMIN e USER)
 
 **Critérios de Aceitação:**
 - O menu 'Usuários' é visível apenas para quem tem [PERM01](#perm01).
@@ -285,7 +286,7 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 |---|---|---|---|
 | <a id="qdd3-1"></a>1 | TÍTULO DO MODAL | Tipo: Texto<br>Texto: Filtrar Usuários | — |
 | <a id="qdd3-2"></a>2 | FILTRO – BUSCA | Tipo: Input Text<br>Obrigatório: Não<br>Placeholder: Nome, login ou e-mail<br>Tooltip: Filtre por parte do nome, do login ou do e-mail. | Filtro parcial e sem acento sobre nome, login e e-mail. |
-| <a id="qdd3-3"></a>3 | FILTRO – PERFIL | Tipo: Combobox<br>Obrigatório: Não<br>Placeholder: Todos<br>Domínio: Todos / ADMIN / USER | Filtra por [C1](#c1).perfilCodigo. Ver [SB01](#sb01). |
+| <a id="qdd3-3"></a>3 | FILTRO – PERFIL | Tipo: Combobox<br>Obrigatório: Não<br>Placeholder: Todos<br>Domínio: "Todos" + os perfis da tabela `PERFIS` | Filtra por [C1](#c1).perfilCodigo. Ver [SB01](#sb01). |
 | <a id="qdd3-4"></a>4 | FILTRO – SITUAÇÃO | Tipo: Combobox<br>Obrigatório: Não<br>Valor default: Ativo<br>Domínio: Ativo / Excluído / Todos | Filtra pela presença de `audit_data_exclusao`. Ver [SB02](#sb02). |
 | <a id="qdd3-5"></a>5 | BOTÃO APLICAR | Tipo: Botão<br>Texto: Aplicar | Ao clicar, executar [RT02](#rt02). |
 | <a id="qdd3-6"></a>6 | BOTÃO LIMPAR | Tipo: Botão<br>Texto: Limpar | Ao clicar, executar [RT03](#rt03). |
@@ -306,7 +307,7 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 | <a id="qdd4-6"></a>6 | CAMPO – LOGIN | Tipo: Input Text<br>Tamanho: 40<br>Mín.: 4<br>Obrigatório: Sim | Grava em `USU_LOGIN`. Único ([RN04](#rn04)). Executar [RT06](#rt06). |
 | <a id="qdd4-7"></a>7 | CAMPO – SENHA | Tipo: Input Password<br>Mín.: 6<br>Obrigatório: Sim<br>Exibição: só no modo criação | Cifra BCrypt no serviço ([RN02](#rn02)). |
 | <a id="qdd4-8"></a>8 | CAMPO – CONFIRMAÇÃO DE SENHA | Tipo: Input Password<br>Obrigatório: Sim<br>Exibição: só no modo criação | Executar [RT08](#rt08). Não persiste. |
-| <a id="qdd4-9"></a>9 | CAMPO – PERFIL | Tipo: Combobox<br>Obrigatório: Sim<br>Domínio: ADMIN / USER | Grava `PERF_ID`. Só visível para quem pode definir perfil. Executar [RN09](#rn09). |
+| <a id="qdd4-9"></a>9 | CAMPO – PERFIL | Tipo: Combobox<br>Obrigatório: Sim<br>Domínio: perfis da tabela `PERFIS` | Grava `PERF_ID`. Só visível para quem pode definir perfil. Executar [RN09](#rn09). |
 | <a id="qdd4-10"></a>10 | BOTÃO SALVAR | Tipo: Botão<br>Texto: Salvar<br>Endpoint: [EDP04](#edp04) (criação) ou [EDP05](#edp05) (edição) | Ao clicar, executar [RT08](#rt08). |
 | <a id="qdd4-11"></a>11 | BOTÃO CANCELAR | Tipo: Botão<br>Texto: Cancelar | Fecha sem salvar. |
 
@@ -351,7 +352,7 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 
 ### <a id="quadro-descritivo-8"></a>7.7 Tela: Configurações da Conta (self-service) — QUADRO_DESCRITIVO_8
 
-> OBSERVAÇÕES: Tela acessada pelo menu do usuário (dropdown do nome no header), disponível a qualquer perfil autenticado. Layout: um `card` com navegação vertical (list-group) à esquerda e o conteúdo à direita, **sem foto/avatar**. Um único botão "Salvar" ([ID13](#qdd8-13)) abrange as duas abas. O usuário edita **somente o próprio registro** — o id vem do contexto de segurança ([RN19](#rn19)). Não há campo Perfil.
+> OBSERVAÇÕES: Tela acessada ao clicar no nome do usuário na sidebar, disponível a qualquer perfil autenticado. Layout: um `card` com navegação vertical (list-group) à esquerda e o conteúdo à direita, **sem foto/avatar**. Um único botão "Salvar" ([ID13](#qdd8-13)) abrange as duas abas. O usuário edita **somente o próprio registro** — o id vem do contexto de segurança ([RN19](#rn19)). Não há campo Perfil.
 
 | ID | NOME | PROPRIEDADES | OBSERVAÇÕES |
 |---|---|---|---|
@@ -374,8 +375,8 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 
 | ID | NOME | DESCRIÇÃO |
 |---|---|---|
-| <a id="sb01"></a>SB01 | PERFIL | Domínio estático carregado na abertura do modal: Todos, ADMIN, USER. Não consome endpoint (os perfis são poucos e fixos). |
-| <a id="sb02"></a>SB02 | SITUAÇÃO | Domínio estático: Ativo, Excluído, Todos. |
+| <a id="sb01"></a>SB01 | PERFIL | Itens carregados da tabela `PERFIS` (Documento 0, [QUADRO_DESCRITIVO_25](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-25)) — via atributo de modelo na renderização da página/modal, ordenados por nome. No filtro ([QUADRO_DESCRITIVO_3](#quadro-descritivo-3)), a opção "Todos" é adicional. Nunca `<option>` fixo no HTML. |
+| <a id="sb02"></a>SB02 | SITUAÇÃO | Domínio fixo do próprio filtro (não é entidade): Ativo, Excluído, Todos. |
 
 ### 7.9 Regras de Tela
 
