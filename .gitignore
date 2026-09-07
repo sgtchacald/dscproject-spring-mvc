@@ -38,3 +38,6 @@ build/
 
 ### Scripts ###
 scripts/tests/bats-core/
+
+### draw.io ###
+.$*.bkp

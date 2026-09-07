@@ -1,0 +1,364 @@
+@startuml documento-0-fundacao-classes
+skinparam linetype ortho
+hide circle
+hide empty members
+skinparam classAttributeIconSize 0
+left to right direction
+
+abstract class AbstractAuditoria {
+  +dataCriacao : Instant
+  +criadoPor : String
+  +dataAlteracao : Instant
+  +alteradoPor : String
+  +dataExclusao : Instant
+  +excluidoPor : String
+}
+
+abstract class LancamentoFinanceiro {
+  +competencia : YearMonth
+  +valor : BigDecimal
+  +dataLancamento : LocalDate
+  +origem : OrigemLancamento
+}
+AbstractAuditoria <|-- LancamentoFinanceiro
+
+class Perfil {
+  +codigo : VARCHAR(30)
+  +nome : VARCHAR(100)
+  +descricao : VARCHAR(255)
+  +fl_sistema : BOOLEAN
+}
+AbstractAuditoria <|-- Perfil
+class Permissao {
+  +codigo : VARCHAR(60)
+  +nome : VARCHAR(100)
+  +descricao : VARCHAR(255)
+  +fl_concedivel_por_plano : BOOLEAN
+}
+AbstractAuditoria <|-- Permissao
+class PerfilPermissao {
+}
+AbstractAuditoria <|-- PerfilPermissao
+class Usuario {
+  +nome : VARCHAR(100)
+  +genero : CHAR(1)
+  +dt_nascimento : DATE
+  +email : VARCHAR(512)
+  +login : VARCHAR(40)
+  +senha : VARCHAR(1024)
+}
+AbstractAuditoria <|-- Usuario
+class Categoria {
+  +codigo : VARCHAR(40)
+  +nome : VARCHAR(100)
+  +aplica_a : VARCHAR(10)
+  +cor : CHAR(7)
+  +icone : VARCHAR(40)
+  +fl_ativo : BOOLEAN
+  +fl_sistema : BOOLEAN
+}
+AbstractAuditoria <|-- Categoria
+class CategoriaProvedor {
+  +rotulo_externo : VARCHAR(120)
+}
+AbstractAuditoria <|-- CategoriaProvedor
+class InstituicaoFinanceira {
+  +nome : VARCHAR(100)
+  +codigo : VARCHAR(100)
+  +tipo_instituicao : CHAR(1)
+  +fl_ativo : BOOLEAN
+}
+AbstractAuditoria <|-- InstituicaoFinanceira
+class Conta {
+  +descricao : VARCHAR(100)
+  +tipo : VARCHAR(20)
+  +agencia : VARCHAR(30)
+  +numero : VARCHAR(30)
+  +moeda : CHAR(3)
+  +saldo : DECIMAL(15,2)
+  +saldo_sincronizado_em : DATETIME(6)
+  +nome_gerente : VARCHAR(100)
+  +tel_gerente : VARCHAR(20)
+  +fl_ativo : BOOLEAN
+  +fl_considera_saldo : BOOLEAN
+}
+AbstractAuditoria <|-- Conta
+class CartaoCredito {
+  +descricao : VARCHAR(100)
+  +bandeira : VARCHAR(30)
+  +final_cartao : CHAR(4)
+  +limite : DECIMAL(15,2)
+  +dia_fechamento : TINYINT
+  +dia_vencimento : TINYINT
+  +fl_ativo : BOOLEAN
+}
+AbstractAuditoria <|-- CartaoCredito
+class TransacaoBancaria {
+  +descricao : VARCHAR(512)
+  +valor : DECIMAL(15,2)
+  +competencia : CHAR(7)
+  +dt_lancamento : DATE
+  +natureza_movimento : VARCHAR(10)
+  +fl_pagamento_fatura : BOOLEAN
+  +id_externo : VARCHAR(120)
+  +origem : VARCHAR(20)
+}
+LancamentoFinanceiro <|-- TransacaoBancaria
+class FaturaCartao {
+  +competencia : CHAR(7)
+  +dt_fechamento : DATE
+  +dt_vencimento : DATE
+  +valor_total : DECIMAL(15,2)
+  +valor_minimo : DECIMAL(15,2)
+  +valor_encargos : DECIMAL(15,2)
+  +valor_pago : DECIMAL(15,2)
+  +status : VARCHAR(20)
+  +origem : VARCHAR(20)
+}
+AbstractAuditoria <|-- FaturaCartao
+class Receita {
+  +competencia : CHAR(7)
+  +nome : VARCHAR(100)
+  +descricao : VARCHAR(512)
+  +valor : DECIMAL(15,2)
+  +dt_lancamento : DATE
+  +dt_recebimento : DATE
+  +fl_recebido : BOOLEAN
+  +origem : VARCHAR(20)
+}
+LancamentoFinanceiro <|-- Receita
+class Despesa {
+  +competencia : CHAR(7)
+  +nome : VARCHAR(100)
+  +descricao : VARCHAR(512)
+  +dt_lancamento : DATE
+  +dt_vencimento : DATE
+  +dt_pagamento : DATE
+  +valor : DECIMAL(15,2)
+  +valor_total_compra : DECIMAL(15,2)
+  +fl_parcelada : BOOLEAN
+  +nro_parcela : SMALLINT
+  +qtd_parcelas : SMALLINT
+  +meio_pagamento : VARCHAR(20)
+  +ind_status_pagamento : VARCHAR(20)
+  +fl_pagamento_fatura : BOOLEAN
+  +origem : VARCHAR(20)
+}
+LancamentoFinanceiro <|-- Despesa
+class DespesaUsuario {
+  +valor : DECIMAL(15,2)
+  +ind_status_pagamento : VARCHAR(20)
+  +dt_acerto : DATE
+}
+AbstractAuditoria <|-- DespesaUsuario
+class Investimento {
+  +descricao : VARCHAR(150)
+  +tipo : VARCHAR(30)
+  +emissor : VARCHAR(100)
+  +valor_aplicado : DECIMAL(15,2)
+  +valor_bruto : DECIMAL(15,2)
+  +valor_liquido : DECIMAL(15,2)
+  +dt_aplicacao : DATE
+  +dt_vencimento : DATE
+  +dt_atualizacao_valor : DATETIME(6)
+  +origem : VARCHAR(20)
+}
+AbstractAuditoria <|-- Investimento
+class OpfiProvedor {
+  +codigo : VARCHAR(30)
+  +nome : VARCHAR(100)
+  +url_base : VARCHAR(300)
+  +fl_suporta_webhook : BOOLEAN
+  +parametros : JSON
+  +fl_ativo : BOOLEAN
+}
+AbstractAuditoria <|-- OpfiProvedor
+class OpfiInstituicaoProvedor {
+  +id_externo : VARCHAR(80)
+}
+AbstractAuditoria <|-- OpfiInstituicaoProvedor
+class OpfiCredencial {
+  +client_id : VARCHAR(200)
+  +client_secret : TEXT
+  +secret_atualizado_em : DATETIME(6)
+  +ambiente : VARCHAR(20)
+  +fl_ativo : BOOLEAN
+}
+AbstractAuditoria <|-- OpfiCredencial
+class OpfiConexao {
+  +id_externo : VARCHAR(60)
+  +status : VARCHAR(30)
+  +status_detalhe : VARCHAR(200)
+  +execucao_status : VARCHAR(40)
+  +ultima_sincronizacao_em : DATETIME(6)
+  +proxima_sincronizacao_em : DATETIME(6)
+  +erro_codigo : VARCHAR(60)
+  +erro_mensagem : VARCHAR(500)
+  +parametros : JSON
+}
+AbstractAuditoria <|-- OpfiConexao
+class OpfiConsentimento {
+  +id_externo : VARCHAR(60)
+  +escopos : VARCHAR(255)
+  +dt_concessao : DATETIME(6)
+  +dt_expiracao : DATETIME(6)
+  +status : VARCHAR(20)
+  +dt_revogacao : DATETIME(6)
+}
+AbstractAuditoria <|-- OpfiConsentimento
+class OpfiContaExterna {
+  +id_externo : VARCHAR(60)
+  +tipo : VARCHAR(20)
+  +subtipo : VARCHAR(40)
+  +nome : VARCHAR(150)
+  +numero : VARCHAR(40)
+  +saldo : DECIMAL(15,2)
+  +saldo_em : DATETIME(6)
+  +moeda : CHAR(3)
+  +dados_brutos : JSON
+}
+AbstractAuditoria <|-- OpfiContaExterna
+class OpfiTransacao {
+  +id_externo : VARCHAR(60)
+  +descricao : VARCHAR(255)
+  +valor : DECIMAL(15,2)
+  +dt_transacao : DATE
+  +natureza : VARCHAR(10)
+  +categoria_externa : VARCHAR(100)
+  +status_externo : VARCHAR(20)
+  +status_conciliacao : VARCHAR(20)
+  +tipo_lancamento_gerado : VARCHAR(20)
+  +id_lancamento_gerado : BIGINT
+  +dt_conciliacao : DATETIME(6)
+  +dados_brutos : JSON
+}
+AbstractAuditoria <|-- OpfiTransacao
+class OpfiFatura {
+  +id_externo : VARCHAR(60)
+  +dt_vencimento : DATE
+  +dt_fechamento : DATE
+  +valor_total : DECIMAL(15,2)
+  +valor_minimo : DECIMAL(15,2)
+  +status_conciliacao : VARCHAR(20)
+  +id_fatura_gerada : BIGINT
+  +dados_brutos : JSON
+}
+AbstractAuditoria <|-- OpfiFatura
+class OpfiInvestimento {
+  +id_externo : VARCHAR(60)
+  +nome : VARCHAR(150)
+  +tipo_externo : VARCHAR(40)
+  +valor_aplicado : DECIMAL(15,2)
+  +valor_bruto : DECIMAL(15,2)
+  +valor_liquido : DECIMAL(15,2)
+  +dt_posicao : DATE
+  +status_conciliacao : VARCHAR(20)
+  +id_investimento_gerado : BIGINT
+  +dados_brutos : JSON
+}
+AbstractAuditoria <|-- OpfiInvestimento
+class OpfiEventoWebhook {
+  +id_evento_externo : VARCHAR(80)
+  +tipo : VARCHAR(60)
+  +id_externo : VARCHAR(60)
+  +payload : JSON
+  +recebido_em : DATETIME(6)
+  +processado_em : DATETIME(6)
+  +status : VARCHAR(20)
+  +erro_mensagem : VARCHAR(500)
+  +tentativas : SMALLINT
+}
+AbstractAuditoria <|-- OpfiEventoWebhook
+class OpfiSincronizacao {
+  +tipo : VARCHAR(20)
+  +iniciado_em : DATETIME(6)
+  +finalizado_em : DATETIME(6)
+  +status : VARCHAR(20)
+  +qtd_transacoes_novas : INT
+  +qtd_contas_atualizadas : INT
+  +erro_mensagem : VARCHAR(500)
+}
+AbstractAuditoria <|-- OpfiSincronizacao
+
+PerfilPermissao --> "0..1" Perfil : id
+PerfilPermissao --> "0..1" Permissao : id
+Usuario --> "0..1" Perfil : id
+CategoriaProvedor --> "0..1" Categoria : id
+CategoriaProvedor --> "0..1" OpfiProvedor : id
+Conta --> "0..1" InstituicaoFinanceira : id
+Conta --> "0..1" Usuario : id
+CartaoCredito --> "0..1" Conta : id
+CartaoCredito --> "0..1" Usuario : id
+TransacaoBancaria --> "0..1" Conta : id
+TransacaoBancaria --> "0..1" Categoria : id
+FaturaCartao --> "0..1" CartaoCredito : id
+FaturaCartao --> "0..1" TransacaoBancaria : id_pagamento
+Receita --> "0..1" Conta : id
+Receita --> "0..1" Categoria : id
+Despesa --> "0..1" Despesa : id_parcela_pai
+Despesa --> "0..1" Conta : id
+Despesa --> "0..1" CartaoCredito : id
+Despesa --> "0..1" FaturaCartao : id
+Despesa --> "0..1" Categoria : id
+DespesaUsuario --> "0..1" Despesa : id
+DespesaUsuario --> "0..1" Usuario : id
+Investimento --> "0..1" Conta : id
+Investimento --> "0..1" InstituicaoFinanceira : id
+Investimento --> "0..1" Usuario : id
+OpfiInstituicaoProvedor --> "0..1" InstituicaoFinanceira : id
+OpfiInstituicaoProvedor --> "0..1" OpfiProvedor : id
+OpfiCredencial --> "0..1" Usuario : id
+OpfiCredencial --> "0..1" OpfiProvedor : id
+OpfiConexao --> "0..1" Usuario : id
+OpfiConexao --> "0..1" InstituicaoFinanceira : id
+OpfiConexao --> "0..1" OpfiProvedor : id
+OpfiConexao --> "0..1" OpfiCredencial : id
+OpfiConsentimento --> "0..1" OpfiConexao : id
+OpfiContaExterna --> "0..1" OpfiConexao : id
+OpfiContaExterna --> "0..1" Conta : id
+OpfiContaExterna --> "0..1" CartaoCredito : id
+OpfiTransacao --> "0..1" OpfiContaExterna : id
+OpfiFatura --> "0..1" OpfiContaExterna : id
+OpfiInvestimento --> "0..1" OpfiConexao : id
+OpfiEventoWebhook --> "0..1" OpfiProvedor : id
+OpfiEventoWebhook --> "0..1" OpfiConexao : id
+OpfiSincronizacao --> "0..1" OpfiConexao : id
+OpfiSincronizacao --> "0..1" OpfiEventoWebhook : id
+
+enum OrigemLancamento { MANUAL
+OPEN_FINANCE
+IMPORTACAO }
+enum TipoLancamento { RECEITA
+DESPESA }
+enum NaturezaMovimento { CREDITO
+DEBITO }
+enum MeioPagamento { DINHEIRO
+DEBITO
+CREDITO
+PIX
+BOLETO
+TRANSFERENCIA }
+enum StatusFatura { ABERTA
+FECHADA
+PAGA
+PAGA_PARCIAL }
+enum TipoConta { CORRENTE
+POUPANCA
+INVESTIMENTO
+CARTEIRA }
+enum TipoInvestimento { RENDA_FIXA
+RENDA_VARIAVEL
+FUNDO
+TESOURO
+PREVIDENCIA
+CRIPTO
+OUTRO }
+enum StatusConexao { ATUALIZANDO
+ATUALIZADO
+ERRO_LOGIN
+DESATUALIZADO
+AGUARDANDO_USUARIO }
+enum StatusConciliacao { PENDENTE
+CONCILIADA
+IGNORADA }
+@enduml

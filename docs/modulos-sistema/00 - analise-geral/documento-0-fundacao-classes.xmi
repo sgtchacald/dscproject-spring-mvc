@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMI xmi.version="1.2" xmlns:UML="http://schema.omg.org/spec/UML/1.4" timestamp="2026-09-06T22:53:21">
+<XMI.header><XMI.documentation><XMI.exporter>dscproject gen_diagrams.py</XMI.exporter><XMI.exporterVersion>1.0</XMI.exporterVersion></XMI.documentation><XMI.metamodel xmi.name="UML" xmi.version="1.4"/></XMI.header>
+<XMI.content>
+<UML:Model isSpecification="false" isAbstract="false" name="dscproject" xmi.id="m1">
+<UML:Namespace.ownedElement>
+<UML:DataType isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="BIGINT" xmi.id="1029"/>
+<UML:DataType isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="VARCHAR" xmi.id="1030"/>
+<UML:DataType isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="CHAR" xmi.id="1031"/>
+<UML:DataType isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="DECIMAL" xmi.id="1032"/>
+<UML:DataType isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="DATE" xmi.id="1033"/>
+<UML:DataType isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="DATETIME" xmi.id="1034"/>
+<UML:DataType isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="BOOLEAN" xmi.id="1035"/>
+<UML:DataType isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="JSON" xmi.id="1036"/>
+<UML:DataType isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="TEXT" xmi.id="1037"/>
+<UML:DataType isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="INT" xmi.id="1038"/>
+<UML:DataType isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="SMALLINT" xmi.id="1039"/>
+<UML:DataType isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="TINYINT" xmi.id="1040"/>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="true" name="AbstractAuditoria" xmi.id="1001">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="dataCriacao" visibility="public" xmi.id="1041" type="1034"/>
+<UML:Attribute isSpecification="false" name="criadoPor" visibility="public" xmi.id="1042" type="1030"/>
+<UML:Attribute isSpecification="false" name="dataAlteracao" visibility="public" xmi.id="1043" type="1034"/>
+<UML:Attribute isSpecification="false" name="alteradoPor" visibility="public" xmi.id="1044" type="1030"/>
+<UML:Attribute isSpecification="false" name="dataExclusao" visibility="public" xmi.id="1045" type="1034"/>
+<UML:Attribute isSpecification="false" name="excluidoPor" visibility="public" xmi.id="1046" type="1030"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="true" name="LancamentoFinanceiro" xmi.id="1002">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="competencia" visibility="public" xmi.id="1047" type="1030"/>
+<UML:Attribute isSpecification="false" name="valor" visibility="public" xmi.id="1048" type="1032"/>
+<UML:Attribute isSpecification="false" name="dataLancamento" visibility="public" xmi.id="1049" type="1033"/>
+<UML:Attribute isSpecification="false" name="origem" visibility="public" xmi.id="1050" type="1030"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="Perfil" xmi.id="1003">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1051" type="1029"/>
+<UML:Attribute isSpecification="false" name="codigo" visibility="public" xmi.id="1052" type="1030"/>
+<UML:Attribute isSpecification="false" name="nome" visibility="public" xmi.id="1053" type="1030"/>
+<UML:Attribute isSpecification="false" name="descricao" visibility="public" xmi.id="1054" type="1030"/>
+<UML:Attribute isSpecification="false" name="fl_sistema" visibility="public" xmi.id="1055" type="1035"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="Permissao" xmi.id="1004">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1056" type="1029"/>
+<UML:Attribute isSpecification="false" name="codigo" visibility="public" xmi.id="1057" type="1030"/>
+<UML:Attribute isSpecification="false" name="nome" visibility="public" xmi.id="1058" type="1030"/>
+<UML:Attribute isSpecification="false" name="descricao" visibility="public" xmi.id="1059" type="1030"/>
+<UML:Attribute isSpecification="false" name="fl_concedivel_por_plano" visibility="public" xmi.id="1060" type="1035"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="PerfilPermissao" xmi.id="1005">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1061" type="1029"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="Usuario" xmi.id="1006">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1062" type="1029"/>
+<UML:Attribute isSpecification="false" name="nome" visibility="public" xmi.id="1063" type="1030"/>
+<UML:Attribute isSpecification="false" name="genero" visibility="public" xmi.id="1064" type="1031"/>
+<UML:Attribute isSpecification="false" name="dt_nascimento" visibility="public" xmi.id="1065" type="1033"/>
+<UML:Attribute isSpecification="false" name="email" visibility="public" xmi.id="1066" type="1030"/>
+<UML:Attribute isSpecification="false" name="login" visibility="public" xmi.id="1067" type="1030"/>
+<UML:Attribute isSpecification="false" name="senha" visibility="public" xmi.id="1068" type="1030"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="Categoria" xmi.id="1007">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1069" type="1029"/>
+<UML:Attribute isSpecification="false" name="codigo" visibility="public" xmi.id="1070" type="1030"/>
+<UML:Attribute isSpecification="false" name="nome" visibility="public" xmi.id="1071" type="1030"/>
+<UML:Attribute isSpecification="false" name="aplica_a" visibility="public" xmi.id="1072" type="1030"/>
+<UML:Attribute isSpecification="false" name="cor" visibility="public" xmi.id="1073" type="1031"/>
+<UML:Attribute isSpecification="false" name="icone" visibility="public" xmi.id="1074" type="1030"/>
+<UML:Attribute isSpecification="false" name="fl_ativo" visibility="public" xmi.id="1075" type="1035"/>
+<UML:Attribute isSpecification="false" name="fl_sistema" visibility="public" xmi.id="1076" type="1035"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="CategoriaProvedor" xmi.id="1008">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1077" type="1029"/>
+<UML:Attribute isSpecification="false" name="rotulo_externo" visibility="public" xmi.id="1078" type="1030"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="InstituicaoFinanceira" xmi.id="1009">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1079" type="1029"/>
+<UML:Attribute isSpecification="false" name="nome" visibility="public" xmi.id="1080" type="1030"/>
+<UML:Attribute isSpecification="false" name="codigo" visibility="public" xmi.id="1081" type="1030"/>
+<UML:Attribute isSpecification="false" name="tipo_instituicao" visibility="public" xmi.id="1082" type="1031"/>
+<UML:Attribute isSpecification="false" name="fl_ativo" visibility="public" xmi.id="1083" type="1035"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="Conta" xmi.id="1010">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1084" type="1029"/>
+<UML:Attribute isSpecification="false" name="descricao" visibility="public" xmi.id="1085" type="1030"/>
+<UML:Attribute isSpecification="false" name="tipo" visibility="public" xmi.id="1086" type="1030"/>
+<UML:Attribute isSpecification="false" name="agencia" visibility="public" xmi.id="1087" type="1030"/>
+<UML:Attribute isSpecification="false" name="numero" visibility="public" xmi.id="1088" type="1030"/>
+<UML:Attribute isSpecification="false" name="moeda" visibility="public" xmi.id="1089" type="1031"/>
+<UML:Attribute isSpecification="false" name="saldo" visibility="public" xmi.id="1090" type="1032"/>
+<UML:Attribute isSpecification="false" name="saldo_sincronizado_em" visibility="public" xmi.id="1091" type="1034"/>
+<UML:Attribute isSpecification="false" name="nome_gerente" visibility="public" xmi.id="1092" type="1030"/>
+<UML:Attribute isSpecification="false" name="tel_gerente" visibility="public" xmi.id="1093" type="1030"/>
+<UML:Attribute isSpecification="false" name="fl_ativo" visibility="public" xmi.id="1094" type="1035"/>
+<UML:Attribute isSpecification="false" name="fl_considera_saldo" visibility="public" xmi.id="1095" type="1035"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="CartaoCredito" xmi.id="1011">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1096" type="1029"/>
+<UML:Attribute isSpecification="false" name="descricao" visibility="public" xmi.id="1097" type="1030"/>
+<UML:Attribute isSpecification="false" name="bandeira" visibility="public" xmi.id="1098" type="1030"/>
+<UML:Attribute isSpecification="false" name="final_cartao" visibility="public" xmi.id="1099" type="1031"/>
+<UML:Attribute isSpecification="false" name="limite" visibility="public" xmi.id="1100" type="1032"/>
+<UML:Attribute isSpecification="false" name="dia_fechamento" visibility="public" xmi.id="1101" type="1040"/>
+<UML:Attribute isSpecification="false" name="dia_vencimento" visibility="public" xmi.id="1102" type="1040"/>
+<UML:Attribute isSpecification="false" name="fl_ativo" visibility="public" xmi.id="1103" type="1035"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="TransacaoBancaria" xmi.id="1012">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1104" type="1029"/>
+<UML:Attribute isSpecification="false" name="descricao" visibility="public" xmi.id="1105" type="1030"/>
+<UML:Attribute isSpecification="false" name="valor" visibility="public" xmi.id="1106" type="1032"/>
+<UML:Attribute isSpecification="false" name="competencia" visibility="public" xmi.id="1107" type="1031"/>
+<UML:Attribute isSpecification="false" name="dt_lancamento" visibility="public" xmi.id="1108" type="1033"/>
+<UML:Attribute isSpecification="false" name="natureza_movimento" visibility="public" xmi.id="1109" type="1030"/>
+<UML:Attribute isSpecification="false" name="fl_pagamento_fatura" visibility="public" xmi.id="1110" type="1035"/>
+<UML:Attribute isSpecification="false" name="id_externo" visibility="public" xmi.id="1111" type="1030"/>
+<UML:Attribute isSpecification="false" name="origem" visibility="public" xmi.id="1112" type="1030"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="FaturaCartao" xmi.id="1013">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1113" type="1029"/>
+<UML:Attribute isSpecification="false" name="competencia" visibility="public" xmi.id="1114" type="1031"/>
+<UML:Attribute isSpecification="false" name="dt_fechamento" visibility="public" xmi.id="1115" type="1033"/>
+<UML:Attribute isSpecification="false" name="dt_vencimento" visibility="public" xmi.id="1116" type="1033"/>
+<UML:Attribute isSpecification="false" name="valor_total" visibility="public" xmi.id="1117" type="1032"/>
+<UML:Attribute isSpecification="false" name="valor_minimo" visibility="public" xmi.id="1118" type="1032"/>
+<UML:Attribute isSpecification="false" name="valor_encargos" visibility="public" xmi.id="1119" type="1032"/>
+<UML:Attribute isSpecification="false" name="valor_pago" visibility="public" xmi.id="1120" type="1032"/>
+<UML:Attribute isSpecification="false" name="status" visibility="public" xmi.id="1121" type="1030"/>
+<UML:Attribute isSpecification="false" name="origem" visibility="public" xmi.id="1122" type="1030"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="Receita" xmi.id="1014">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1123" type="1029"/>
+<UML:Attribute isSpecification="false" name="competencia" visibility="public" xmi.id="1124" type="1031"/>
+<UML:Attribute isSpecification="false" name="nome" visibility="public" xmi.id="1125" type="1030"/>
+<UML:Attribute isSpecification="false" name="descricao" visibility="public" xmi.id="1126" type="1030"/>
+<UML:Attribute isSpecification="false" name="valor" visibility="public" xmi.id="1127" type="1032"/>
+<UML:Attribute isSpecification="false" name="dt_lancamento" visibility="public" xmi.id="1128" type="1033"/>
+<UML:Attribute isSpecification="false" name="dt_recebimento" visibility="public" xmi.id="1129" type="1033"/>
+<UML:Attribute isSpecification="false" name="fl_recebido" visibility="public" xmi.id="1130" type="1035"/>
+<UML:Attribute isSpecification="false" name="origem" visibility="public" xmi.id="1131" type="1030"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="Despesa" xmi.id="1015">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1132" type="1029"/>
+<UML:Attribute isSpecification="false" name="competencia" visibility="public" xmi.id="1133" type="1031"/>
+<UML:Attribute isSpecification="false" name="nome" visibility="public" xmi.id="1134" type="1030"/>
+<UML:Attribute isSpecification="false" name="descricao" visibility="public" xmi.id="1135" type="1030"/>
+<UML:Attribute isSpecification="false" name="dt_lancamento" visibility="public" xmi.id="1136" type="1033"/>
+<UML:Attribute isSpecification="false" name="dt_vencimento" visibility="public" xmi.id="1137" type="1033"/>
+<UML:Attribute isSpecification="false" name="dt_pagamento" visibility="public" xmi.id="1138" type="1033"/>
+<UML:Attribute isSpecification="false" name="valor" visibility="public" xmi.id="1139" type="1032"/>
+<UML:Attribute isSpecification="false" name="valor_total_compra" visibility="public" xmi.id="1140" type="1032"/>
+<UML:Attribute isSpecification="false" name="fl_parcelada" visibility="public" xmi.id="1141" type="1035"/>
+<UML:Attribute isSpecification="false" name="nro_parcela" visibility="public" xmi.id="1142" type="1039"/>
+<UML:Attribute isSpecification="false" name="qtd_parcelas" visibility="public" xmi.id="1143" type="1039"/>
+<UML:Attribute isSpecification="false" name="meio_pagamento" visibility="public" xmi.id="1144" type="1030"/>
+<UML:Attribute isSpecification="false" name="ind_status_pagamento" visibility="public" xmi.id="1145" type="1030"/>
+<UML:Attribute isSpecification="false" name="fl_pagamento_fatura" visibility="public" xmi.id="1146" type="1035"/>
+<UML:Attribute isSpecification="false" name="origem" visibility="public" xmi.id="1147" type="1030"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="DespesaUsuario" xmi.id="1016">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1148" type="1029"/>
+<UML:Attribute isSpecification="false" name="valor" visibility="public" xmi.id="1149" type="1032"/>
+<UML:Attribute isSpecification="false" name="ind_status_pagamento" visibility="public" xmi.id="1150" type="1030"/>
+<UML:Attribute isSpecification="false" name="dt_acerto" visibility="public" xmi.id="1151" type="1033"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="Investimento" xmi.id="1017">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1152" type="1029"/>
+<UML:Attribute isSpecification="false" name="descricao" visibility="public" xmi.id="1153" type="1030"/>
+<UML:Attribute isSpecification="false" name="tipo" visibility="public" xmi.id="1154" type="1030"/>
+<UML:Attribute isSpecification="false" name="emissor" visibility="public" xmi.id="1155" type="1030"/>
+<UML:Attribute isSpecification="false" name="valor_aplicado" visibility="public" xmi.id="1156" type="1032"/>
+<UML:Attribute isSpecification="false" name="valor_bruto" visibility="public" xmi.id="1157" type="1032"/>
+<UML:Attribute isSpecification="false" name="valor_liquido" visibility="public" xmi.id="1158" type="1032"/>
+<UML:Attribute isSpecification="false" name="dt_aplicacao" visibility="public" xmi.id="1159" type="1033"/>
+<UML:Attribute isSpecification="false" name="dt_vencimento" visibility="public" xmi.id="1160" type="1033"/>
+<UML:Attribute isSpecification="false" name="dt_atualizacao_valor" visibility="public" xmi.id="1161" type="1034"/>
+<UML:Attribute isSpecification="false" name="origem" visibility="public" xmi.id="1162" type="1030"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="OpfiProvedor" xmi.id="1018">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1163" type="1029"/>
+<UML:Attribute isSpecification="false" name="codigo" visibility="public" xmi.id="1164" type="1030"/>
+<UML:Attribute isSpecification="false" name="nome" visibility="public" xmi.id="1165" type="1030"/>
+<UML:Attribute isSpecification="false" name="url_base" visibility="public" xmi.id="1166" type="1030"/>
+<UML:Attribute isSpecification="false" name="fl_suporta_webhook" visibility="public" xmi.id="1167" type="1035"/>
+<UML:Attribute isSpecification="false" name="parametros" visibility="public" xmi.id="1168" type="1036"/>
+<UML:Attribute isSpecification="false" name="fl_ativo" visibility="public" xmi.id="1169" type="1035"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="OpfiInstituicaoProvedor" xmi.id="1019">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1170" type="1029"/>
+<UML:Attribute isSpecification="false" name="id_externo" visibility="public" xmi.id="1171" type="1030"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="OpfiCredencial" xmi.id="1020">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1172" type="1029"/>
+<UML:Attribute isSpecification="false" name="client_id" visibility="public" xmi.id="1173" type="1030"/>
+<UML:Attribute isSpecification="false" name="client_secret" visibility="public" xmi.id="1174" type="1037"/>
+<UML:Attribute isSpecification="false" name="secret_atualizado_em" visibility="public" xmi.id="1175" type="1034"/>
+<UML:Attribute isSpecification="false" name="ambiente" visibility="public" xmi.id="1176" type="1030"/>
+<UML:Attribute isSpecification="false" name="fl_ativo" visibility="public" xmi.id="1177" type="1035"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="OpfiConexao" xmi.id="1021">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1178" type="1029"/>
+<UML:Attribute isSpecification="false" name="id_externo" visibility="public" xmi.id="1179" type="1030"/>
+<UML:Attribute isSpecification="false" name="status" visibility="public" xmi.id="1180" type="1030"/>
+<UML:Attribute isSpecification="false" name="status_detalhe" visibility="public" xmi.id="1181" type="1030"/>
+<UML:Attribute isSpecification="false" name="execucao_status" visibility="public" xmi.id="1182" type="1030"/>
+<UML:Attribute isSpecification="false" name="ultima_sincronizacao_em" visibility="public" xmi.id="1183" type="1034"/>
+<UML:Attribute isSpecification="false" name="proxima_sincronizacao_em" visibility="public" xmi.id="1184" type="1034"/>
+<UML:Attribute isSpecification="false" name="erro_codigo" visibility="public" xmi.id="1185" type="1030"/>
+<UML:Attribute isSpecification="false" name="erro_mensagem" visibility="public" xmi.id="1186" type="1030"/>
+<UML:Attribute isSpecification="false" name="parametros" visibility="public" xmi.id="1187" type="1036"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="OpfiConsentimento" xmi.id="1022">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1188" type="1029"/>
+<UML:Attribute isSpecification="false" name="id_externo" visibility="public" xmi.id="1189" type="1030"/>
+<UML:Attribute isSpecification="false" name="escopos" visibility="public" xmi.id="1190" type="1030"/>
+<UML:Attribute isSpecification="false" name="dt_concessao" visibility="public" xmi.id="1191" type="1034"/>
+<UML:Attribute isSpecification="false" name="dt_expiracao" visibility="public" xmi.id="1192" type="1034"/>
+<UML:Attribute isSpecification="false" name="status" visibility="public" xmi.id="1193" type="1030"/>
+<UML:Attribute isSpecification="false" name="dt_revogacao" visibility="public" xmi.id="1194" type="1034"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="OpfiContaExterna" xmi.id="1023">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1195" type="1029"/>
+<UML:Attribute isSpecification="false" name="id_externo" visibility="public" xmi.id="1196" type="1030"/>
+<UML:Attribute isSpecification="false" name="tipo" visibility="public" xmi.id="1197" type="1030"/>
+<UML:Attribute isSpecification="false" name="subtipo" visibility="public" xmi.id="1198" type="1030"/>
+<UML:Attribute isSpecification="false" name="nome" visibility="public" xmi.id="1199" type="1030"/>
+<UML:Attribute isSpecification="false" name="numero" visibility="public" xmi.id="1200" type="1030"/>
+<UML:Attribute isSpecification="false" name="saldo" visibility="public" xmi.id="1201" type="1032"/>
+<UML:Attribute isSpecification="false" name="saldo_em" visibility="public" xmi.id="1202" type="1034"/>
+<UML:Attribute isSpecification="false" name="moeda" visibility="public" xmi.id="1203" type="1031"/>
+<UML:Attribute isSpecification="false" name="dados_brutos" visibility="public" xmi.id="1204" type="1036"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="OpfiTransacao" xmi.id="1024">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1205" type="1029"/>
+<UML:Attribute isSpecification="false" name="id_externo" visibility="public" xmi.id="1206" type="1030"/>
+<UML:Attribute isSpecification="false" name="descricao" visibility="public" xmi.id="1207" type="1030"/>
+<UML:Attribute isSpecification="false" name="valor" visibility="public" xmi.id="1208" type="1032"/>
+<UML:Attribute isSpecification="false" name="dt_transacao" visibility="public" xmi.id="1209" type="1033"/>
+<UML:Attribute isSpecification="false" name="natureza" visibility="public" xmi.id="1210" type="1030"/>
+<UML:Attribute isSpecification="false" name="categoria_externa" visibility="public" xmi.id="1211" type="1030"/>
+<UML:Attribute isSpecification="false" name="status_externo" visibility="public" xmi.id="1212" type="1030"/>
+<UML:Attribute isSpecification="false" name="status_conciliacao" visibility="public" xmi.id="1213" type="1030"/>
+<UML:Attribute isSpecification="false" name="tipo_lancamento_gerado" visibility="public" xmi.id="1214" type="1030"/>
+<UML:Attribute isSpecification="false" name="id_lancamento_gerado" visibility="public" xmi.id="1215" type="1029"/>
+<UML:Attribute isSpecification="false" name="dt_conciliacao" visibility="public" xmi.id="1216" type="1034"/>
+<UML:Attribute isSpecification="false" name="dados_brutos" visibility="public" xmi.id="1217" type="1036"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="OpfiFatura" xmi.id="1025">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1218" type="1029"/>
+<UML:Attribute isSpecification="false" name="id_externo" visibility="public" xmi.id="1219" type="1030"/>
+<UML:Attribute isSpecification="false" name="dt_vencimento" visibility="public" xmi.id="1220" type="1033"/>
+<UML:Attribute isSpecification="false" name="dt_fechamento" visibility="public" xmi.id="1221" type="1033"/>
+<UML:Attribute isSpecification="false" name="valor_total" visibility="public" xmi.id="1222" type="1032"/>
+<UML:Attribute isSpecification="false" name="valor_minimo" visibility="public" xmi.id="1223" type="1032"/>
+<UML:Attribute isSpecification="false" name="status_conciliacao" visibility="public" xmi.id="1224" type="1030"/>
+<UML:Attribute isSpecification="false" name="id_fatura_gerada" visibility="public" xmi.id="1225" type="1029"/>
+<UML:Attribute isSpecification="false" name="dados_brutos" visibility="public" xmi.id="1226" type="1036"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="OpfiInvestimento" xmi.id="1026">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1227" type="1029"/>
+<UML:Attribute isSpecification="false" name="id_externo" visibility="public" xmi.id="1228" type="1030"/>
+<UML:Attribute isSpecification="false" name="nome" visibility="public" xmi.id="1229" type="1030"/>
+<UML:Attribute isSpecification="false" name="tipo_externo" visibility="public" xmi.id="1230" type="1030"/>
+<UML:Attribute isSpecification="false" name="valor_aplicado" visibility="public" xmi.id="1231" type="1032"/>
+<UML:Attribute isSpecification="false" name="valor_bruto" visibility="public" xmi.id="1232" type="1032"/>
+<UML:Attribute isSpecification="false" name="valor_liquido" visibility="public" xmi.id="1233" type="1032"/>
+<UML:Attribute isSpecification="false" name="dt_posicao" visibility="public" xmi.id="1234" type="1033"/>
+<UML:Attribute isSpecification="false" name="status_conciliacao" visibility="public" xmi.id="1235" type="1030"/>
+<UML:Attribute isSpecification="false" name="id_investimento_gerado" visibility="public" xmi.id="1236" type="1029"/>
+<UML:Attribute isSpecification="false" name="dados_brutos" visibility="public" xmi.id="1237" type="1036"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="OpfiEventoWebhook" xmi.id="1027">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1238" type="1029"/>
+<UML:Attribute isSpecification="false" name="id_evento_externo" visibility="public" xmi.id="1239" type="1030"/>
+<UML:Attribute isSpecification="false" name="tipo" visibility="public" xmi.id="1240" type="1030"/>
+<UML:Attribute isSpecification="false" name="id_externo" visibility="public" xmi.id="1241" type="1030"/>
+<UML:Attribute isSpecification="false" name="payload" visibility="public" xmi.id="1242" type="1036"/>
+<UML:Attribute isSpecification="false" name="recebido_em" visibility="public" xmi.id="1243" type="1034"/>
+<UML:Attribute isSpecification="false" name="processado_em" visibility="public" xmi.id="1244" type="1034"/>
+<UML:Attribute isSpecification="false" name="status" visibility="public" xmi.id="1245" type="1030"/>
+<UML:Attribute isSpecification="false" name="erro_mensagem" visibility="public" xmi.id="1246" type="1030"/>
+<UML:Attribute isSpecification="false" name="tentativas" visibility="public" xmi.id="1247" type="1039"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Class isSpecification="false" isRoot="false" isLeaf="false" isAbstract="false" name="OpfiSincronizacao" xmi.id="1028">
+<UML:Classifier.feature>
+<UML:Attribute isSpecification="false" name="id" visibility="public" xmi.id="1248" type="1029"/>
+<UML:Attribute isSpecification="false" name="tipo" visibility="public" xmi.id="1249" type="1030"/>
+<UML:Attribute isSpecification="false" name="iniciado_em" visibility="public" xmi.id="1250" type="1034"/>
+<UML:Attribute isSpecification="false" name="finalizado_em" visibility="public" xmi.id="1251" type="1034"/>
+<UML:Attribute isSpecification="false" name="status" visibility="public" xmi.id="1252" type="1030"/>
+<UML:Attribute isSpecification="false" name="qtd_transacoes_novas" visibility="public" xmi.id="1253" type="1038"/>
+<UML:Attribute isSpecification="false" name="qtd_contas_atualizadas" visibility="public" xmi.id="1254" type="1038"/>
+<UML:Attribute isSpecification="false" name="erro_mensagem" visibility="public" xmi.id="1255" type="1030"/>
+</UML:Classifier.feature>
+</UML:Class>
+<UML:Generalization isSpecification="false" xmi.id="1256" child="1002" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1257" child="1003" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1258" child="1004" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1259" child="1005" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1260" child="1006" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1261" child="1007" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1262" child="1008" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1263" child="1009" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1264" child="1010" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1265" child="1011" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1266" child="1012" parent="1002"/>
+<UML:Generalization isSpecification="false" xmi.id="1267" child="1013" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1268" child="1014" parent="1002"/>
+<UML:Generalization isSpecification="false" xmi.id="1269" child="1015" parent="1002"/>
+<UML:Generalization isSpecification="false" xmi.id="1270" child="1016" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1271" child="1017" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1272" child="1018" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1273" child="1019" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1274" child="1020" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1275" child="1021" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1276" child="1022" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1277" child="1023" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1278" child="1024" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1279" child="1025" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1280" child="1026" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1281" child="1027" parent="1001"/>
+<UML:Generalization isSpecification="false" xmi.id="1282" child="1028" parent="1001"/>
+<UML:Association isSpecification="false" name="id" xmi.id="1283"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1003" xmi.id="1284"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1005" xmi.id="1285"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1286"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1004" xmi.id="1287"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1005" xmi.id="1288"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1289"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1003" xmi.id="1290"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1006" xmi.id="1291"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1292"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1007" xmi.id="1293"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1008" xmi.id="1294"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1295"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1018" xmi.id="1296"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1008" xmi.id="1297"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1298"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1009" xmi.id="1299"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1010" xmi.id="1300"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1301"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1006" xmi.id="1302"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1010" xmi.id="1303"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1304"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1010" xmi.id="1305"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1011" xmi.id="1306"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1307"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1006" xmi.id="1308"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1011" xmi.id="1309"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1310"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1010" xmi.id="1311"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1012" xmi.id="1312"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1313"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1007" xmi.id="1314"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1012" xmi.id="1315"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1316"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1011" xmi.id="1317"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1013" xmi.id="1318"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id_pagamento" xmi.id="1319"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1012" xmi.id="1320"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1013" xmi.id="1321"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1322"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1010" xmi.id="1323"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1014" xmi.id="1324"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1325"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1007" xmi.id="1326"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1014" xmi.id="1327"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id_parcela_pai" xmi.id="1328"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1015" xmi.id="1329"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1015" xmi.id="1330"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1331"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1010" xmi.id="1332"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1015" xmi.id="1333"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1334"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1011" xmi.id="1335"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1015" xmi.id="1336"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1337"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1013" xmi.id="1338"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1015" xmi.id="1339"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1340"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1007" xmi.id="1341"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1015" xmi.id="1342"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1343"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1015" xmi.id="1344"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1016" xmi.id="1345"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1346"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1006" xmi.id="1347"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1016" xmi.id="1348"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1349"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1010" xmi.id="1350"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1017" xmi.id="1351"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1352"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1009" xmi.id="1353"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1017" xmi.id="1354"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1355"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1006" xmi.id="1356"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1017" xmi.id="1357"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1358"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1009" xmi.id="1359"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1019" xmi.id="1360"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1361"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1018" xmi.id="1362"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1019" xmi.id="1363"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1364"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1006" xmi.id="1365"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1020" xmi.id="1366"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1367"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1018" xmi.id="1368"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1020" xmi.id="1369"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1370"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1006" xmi.id="1371"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1021" xmi.id="1372"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1373"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1009" xmi.id="1374"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1021" xmi.id="1375"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1376"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1018" xmi.id="1377"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1021" xmi.id="1378"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1379"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1020" xmi.id="1380"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1021" xmi.id="1381"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1382"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1021" xmi.id="1383"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1022" xmi.id="1384"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1385"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1021" xmi.id="1386"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1023" xmi.id="1387"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1388"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1010" xmi.id="1389"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1023" xmi.id="1390"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1391"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1011" xmi.id="1392"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1023" xmi.id="1393"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1394"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1023" xmi.id="1395"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1024" xmi.id="1396"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1397"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1023" xmi.id="1398"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1025" xmi.id="1399"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1400"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1021" xmi.id="1401"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1026" xmi.id="1402"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1403"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1018" xmi.id="1404"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1027" xmi.id="1405"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1406"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1021" xmi.id="1407"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1027" xmi.id="1408"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1409"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1021" xmi.id="1410"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1028" xmi.id="1411"/></UML:Association.connection></UML:Association>
+<UML:Association isSpecification="false" name="id" xmi.id="1412"><UML:Association.connection><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..*" type="1027" xmi.id="1413"/><UML:AssociationEnd isSpecification="false" isNavigable="true" aggregation="none" name="" multiplicity="0..1" type="1028" xmi.id="1414"/></UML:Association.connection></UML:Association>
+</UML:Namespace.ownedElement>
+</UML:Model>
+<XMI.extension xmi.extender="umbrello">
+<diagrams>
+<diagram name="Classes — Documento 0" xmi.id="9000" type="1" snapgrid="0" showattsig="1" showopsig="1" showattributes="1" showoperations="0" showpackage="0" localid="9000" linewidth="0" font="Sans Serif,9,-1,5,50,0,0,0,0,0">
+<widgets>
+<classwidget xmi.id="1001" x="40" y="40" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1002" x="300" y="40" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1003" x="560" y="40" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1004" x="820" y="40" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1005" x="1080" y="40" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1006" x="1340" y="40" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1007" x="40" y="260" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1008" x="300" y="260" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1009" x="560" y="260" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1010" x="820" y="260" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1011" x="1080" y="260" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1012" x="1340" y="260" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1013" x="40" y="480" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1014" x="300" y="480" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1015" x="560" y="480" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1016" x="820" y="480" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1017" x="1080" y="480" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1018" x="1340" y="480" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1019" x="40" y="700" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1020" x="300" y="700" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1021" x="560" y="700" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1022" x="820" y="700" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1023" x="1080" y="700" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1024" x="1340" y="700" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1025" x="40" y="920" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1026" x="300" y="920" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1027" x="560" y="920" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+<classwidget xmi.id="1028" x="820" y="920" width="230" height="170" showattributes="1" showoperations="0" showpackage="0" showscope="1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" usesdiagramfillcolor="1" usesdiagramusefillcolor="1"/>
+</widgets>
+<messages/>
+<associations>
+<assocwidget xmi.id="1256" type="500" widgetaid="1002" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1257" type="500" widgetaid="1003" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1258" type="500" widgetaid="1004" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1259" type="500" widgetaid="1005" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1260" type="500" widgetaid="1006" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1261" type="500" widgetaid="1007" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1262" type="500" widgetaid="1008" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1263" type="500" widgetaid="1009" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1264" type="500" widgetaid="1010" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1265" type="500" widgetaid="1011" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1266" type="500" widgetaid="1012" widgetbid="1002" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1267" type="500" widgetaid="1013" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1268" type="500" widgetaid="1014" widgetbid="1002" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1269" type="500" widgetaid="1015" widgetbid="1002" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1270" type="500" widgetaid="1016" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1271" type="500" widgetaid="1017" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1272" type="500" widgetaid="1018" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1273" type="500" widgetaid="1019" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1274" type="500" widgetaid="1020" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1275" type="500" widgetaid="1021" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1276" type="500" widgetaid="1022" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1277" type="500" widgetaid="1023" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1278" type="500" widgetaid="1024" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1279" type="500" widgetaid="1025" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1280" type="500" widgetaid="1026" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1281" type="500" widgetaid="1027" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+<assocwidget xmi.id="1282" type="500" widgetaid="1028" widgetbid="1001" indexa="0" indexb="0" totalcounta="0" totalcountb="0"><linepath/></assocwidget>
+</associations>
+</diagram>
+</diagrams>
+</XMI.extension>
+</XMI.content>
+</XMI>
