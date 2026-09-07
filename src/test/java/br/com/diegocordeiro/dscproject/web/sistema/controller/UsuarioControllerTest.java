@@ -32,6 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -79,6 +80,18 @@ class UsuarioControllerTest {
     @WithMockUser(authorities = "ROLE_USER")
     void listar_perfilSemPermissao_403() throws Exception {
         mockMvc.perform(get("/usuarios/listar")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = "PERM_USUARIOS_LISTAR")
+    void listar_comPermissao_renderizaPaginaComOsFragmentsDasModais() throws Exception {
+        mockMvc.perform(get("/usuarios/listar"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(org.hamcrest.Matchers.allOf(
+                org.hamcrest.Matchers.containsString("id=\"modalFiltro\""),
+                org.hamcrest.Matchers.containsString("id=\"modalUsuario\""),
+                org.hamcrest.Matchers.containsString("id=\"modalHistorico\""),
+                org.hamcrest.Matchers.containsString("/js/usuario/listar.js"))));
     }
 
     // ---------- BDD 16.2 — cadastrar ----------
