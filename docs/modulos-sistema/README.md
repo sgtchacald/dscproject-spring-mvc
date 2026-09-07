@@ -6,7 +6,7 @@ nomeada `NN - nome-com-hifen` para ordenar sozinha.
 | Pasta | Conteúdo | Situação |
 |---|---|---|
 | `00 - analise-geral` | Documento 0 — Fundação: 26 tabelas (RBAC + domínio financeiro + Open Finance), DDL MySQL, mapeamento JPA, DER e diagrama de classes. Base transversal de todos os demais. | Escrito (v1.2) |
-| `01 - manter-usuario` | CRUD de Usuário (mescla gerações 1 e 2) + RBAC + recuperação de senha por token. Tela nova `USUARIOS_RECUPERACAO_SENHA`. Protótipo navegável + wireframes na Seção 7 | Escrito (v1.1) — telas a construir |
+| `01 - manter-usuario` | CRUD de Usuário (mescla gerações 1 e 2) + RBAC + recuperação de senha por token. Tela nova `USUARIOS_RECUPERACAO_SENHA`. v1.3: troca de senha vira ação dedicada no grid (ADMIN) + tela self-service **Configurações da Conta** (`/minha-conta`). Protótipo navegável + wireframes na Seção 7 | Escrito (v1.3) — telas a construir; wireframes das telas novas pendentes |
 | `02 - manter-perfil-permissao` | Tela de RBAC: gerenciar perfis e vincular permissões. Catálogo de permissões vem do código (sincronizador). Travas anti-lockout | Escrito (v1.0) — telas a construir |
 | `03 - manter-categoria` | CRUD de Categoria + mapa `CATEGORIAS_PROVEDOR` | A escrever |
 | `04 - manter-instituicao-financeira` | CRUD de Instituição Financeira + `OPFI_INSTITUICAO_PROVEDOR` | A escrever |

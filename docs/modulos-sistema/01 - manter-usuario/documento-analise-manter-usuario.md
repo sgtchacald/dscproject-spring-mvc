@@ -2,7 +2,7 @@
 ## Módulo Usuário — ADMIN — Manter Usuário
 
 **Gerado em:** 06/09/2026
-**Versão:** 1.2
+**Versão:** 1.3
 **Projeto:** `dscproject-spring-mvc` (geração 2)
 
 ---
@@ -27,6 +27,7 @@
 | 1.0 | 06/09/2026 | Diego dos Santos Cordeiro | Criação do documento. Mescla o que existe nas gerações 1 (API REST + Angular) e 2 (Spring MVC) e define o CRUD completo de usuário para a geração 2, incluindo editar e excluir (que não existem em nenhuma geração), RBAC (perfil × permissão) e recuperação de senha por token |
 | 1.1 | 06/09/2026 | Diego dos Santos Cordeiro | Fecha os itens "A Confirmar": verificação de e-mail no auto-cadastro **fica fora da v1** ([RN17](#rn17)); limite de recuperação de senha fixado em 3 a cada 15 min ([RN16](#rn16)); consulta [C3](#c3) passa a buscar pelo hash do token. Protótipos de interface incluídos na Seção 7 |
 | 1.2 | 07/09/2026 | Diego dos Santos Cordeiro | A permissão única `ADMINISTRAR_USUARIOS` vira cinco, granulares por operação: `USUARIOS_LISTAR`, `USUARIOS_INSERIR`, `USUARIOS_EDITAR`, `USUARIOS_EXCLUIR`, `USUARIOS_VER_HISTORICO` (convenção domínio-primeiro). Nova Seção 13.1 com a matriz Perfil × Permissão. Cada EDP passa a exigir a permissão da sua operação ([RN01](#rn01)) |
+| 1.3 | 07/09/2026 | Diego dos Santos Cordeiro | Separa a troca de senha da edição cadastral: [EDP05](#edp05) não altera mais senha; nova ação dedicada no grid ([RT13](#rt13) / [EDP12](#edp12) / [QUADRO_DESCRITIVO_7](#quadro-descritivo-7)). Nova tela **Configurações da Conta** (self-service) — [QUADRO_DESCRITIVO_8](#quadro-descritivo-8), [EDP13](#edp13)/[EDP14](#edp14), [RN18](#rn18)/[RN19](#rn19), [RT14](#rt14) —, em que o usuário edita os próprios dados e a própria senha sem alterar o perfil. Novas [MSG21](#msg21) e [MSG22](#msg22); novos [RF12](#rf12)/[RF13](#rf13), [CAUS09](#caus09)/[CAUS10](#caus10). A Seção 6 (Banco de Dados) permanece inalterada |
 
 ---
 
@@ -53,7 +54,9 @@ Este documento **mescla as duas gerações** e define, para a geração 2, o CRU
 
 **Escopo deste documento:**
 - Tela de **listagem** de usuários (grid), restrita a quem tem a permissão [PERM01](#perm01), com filtro por modal.
-- **Cadastro e edição** de usuário via modal único (perfil ADMIN).
+- **Cadastro e edição** de usuário via modal único (perfil ADMIN). Senha só no cadastro.
+- **Alteração de senha de usuário pelo ADMIN** — ação dedicada no grid, separada da edição cadastral.
+- **Configurações da Conta** (self-service) — o próprio usuário autenticado, de qualquer perfil, edita seus dados e troca a própria senha.
 - **Exclusão lógica** (soft delete) de usuário, com as travas de negócio.
 - **Histórico** de alterações do usuário (Hibernate Envers).
 - **Auto-cadastro pelo site** (público) — a tela que a geração 2 já tem, revisada.
@@ -61,12 +64,11 @@ Este documento **mescla as duas gerações** e define, para a geração 2, o CRU
 - Definição dos perfis `ADMIN` e `USER` e das permissões que esta tela usa (o RBAC completo é do Documento 0).
 
 **Não contempla:**
-- Tela "Meu Perfil" (usuário comum editando os próprios dados) — documento futuro. Aqui, a edição é sempre administrativa.
 - Tela de **editor de perfil × permissão** (`NN - manter-perfil-permissao`) — documento de admin futuro. Aqui, perfis e permissões vêm de carga inicial.
 - Login e logout (Spring Security form login) — já implementado.
 - Planos pagos e cotas — módulo futuro (`NN - planos-e-assinaturas`); ver Observação 24 do Documento 0.
 
-**Perfis com acesso:** [PERF01](#perf01) (ADMIN) para o CRUD administrativo. Auto-cadastro e recuperação de senha são públicos.
+**Perfis com acesso:** [PERF01](#perf01) (ADMIN) para o CRUD administrativo e a ação de alterar senha de usuário. Auto-cadastro e recuperação de senha são públicos. **Configurações da Conta** é acessível a qualquer usuário autenticado ([PERF01](#perf01) e [PERF02](#perf02)).
 
 ---
 
@@ -88,6 +90,8 @@ Este documento **mescla as duas gerações** e define, para a geração 2, o CRU
 | 12 | O grid é **client-side** (carrega a lista completa uma vez e pagina/ordena no navegador com DataTables). O sistema é pessoal, com poucos usuários; paginação server-side seria complexidade sem ganho. | [EDP02](#edp02) / [RNF03](#rnf03) |
 | 13 | **Auditoria.** `USUARIOS`, `PERFIS`, `PERMISSOES`, `PERFIL_PERMISSAO` e `USUARIOS_RECUPERACAO_SENHA` são auditadas via Hibernate Envers (`@Audited`), conforme o Documento 0. | [RNF04](#rnf04) |
 | 14 | **Campos residuais no front da geração 1.** `usuario.model.ts` carrega `valorDividido`, `statusPagamento` e `logado` — resquício do rateio de despesa. Não fazem parte do usuário; são ignorados neste documento. | — |
+| 15 | **Troca de senha fora da edição cadastral.** A edição administrativa ([EDP05](#edp05)) deixa de aceitar senha. A troca da senha de outro usuário passa a ser uma ação dedicada no grid ([RT13](#rt13)); a troca da própria senha fica em Configurações da Conta ([EDP14](#edp14)). Decisão de estrutura: mantém-se um único [QUADRO_DESCRITIVO_4](#quadro-descritivo-4), com Senha e Confirmação exibidos **apenas no modo criação** — mais enxuto que dois quadros. | [RN07](#rn07), [RN18](#rn18) |
+| 16 | **Configurações da Conta (self-service).** Nova tela para o próprio usuário autenticado editar seus dados e senha, cobrindo o que a Seção 1 listava como "Tela Meu Perfil — documento futuro". O id é sempre do contexto de segurança, nunca da requisição; o perfil é imutável na tela; não há permissão específica. | [RN19](#rn19) |
 
 ---
 
@@ -99,8 +103,8 @@ Este documento **mescla as duas gerações** e define, para a geração 2, o CRU
 |---|---|---|---|
 | <a id="rf01"></a>RF01 | O sistema deve exibir a quem tem a permissão [PERM01](#perm01) uma tela listando os usuários cadastrados, com as colunas: Nome, Login, E-mail, Perfil, Gênero, Criado em e Situação. | Alta | Em análise |
 | <a id="rf02"></a>RF02 | O sistema deve permitir filtrar a listagem por texto (nome/login/e-mail), Perfil e Situação (Ativo/Excluído/Todos), por meio de um modal acionado pelo botão "Filtrar". | Alta | Em análise |
-| <a id="rf03"></a>RF03 | O sistema deve permitir cadastrar um novo usuário via modal (perfil ADMIN), com os campos: Nome, Gênero, Data de nascimento, E-mail, Login, Senha, Confirmação de senha e Perfil. | Alta | Em análise |
-| <a id="rf04"></a>RF04 | O sistema deve permitir editar um usuário existente via modal, reaproveitando o formulário do cadastro. A troca de senha é opcional na edição. | Alta | Em análise |
+| <a id="rf03"></a>RF03 | O sistema deve permitir cadastrar um novo usuário via modal (perfil ADMIN), com os campos: Nome, Gênero, Data de nascimento, E-mail, Login, Senha, Confirmação de senha e Perfil. A senha inicial é obrigatória no cadastro. | Alta | Em análise |
+| <a id="rf04"></a>RF04 | O sistema deve permitir editar um usuário existente via modal, com os campos Nome, Gênero, Data de nascimento, E-mail, Login e Perfil. A edição administrativa **não** altera a senha — a troca de senha de outro usuário é feita por ação dedicada ([RF12](#rf12)). | Alta | Em análise |
 | <a id="rf05"></a>RF05 | O sistema deve impedir o cadastro ou a alteração de um usuário com login ou e-mail já em uso por outro usuário. | Alta | Em análise |
 | <a id="rf06"></a>RF06 | O sistema deve permitir a exclusão lógica de um usuário, impedindo a exclusão do próprio usuário logado e do último ADMIN ativo. | Alta | Em análise |
 | <a id="rf07"></a>RF07 | O sistema deve exibir o histórico de alterações de um usuário (criação, edições, exclusão), sem exibir a senha em nenhuma revisão. | Média | Em análise |
@@ -108,6 +112,8 @@ Este documento **mescla as duas gerações** e define, para a geração 2, o CRU
 | <a id="rf09"></a>RF09 | O sistema deve disponibilizar um fluxo público de recuperação de senha: o usuário informa o e-mail, recebe um link com token de uso único e define uma nova senha. | Alta | Em análise |
 | <a id="rf10"></a>RF10 | O sistema deve derivar as autoridades do usuário do seu perfil e das permissões vinculadas ao perfil (RBAC), restringindo **cada operação** do CRUD administrativo à sua permissão ([PERM01](#perm01)–[PERM05](#perm05)). | Alta | Em análise |
 | <a id="rf11"></a>RF11 | O sistema deve armazenar a senha com hash BCrypt e nunca devolvê-la (nem o hash) em resposta de listagem, edição ou histórico. | Alta | Em análise |
+| <a id="rf12"></a>RF12 | O sistema deve permitir ao ADMIN alterar a senha de um usuário por uma ação dedicada no grid, separada da edição cadastral, exigindo a confirmação da nova senha e sem alterar nenhum outro dado do usuário. | Alta | Em análise |
+| <a id="rf13"></a>RF13 | O sistema deve disponibilizar a qualquer usuário autenticado a tela Configurações da Conta, onde ele edita os próprios dados (Nome, Gênero, Data de nascimento, E-mail, Login) e, opcionalmente, troca a própria senha, sem poder alterar o próprio perfil. | Alta | Em análise |
 
 ### 3.2 Requisitos Não Funcionais
 
@@ -137,19 +143,24 @@ Este documento **mescla as duas gerações** e define, para a geração 2, o CRU
 | <a id="caus06"></a>CAUS06 | Ver Histórico do Usuário | [PERF01](#perf01) | ADMIN abre o histórico de alterações de um usuário. ([RF07](#rf07)) |
 | <a id="caus07"></a>CAUS07 | Auto-cadastrar-se | Visitante | Visitante preenche o formulário público e cria a própria conta com perfil USER. ([RF08](#rf08)) |
 | <a id="caus08"></a>CAUS08 | Recuperar Senha | Visitante | Visitante informa o e-mail, recebe o link com token e define nova senha. ([RF09](#rf09)) |
+| <a id="caus09"></a>CAUS09 | Alterar Senha de Usuário | [PERF01](#perf01) | ADMIN altera a senha de um usuário pela ação dedicada do grid, sem passar pela edição cadastral. ([RF12](#rf12)) |
+| <a id="caus10"></a>CAUS10 | Gerir a Própria Conta | [PERF01](#perf01), [PERF02](#perf02) | Usuário autenticado edita os próprios dados e, opcionalmente, troca a própria senha em Configurações da Conta. ([RF13](#rf13)) |
 
 ---
 
 ## 5. Localização / Critérios de Aceitação
 
 **Caminho de Navegação:**
-- Menu principal > Administração > Usuários
+- Menu principal > Administração > Usuários (CRUD administrativo)
+- Menu do usuário (dropdown do nome no header) > Configurações da Conta → `/minha-conta` (disponível a qualquer usuário autenticado — ADMIN e USER)
 
 **Critérios de Aceitação:**
 - O menu 'Usuários' é visível apenas para quem tem [PERM01](#perm01).
 - Ao acessar a tela, a listagem é carregada automaticamente.
 - O filtro é aplicado por um modal acionado pelo botão "Filtrar".
-- O cadastro e a edição são feitos num modal único.
+- O cadastro e a edição são feitos num modal único; Senha e Confirmação só aparecem no modo criação.
+- A troca de senha de um usuário é uma ação dedicada do grid, que não altera nenhum outro dado.
+- Em Configurações da Conta o usuário altera apenas o próprio registro e não vê o campo Perfil.
 - Não é permitido cadastrar dois usuários com o mesmo login ou e-mail.
 - Não é permitido excluir a si mesmo nem o último ADMIN ativo.
 - A senha nunca é exibida (nem o hash) na listagem, edição ou histórico.
@@ -258,10 +269,11 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 | <a id="qdd2-11"></a>11 | GÊNERO | Tipo: Coluna<br>Ordenação: Não | Exibe a descrição do gênero (Feminino/Masculino/Outro). |
 | <a id="qdd2-12"></a>12 | CRIADO EM | Tipo: Coluna (data)<br>Ordenação: Sim | Exibe [C1](#c1).criadoEm formatado dd/MM/yyyy. |
 | <a id="qdd2-13"></a>13 | SITUAÇÃO | Tipo: Coluna (badge)<br>Ordenação: Sim | Ativo (verde) quando `audit_data_exclusao` é nulo; Excluído (cinza) caso contrário. |
-| <a id="qdd2-14"></a>14 | AÇÃO | Tipo: Coluna | Ícones [ID15](#qdd2-15), [ID16](#qdd2-16), [ID17](#qdd2-17). |
+| <a id="qdd2-14"></a>14 | AÇÃO | Tipo: Coluna | Ícones [ID15](#qdd2-15), [ID16](#qdd2-16), [ID17](#qdd2-17), [ID18](#qdd2-18). |
 | <a id="qdd2-15"></a>15 | ÍCONE EDITAR | Tipo: Ícone<br>Ícone: edit<br>Tooltip: Editar usuário | Visível a quem tem [PERM03](#perm03). Ao clicar, executar [RT05](#rt05). Oculto para usuários excluídos. |
 | <a id="qdd2-16"></a>16 | ÍCONE EXCLUIR | Tipo: Ícone<br>Ícone: trash<br>Tooltip: Excluir usuário | Visível a quem tem [PERM04](#perm04). Ao clicar, executar [RT09](#rt09). Oculto para o próprio usuário logado e para usuários já excluídos. |
 | <a id="qdd2-17"></a>17 | ÍCONE HISTÓRICO | Tipo: Ícone<br>Ícone: history<br>Tooltip: Ver histórico | Visível a quem tem [PERM05](#perm05). Ao clicar, executar [RT10](#rt10). |
+| <a id="qdd2-18"></a>18 | ÍCONE ALTERAR SENHA | Tipo: Ícone<br>Ícone: key<br>Tooltip: Alterar senha | Visível a quem tem [PERM03](#perm03). Ao clicar, executar [RT13](#rt13). Oculto para usuários excluídos. |
 
 ### <a id="quadro-descritivo-3"></a>7.2 Modal: Filtrar Usuários — QUADRO_DESCRITIVO_3
 
@@ -282,7 +294,7 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 
 ![Prototipo - Modal Cadastro / Edicao de Usuario](images/mu-tela-3.png)
 
-> OBSERVAÇÕES: Modal único de cadastro e edição — aberto por [PERM02](#perm02) (criação) ou [PERM03](#perm03) (edição). Em modo edição, os campos Senha e Confirmação de senha ficam vazios e são **opcionais** (preencher só para trocar). O campo Perfil só aparece para quem pode definir perfil ([RN09](#rn09)) — no auto-cadastro público ([QUADRO_DESCRITIVO_5](#quadro-descritivo-5)) ele não existe.
+> OBSERVAÇÕES: Modal único de cadastro e edição — aberto por [PERM02](#perm02) (criação) ou [PERM03](#perm03) (edição). Os campos Senha ([ID7](#qdd4-7)) e Confirmação de senha ([ID8](#qdd4-8)) aparecem **apenas no modo criação**; na edição o modal não os exibe e a troca de senha é feita pela ação dedicada do grid ([RT13](#rt13)). O campo Perfil só aparece para quem pode definir perfil ([RN09](#rn09)) — no auto-cadastro público ([QUADRO_DESCRITIVO_5](#quadro-descritivo-5)) ele não existe.
 
 | ID | NOME | PROPRIEDADES | OBSERVAÇÕES |
 |---|---|---|---|
@@ -292,8 +304,8 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 | <a id="qdd4-4"></a>4 | CAMPO – DATA DE NASCIMENTO | Tipo: Input Date<br>Obrigatório: Sim | Grava em `USU_DT_NASCIMENTO`. Executar [RT07](#rt07). |
 | <a id="qdd4-5"></a>5 | CAMPO – E-MAIL | Tipo: Input Email<br>Tamanho: 512<br>Obrigatório: Sim | Grava em `USU_EMAIL`. Único ([RN04](#rn04)). Executar [RT06](#rt06). |
 | <a id="qdd4-6"></a>6 | CAMPO – LOGIN | Tipo: Input Text<br>Tamanho: 40<br>Mín.: 4<br>Obrigatório: Sim | Grava em `USU_LOGIN`. Único ([RN04](#rn04)). Executar [RT06](#rt06). |
-| <a id="qdd4-7"></a>7 | CAMPO – SENHA | Tipo: Input Password<br>Mín.: 6<br>Obrigatório: Sim na criação / Não na edição | Cifra BCrypt no serviço ([RN02](#rn02)). |
-| <a id="qdd4-8"></a>8 | CAMPO – CONFIRMAÇÃO DE SENHA | Tipo: Input Password<br>Obrigatório: quando Senha preenchida | Executar [RT08](#rt08). Não persiste. |
+| <a id="qdd4-7"></a>7 | CAMPO – SENHA | Tipo: Input Password<br>Mín.: 6<br>Obrigatório: Sim<br>Exibição: só no modo criação | Cifra BCrypt no serviço ([RN02](#rn02)). |
+| <a id="qdd4-8"></a>8 | CAMPO – CONFIRMAÇÃO DE SENHA | Tipo: Input Password<br>Obrigatório: Sim<br>Exibição: só no modo criação | Executar [RT08](#rt08). Não persiste. |
 | <a id="qdd4-9"></a>9 | CAMPO – PERFIL | Tipo: Combobox<br>Obrigatório: Sim<br>Domínio: ADMIN / USER | Grava `PERF_ID`. Só visível para quem pode definir perfil. Executar [RN09](#rn09). |
 | <a id="qdd4-10"></a>10 | BOTÃO SALVAR | Tipo: Botão<br>Texto: Salvar<br>Endpoint: [EDP04](#edp04) (criação) ou [EDP05](#edp05) (edição) | Ao clicar, executar [RT08](#rt08). |
 | <a id="qdd4-11"></a>11 | BOTÃO CANCELAR | Tipo: Botão<br>Texto: Cancelar | Fecha sem salvar. |
@@ -325,14 +337,47 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 | <a id="qdd6-4"></a>4 | CAMPO – CONFIRMAÇÃO (etapa 2) | Tipo: Input Password<br>Obrigatório: Sim | Executar [RT08](#rt08). |
 | <a id="qdd6-5"></a>5 | BOTÃO DEFINIR SENHA (etapa 2) | Tipo: Botão<br>Texto: Definir nova senha<br>Endpoint: [EDP11](#edp11) | Ao clicar, executar [RT12](#rt12). |
 
-### 7.6 Suggestion Boxes
+### <a id="quadro-descritivo-7"></a>7.6 Modal: Alterar Senha do Usuário — QUADRO_DESCRITIVO_7
+
+> OBSERVAÇÕES: Aberto pela ação "Alterar senha" do grid ([ID18](#qdd2-18)), restrita a [PERM03](#perm03). O título exibe o nome do usuário-alvo. Não altera nenhum outro dado do usuário ([RN18](#rn18)).
+
+| ID | NOME | PROPRIEDADES | OBSERVAÇÕES |
+|---|---|---|---|
+| <a id="qdd7-1"></a>1 | TÍTULO DO MODAL | Tipo: Texto<br>Texto: Alterar senha de "{nome}" | Nome do usuário-alvo. |
+| <a id="qdd7-2"></a>2 | CAMPO – NOVA SENHA | Tipo: Input Password<br>Mín.: 6<br>Obrigatório: Sim | Cifra BCrypt no serviço ([RN02](#rn02)). |
+| <a id="qdd7-3"></a>3 | CAMPO – CONFIRMAÇÃO DE NOVA SENHA | Tipo: Input Password<br>Obrigatório: Sim | Executar [RT13](#rt13). Não persiste. |
+| <a id="qdd7-4"></a>4 | BOTÃO SALVAR | Tipo: Botão<br>Texto: Salvar<br>Endpoint: [EDP12](#edp12) | Ao clicar, executar [RT13](#rt13). |
+| <a id="qdd7-5"></a>5 | BOTÃO CANCELAR | Tipo: Botão<br>Texto: Cancelar | Fecha sem salvar. |
+
+### <a id="quadro-descritivo-8"></a>7.7 Tela: Configurações da Conta (self-service) — QUADRO_DESCRITIVO_8
+
+> OBSERVAÇÕES: Tela acessada pelo menu do usuário (dropdown do nome no header), disponível a qualquer perfil autenticado. Layout: um `card` com navegação vertical (list-group) à esquerda e o conteúdo à direita, **sem foto/avatar**. Um único botão "Salvar" ([ID13](#qdd8-13)) abrange as duas abas. O usuário edita **somente o próprio registro** — o id vem do contexto de segurança ([RN19](#rn19)). Não há campo Perfil.
+
+| ID | NOME | PROPRIEDADES | OBSERVAÇÕES |
+|---|---|---|---|
+| <a id="qdd8-0"></a>0 | LINK | Caminho: "/minha-conta" | — |
+| <a id="qdd8-1"></a>1 | TÍTULO DA PÁGINA | Tipo: Texto<br>Texto: Configurações da Conta | Aba do navegador e `h2` do cabeçalho. |
+| <a id="qdd8-2"></a>2 | NAVEGAÇÃO – ABA "MINHA CONTA" | Tipo: Item de list-group<br>Texto: Minha Conta | Exibe os campos [ID6](#qdd8-6)–[ID10](#qdd8-10). |
+| <a id="qdd8-3"></a>3 | NAVEGAÇÃO – ABA "ALTERAR SENHA" | Tipo: Item de list-group<br>Texto: Alterar Senha | Exibe os campos [ID11](#qdd8-11)–[ID12](#qdd8-12). |
+| <a id="qdd8-4"></a>4 | CABEÇALHO DO CARD DE CONTEÚDO | Tipo: Texto<br>Texto: Meus Dados | — |
+| <a id="qdd8-5"></a>5 | CARREGAMENTO | Endpoint: [EDP13](#edp13) | A página vem preenchida com os dados do usuário autenticado. Sem senha. |
+| <a id="qdd8-6"></a>6 | CAMPO – NOME | Tipo: Input Text<br>Tamanho: 100<br>Obrigatório: Sim | Grava em `USU_NOME`. |
+| <a id="qdd8-7"></a>7 | CAMPO – GÊNERO | Tipo: Combobox<br>Obrigatório: Sim<br>Domínio: Feminino / Masculino / Outro | Grava em `USU_GENERO` (F/M/O). [RN06](#rn06). |
+| <a id="qdd8-8"></a>8 | CAMPO – DATA DE NASCIMENTO | Tipo: Input Date<br>Obrigatório: Sim | Grava em `USU_DT_NASCIMENTO`. Executar [RT07](#rt07). |
+| <a id="qdd8-9"></a>9 | CAMPO – E-MAIL | Tipo: Input Email<br>Tamanho: 512<br>Obrigatório: Sim | Grava em `USU_EMAIL`. Único ([RN04](#rn04)). Executar [RT06](#rt06). |
+| <a id="qdd8-10"></a>10 | CAMPO – LOGIN | Tipo: Input Text<br>Tamanho: 40<br>Mín.: 4<br>Obrigatório: Sim | Grava em `USU_LOGIN`. Único ([RN04](#rn04)). Executar [RT06](#rt06). |
+| <a id="qdd8-11"></a>11 | CAMPO – NOVA SENHA | Tipo: Input Password<br>Mín.: 6<br>Obrigatório: Não | Vazio mantém a senha atual ([RN19](#rn19)). |
+| <a id="qdd8-12"></a>12 | CAMPO – CONFIRMAÇÃO DE NOVA SENHA | Tipo: Input Password<br>Obrigatório: quando Nova senha preenchida | Executar [RT14](#rt14). Não persiste. |
+| <a id="qdd8-13"></a>13 | BOTÃO SALVAR | Tipo: Botão<br>Texto: Salvar<br>Endpoint: [EDP14](#edp14) | Botão único das duas abas. Ao clicar, executar [RT14](#rt14). |
+
+### 7.8 Suggestion Boxes
 
 | ID | NOME | DESCRIÇÃO |
 |---|---|---|
 | <a id="sb01"></a>SB01 | PERFIL | Domínio estático carregado na abertura do modal: Todos, ADMIN, USER. Não consome endpoint (os perfis são poucos e fixos). |
 | <a id="sb02"></a>SB02 | SITUAÇÃO | Domínio estático: Ativo, Excluído, Todos. |
 
-### 7.7 Regras de Tela
+### 7.9 Regras de Tela
 
 | ID | DESCRIÇÃO |
 |---|---|
@@ -340,14 +385,16 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 | <a id="rt02"></a>RT02 | Ao clicar em "Aplicar" ([ID5](#qdd3-5)), filtrar **em memória** a lista já carregada por [EDP02](#edp02): busca parcial e sem acento sobre nome/login/e-mail, perfil exato e situação. Fechar o modal. Se nada restar, exibir [MSG13](#msg13) na área do grid. |
 | <a id="rt03"></a>RT03 | Ao clicar em "Limpar" ([ID6](#qdd3-6)), voltar Busca e Perfil para vazio, Situação para "Ativo", e reaplicar conforme [RT02](#rt02). |
 | <a id="rt04"></a>RT04 | Ao clicar em "Novo usuário" ([ID5](#qdd2-5)), abrir o modal ([QUADRO_DESCRITIVO_4](#quadro-descritivo-4)) em modo criação, campos vazios, Perfil default "USER". |
-| <a id="rt05"></a>RT05 | Ao clicar no ícone Editar ([ID15](#qdd2-15)) — visível só com [PERM03](#perm03) —, chamar [EDP03](#edp03) com o id e abrir o modal em modo edição, preenchendo os campos. Senha e Confirmação ficam vazias. A senha **não** é carregada. |
-| <a id="rt06"></a>RT06 | Ao perder o foco dos campos Login ([ID6](#qdd4-6)) ou E-mail ([ID5](#qdd4-5)), chamar [EDP07](#edp07) e, se o valor já estiver em uso por outro usuário, marcar o campo com [MSG03](#msg03) (login) ou [MSG04](#msg04) (e-mail). A validação definitiva é no salvar ([RN04](#rn04)). |
-| <a id="rt07"></a>RT07 | O campo Data de nascimento ([ID4](#qdd4-4)) é obrigatório e não pode ser data futura ([RN05](#rn05)). Se vazio, [MSG05](#msg05); se futura, [MSG06](#msg06). O campo Gênero ([ID3](#qdd4-3)) é obrigatório ([RN06](#rn06)). |
-| <a id="rt08"></a>RT08 | Ao clicar em "Salvar" / "Cadastrar": validar obrigatórios ([MSG02](#msg02)); se a Senha estiver preenchida, exigir a Confirmação igual ([MSG07](#msg07)). Em modo criação chamar [EDP04](#edp04) (admin) ou [EDP09](#edp09) (auto-cadastro); em edição, [EDP05](#edp05) (aplica [RN07](#rn07) — senha vazia mantém a atual). Em sucesso, exibir [MSG01](#msg01) (criação) ou [MSG08](#msg08) (edição), fechar o modal e recarregar o grid via [EDP02](#edp02). Login/e-mail duplicado → [MSG03](#msg03)/[MSG04](#msg04). |
+| <a id="rt05"></a>RT05 | Ao clicar no ícone Editar ([ID15](#qdd2-15)) — visível só com [PERM03](#perm03) —, chamar [EDP03](#edp03) com o id e abrir o modal em modo edição, preenchendo os campos. O modal em modo edição não exibe Senha nem Confirmação. |
+| <a id="rt06"></a>RT06 | Ao perder o foco dos campos Login ou E-mail, chamar [EDP07](#edp07) e, se o valor já estiver em uso por outro usuário, marcar o campo com [MSG03](#msg03) (login) ou [MSG04](#msg04) (e-mail); o valor atual do próprio usuário é ignorado. A validação definitiva é no salvar ([RN04](#rn04)). |
+| <a id="rt07"></a>RT07 | O campo Data de nascimento é obrigatório e não pode ser data futura ([RN05](#rn05)). Se vazio, [MSG05](#msg05); se futura, [MSG06](#msg06). O campo Gênero é obrigatório ([RN06](#rn06)). |
+| <a id="rt08"></a>RT08 | Ao clicar em "Salvar" / "Cadastrar": validar obrigatórios ([MSG02](#msg02)); no modo criação, exigir a Confirmação igual à Senha ([MSG07](#msg07)). Em modo criação chamar [EDP04](#edp04) (admin) ou [EDP09](#edp09) (auto-cadastro); em edição, [EDP05](#edp05). Em sucesso, exibir [MSG01](#msg01) (criação) ou [MSG08](#msg08) (edição), fechar o modal e recarregar o grid via [EDP02](#edp02). Login/e-mail duplicado → [MSG03](#msg03)/[MSG04](#msg04). |
 | <a id="rt09"></a>RT09 | Ao clicar no ícone Excluir ([ID16](#qdd2-16)) — visível só com [PERM04](#perm04) —, exibir a confirmação [MSG09](#msg09). Ao confirmar, chamar [EDP06](#edp06). Se for o próprio usuário → [MSG10](#msg10); se for o último ADMIN ativo → [MSG11](#msg11). Em sucesso, exibir [MSG12](#msg12) e recarregar o grid. |
 | <a id="rt10"></a>RT10 | Ao clicar no ícone Histórico ([ID17](#qdd2-17)) — visível só com [PERM05](#perm05) —, chamar [EDP08](#edp08) e abrir uma tela/modal listando as revisões (data, autor, o que mudou). A senha **nunca** é exibida em nenhuma revisão. |
 | <a id="rt11"></a>RT11 | Na etapa 1 de recuperar senha, ao clicar em "Enviar link" ([ID2](#qdd6-2)): validar o e-mail ([MSG02](#msg02)) e chamar [EDP10](#edp10). Sempre exibir [MSG15](#msg15), independentemente do retorno. |
 | <a id="rt12"></a>RT12 | Na etapa 2, ao clicar em "Definir nova senha" ([ID5](#qdd6-5)): validar senha (mín. 6) e confirmação igual ([MSG07](#msg07)), e chamar [EDP11](#edp11) com o token da URL. Em sucesso, exibir [MSG14](#msg14) e redirecionar para o login. Token inválido → [MSG17](#msg17); expirado → [MSG18](#msg18); acima do limite → [MSG19](#msg19). |
+| <a id="rt13"></a>RT13 | Ao clicar no ícone Alterar senha ([ID18](#qdd2-18)) — visível só com [PERM03](#perm03) —, abrir o modal ([QUADRO_DESCRITIVO_7](#quadro-descritivo-7)) com o nome do usuário-alvo no título. Ao clicar em "Salvar": validar os obrigatórios ([MSG02](#msg02)) e a Confirmação igual à Nova senha ([MSG07](#msg07)), e chamar [EDP12](#edp12). Em sucesso, exibir [MSG21](#msg21) e fechar o modal; o grid não é recarregado. |
+| <a id="rt14"></a>RT14 | Na tela Configurações da Conta, ao clicar em "Salvar" ([ID13](#qdd8-13)): validar os obrigatórios das duas abas ([MSG02](#msg02)), executar [RT07](#rt07); se a Nova senha estiver preenchida, exigir a Confirmação igual ([MSG07](#msg07)). Chamar [EDP14](#edp14). Em sucesso, exibir [MSG22](#msg22). Login/e-mail já usado por outro → [MSG03](#msg03)/[MSG04](#msg04). |
 
 ---
 
@@ -364,7 +411,7 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 | <a id="edp04"></a>EDP04 | POST | [PERM02](#perm02) | /usuarios/inserir | S (existe na geração 2, hoje **público**; passa a exigir [PERM02](#perm02)) |
 | Cadastra um usuário (admin). Executa [RN02](#rn02), [RN04](#rn04), [RN09](#rn09). Dados: nome, genero, nascimento, email, login, senha, confirmacaoSenha, perfilCodigo. Retorno: 200 `{sucesso:true}` ([MSG01](#msg01)) ou 422 `{sucesso:false, errosCampos, errosNegocio}` ([MSG02](#msg02)/[MSG03](#msg03)/[MSG04](#msg04)/[MSG07](#msg07)). | | | | |
 | <a id="edp05"></a>EDP05 | PUT | [PERM03](#perm03) | /usuarios/editar/{id} | N |
-| Edita um usuário. Executa [RN02](#rn02) (só se a senha vier preenchida), [RN04](#rn04), [RN09](#rn09). Senha vazia = mantém a atual. Retorno: 200 ([MSG08](#msg08)) ou 422. | | | | |
+| Edita os dados cadastrais e o perfil de um usuário; **não** a senha. Executa [RN04](#rn04), [RN09](#rn09). Dados: nome, genero, nascimento, email, login, perfilCodigo. A senha é alterada só por [EDP12](#edp12). Retorno: 200 ([MSG08](#msg08)) ou 422. | | | | |
 | <a id="edp06"></a>EDP06 | DELETE | [PERM04](#perm04) | /usuarios/excluir/{id} | N |
 | Exclusão lógica. Executa [RN10](#rn10) (não o próprio), [RN11](#rn11) (não o último ADMIN). Preenche `audit_data_exclusao` / `audit_excluido_por`. Retorno: 200 ([MSG12](#msg12)) ou 422 ([MSG10](#msg10)/[MSG11](#msg11)). | | | | |
 | <a id="edp07"></a>EDP07 | GET | Público | /usuarios/existe?valor= | S (existe nas duas gerações) |
@@ -377,6 +424,12 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 | Etapa 1. Executa [RN13](#rn13): se existir usuário com o e-mail, gera token, grava o hash em `USUARIOS_RECUPERACAO_SENHA` (validade 30 min), invalida tokens pendentes anteriores e envia o link por e-mail ([MSG20](#msg20)). Dados: email. Retorno: **sempre** 200 ([MSG15](#msg15)). | | | | |
 | <a id="edp11"></a>EDP11 | POST | Público | /usuarios/recuperar-senha/confirmar | N |
 | Etapa 2. Executa [RN14](#rn14) (valida o token via [C3](#c3)), [RN15](#rn15) (troca a senha, cifra BCrypt, marca o token como utilizado) e [RN16](#rn16) (limite de tentativas). Dados: token, senha, confirmacaoSenha. Retorno: 200 ([MSG14](#msg14)) ou 422 ([MSG17](#msg17)/[MSG18](#msg18)/[MSG19](#msg19)). | | | | |
+| <a id="edp12"></a>EDP12 | PUT | [PERM03](#perm03) | /usuarios/{id}/senha | N |
+| Altera a senha de um usuário (ação administrativa dedicada). Executa [RN18](#rn18). Dados: senha, confirmacaoSenha. Não altera nenhum outro campo. Retorno: 200 ([MSG21](#msg21)) ou 422 ([MSG02](#msg02)/[MSG07](#msg07)). | | | | |
+| <a id="edp13"></a>EDP13 | GET | Autenticado | /minha-conta | N |
+| Retorna a página Configurações da Conta (Thymeleaf) já preenchida com os dados do usuário autenticado. O id vem do contexto de segurança ([RN19](#rn19)). **Nunca** inclui a senha. | | | | |
+| <a id="edp14"></a>EDP14 | PUT | Autenticado | /minha-conta | N |
+| Salva os dados da própria conta e, opcionalmente, a senha. Executa [RN19](#rn19). Dados: nome, genero, nascimento, email, login, senha, confirmacaoSenha. Não recebe id nem perfil. Retorno: 200 ([MSG22](#msg22)) ou 422 ([MSG02](#msg02)/[MSG03](#msg03)/[MSG04](#msg04)/[MSG06](#msg06)/[MSG07](#msg07)). | | | | |
 
 ---
 
@@ -384,13 +437,13 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 
 | ID | DESCRIÇÃO |
 |---|---|
-| <a id="rn01"></a>RN01 | Cada endpoint do CRUD administrativo exige a autoridade da sua operação: [EDP01](#edp01)/[EDP02](#edp02) → `PERM_USUARIOS_LISTAR`; [EDP04](#edp04) → `PERM_USUARIOS_INSERIR`; [EDP03](#edp03)/[EDP05](#edp05) → `PERM_USUARIOS_EDITAR`; [EDP06](#edp06) → `PERM_USUARIOS_EXCLUIR`; [EDP08](#edp08) → `PERM_USUARIOS_VER_HISTORICO`. As autoridades são resolvidas pelo `getAuthorities()` do `Usuario` a partir do perfil e das permissões vinculadas em `PERFIL_PERMISSAO`. [EDP07](#edp07), [EDP09](#edp09), [EDP10](#edp10) e [EDP11](#edp11) são públicos. |
+| <a id="rn01"></a>RN01 | Cada endpoint do CRUD administrativo exige a autoridade da sua operação: [EDP01](#edp01)/[EDP02](#edp02) → `PERM_USUARIOS_LISTAR`; [EDP04](#edp04) → `PERM_USUARIOS_INSERIR`; [EDP03](#edp03)/[EDP05](#edp05) → `PERM_USUARIOS_EDITAR`; [EDP06](#edp06) → `PERM_USUARIOS_EXCLUIR`; [EDP08](#edp08) → `PERM_USUARIOS_VER_HISTORICO`. [EDP12](#edp12) → `PERM_USUARIOS_EDITAR`. As autoridades são resolvidas pelo `getAuthorities()` do `Usuario` a partir do perfil e das permissões vinculadas em `PERFIL_PERMISSAO`. [EDP07](#edp07), [EDP09](#edp09), [EDP10](#edp10) e [EDP11](#edp11) são públicos. [EDP13](#edp13) e [EDP14](#edp14) exigem apenas usuário autenticado (self-service, sem permissão específica). |
 | <a id="rn02"></a>RN02 | A senha é cifrada com BCrypt no serviço antes de persistir. Tamanho mínimo de 6 caracteres. Nunca trafega nem é gravada em claro. |
 | <a id="rn03"></a>RN03 | A senha (e o hash) nunca é incluída no retorno de [EDP02](#edp02), [EDP03](#edp03) ou [EDP08](#edp08), nem escrita em log. |
 | <a id="rn04"></a>RN04 | `USU_LOGIN` e `USU_EMAIL` são únicos entre usuários não excluídos. Ao cadastrar ([EDP04](#edp04)/[EDP09](#edp09)) ou editar ([EDP05](#edp05)), se o login ou o e-mail já pertencer a **outro** usuário, impedir e retornar [MSG03](#msg03) (login) ou [MSG04](#msg04) (e-mail). Executa [C2](#c2). |
 | <a id="rn05"></a>RN05 | `nascimento` é obrigatório e não pode ser data futura. |
 | <a id="rn06"></a>RN06 | `genero` é obrigatório e deve ser um dos valores do enum `Genero` (F/M/O). |
-| <a id="rn07"></a>RN07 | Na edição ([EDP05](#edp05)), se a senha vier vazia, a senha atual é mantida; se vier preenchida, aplica [RN02](#rn02) e exige a confirmação igual. |
+| <a id="rn07"></a>RN07 | A edição administrativa ([EDP05](#edp05)) nunca altera a senha — só os dados cadastrais e o perfil. A troca de senha de outro usuário é feita pelo ADMIN via [EDP12](#edp12); a troca da própria senha, via [EDP14](#edp14). |
 | <a id="rn08"></a>RN08 | O auto-cadastro ([EDP09](#edp09)) **força** o perfil `USER`, ignorando qualquer perfil enviado na requisição. |
 | <a id="rn09"></a>RN09 | O campo Perfil só é aceito de um usuário com [PERM02](#perm02) (no cadastro — [EDP04](#edp04)) ou [PERM03](#perm03) (na edição — [EDP05](#edp05)). Um ADMIN pode promover/rebaixar outro usuário, respeitando [RN11](#rn11) ao rebaixar. |
 | <a id="rn10"></a>RN10 | Um usuário não pode excluir a si mesmo ([EDP06](#edp06)). Retornar [MSG10](#msg10). |
@@ -401,6 +454,8 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 | <a id="rn15"></a>RN15 | Token válido ([RN14](#rn14)): aplicar [RN02](#rn02) na nova senha, marcar `URSE_FL_UTILIZADO = TRUE` e registrar em auditoria. Não altera mais nada do usuário. Retornar [MSG14](#msg14). |
 | <a id="rn16"></a>RN16 | As solicitações de recuperação ([EDP10](#edp10)) são limitadas a **3 a cada 15 minutos** por e-mail. Atingido o limite, [EDP10](#edp10) não gera nem envia novo token, mas a resposta ao chamador continua sendo [MSG15](#msg15) (não revela o bloqueio). |
 | <a id="rn17"></a>RN17 | Na v1, a verificação de e-mail **não é aplicada**: o auto-cadastro ([EDP09](#edp09)) cria o usuário ativo, apto a autenticar. O parâmetro `USU_VERIFICACAO_EMAIL_ATIVA` fica reservado (`false`) para um incremento futuro que, quando ativado, criará o usuário em estado "não verificado" e enviará um link de confirmação. |
+| <a id="rn18"></a>RN18 | A alteração de senha de um usuário pelo ADMIN ([EDP12](#edp12)) exige [PERM03](#perm03), aplica [RN02](#rn02) sobre a nova senha e exige a Confirmação igual ([MSG07](#msg07)). Não altera nenhum outro campo do usuário. Registra em auditoria (Envers). Retornar [MSG21](#msg21). |
+| <a id="rn19"></a>RN19 | Na tela Configurações da Conta ([EDP13](#edp13)/[EDP14](#edp14)), o usuário altera **apenas o próprio registro**: o id é obtido do contexto de segurança, nunca da requisição. [EDP14](#edp14) sempre persiste nome, gênero, nascimento, e-mail e login, aplicando [RN04](#rn04) (unicidade entre não excluídos, ignorando o próprio), [RN05](#rn05) e [RN06](#rn06). O perfil é imutável nesta tela — qualquer perfil enviado na requisição é ignorado. Se Nova senha e Confirmação vierem **vazias**, a senha atual é mantida; se preenchidas, exige a Confirmação igual ([MSG07](#msg07)) e aplica [RN02](#rn02). Retornar [MSG22](#msg22). |
 
 ---
 
@@ -428,6 +483,8 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 | <a id="msg18"></a>MSG18 | Link de redefinição expirado. Solicite um novo. |
 | <a id="msg19"></a>MSG19 | Muitas tentativas com este link. Solicite um novo. |
 | <a id="msg20"></a>MSG20 | Template de e-mail (recuperação de senha):<br>Assunto: Redefinição de senha — dscproject<br><br>Olá {nome},<br><br>Recebemos um pedido para redefinir a sua senha. Clique no link abaixo (válido por 30 minutos):<br>{link}<br><br>Se não foi você, ignore este e-mail.<br><br>dscproject — Notificação automática. |
+| <a id="msg21"></a>MSG21 | Senha do usuário alterada com sucesso. |
+| <a id="msg22"></a>MSG22 | Dados atualizados com sucesso. |
 
 ---
 
@@ -461,7 +518,7 @@ Todas do módulo **Usuários** (`PERM_MODULO = 'Usuários'`). Fazem parte do cat
 |---|---|---|
 | <a id="perm01"></a>PERM01 | `USUARIOS_LISTAR` — abrir a tela de Usuários, listar e filtrar. Controla também a visibilidade do menu 'Usuários'. | [PERF01](#perf01) |
 | <a id="perm02"></a>PERM02 | `USUARIOS_INSERIR` — cadastrar novo usuário, inclusive escolher o perfil ([RN09](#rn09)). | [PERF01](#perf01) |
-| <a id="perm03"></a>PERM03 | `USUARIOS_EDITAR` — editar usuário existente, inclusive trocar o perfil ([RN09](#rn09)) e a senha. Cobre [EDP03](#edp03) (buscar para edição). | [PERF01](#perf01) |
+| <a id="perm03"></a>PERM03 | `USUARIOS_EDITAR` — editar usuário existente, inclusive trocar o perfil ([RN09](#rn09)). Cobre [EDP03](#edp03) (buscar para edição) e [EDP12](#edp12) (alterar a senha do usuário pela ação dedicada). | [PERF01](#perf01) |
 | <a id="perm04"></a>PERM04 | `USUARIOS_EXCLUIR` — exclusão lógica de usuário, respeitadas as travas ([RN10](#rn10), [RN11](#rn11)). | [PERF01](#perf01) |
 | <a id="perm05"></a>PERM05 | `USUARIOS_VER_HISTORICO` — ver o histórico de alterações de um usuário. | [PERF01](#perf01) |
 
@@ -478,6 +535,8 @@ Todas do módulo **Usuários** (`PERM_MODULO = 'Usuários'`). Fazem parte do cat
 | `USUARIOS_VER_HISTORICO` | ✓ | · |
 
 `USER` não recebe nenhuma permissão deste módulo — o menu 'Usuários' e todos os endpoints do CRUD administrativo ficam indisponíveis. Auto-cadastro ([EDP09](#edp09)) e recuperação de senha ([EDP10](#edp10)/[EDP11](#edp11)) são públicos e não passam por permissão.
+
+A ação **Alterar senha** do grid ([EDP12](#edp12)) usa a permissão existente `USUARIOS_EDITAR` ([PERM03](#perm03)) — o catálogo não muda. A tela **Configurações da Conta** ([EDP13](#edp13)/[EDP14](#edp14)) é self-service e **não** usa permissão: basta o usuário estar autenticado; ela não entra nesta matriz.
 
 ---
 
@@ -521,6 +580,33 @@ Todas do módulo **Usuários** (`PERM_MODULO = 'Usuários'`). Fazem parte do cat
         ├─ Limite de tentativas (RN16) → MSG19.
         └─ OK (RN15)                   → cifra a nova senha, marca token utilizado,
                                           audita, retorna MSG14 e redireciona ao login.
+```
+
+**Alteração de senha pelo ADMIN:**
+
+```
+1. ADMIN clica no ícone "Alterar senha" de uma linha do grid.
+2. Sistema abre o modal QUADRO_DESCRITIVO_7 com o nome do usuário-alvo.
+3. ADMIN informa nova senha + confirmação e clica em Salvar → chama EDP12.
+        │
+        ├─ Obrigatório faltando (RN18)   → MSG02.
+        ├─ Confirmação diferente (RN18)  → MSG07.
+        └─ OK → cifra BCrypt, persiste só a senha, audita (Envers),
+                 retorna MSG21 e fecha o modal (grid não recarrega).
+```
+
+**Atualização da própria conta:**
+
+```
+1. Usuário abre "Configurações da Conta" (menu do nome) → EDP13 carrega os dados.
+2. Usuário ajusta os dados e/ou informa nova senha, clica em Salvar → EDP14.
+        │
+        ├─ Login/e-mail de outro usuário (RN04)    → MSG03/MSG04.
+        ├─ Nascimento vazio/futuro (RN05)          → MSG05/MSG06.
+        ├─ Nova senha sem confirmação igual (RN19) → MSG07.
+        ├─ Nova senha vazia (RN19)                 → mantém a senha atual.
+        └─ OK → persiste os dados; se veio nova senha, cifra BCrypt;
+                 audita, retorna MSG22.
 ```
 
 ---
@@ -617,6 +703,46 @@ Então o grid e o ícone de histórico devem aparecer.
 E o ícone de excluir não deve aparecer.
 E uma chamada direta a "/usuarios/excluir/{id}" deve retornar HTTP 403.
 
+### 16.14 ADMIN altera a senha de um usuário pela ação dedicada
+
+Dado que estou na tela de Usuários com [PERM03](#perm03).
+E que clico no ícone "Alterar senha" de um usuário ativo.
+Quando eu informar a Nova senha e a Confirmação iguais (mín. 6) e clicar em "Salvar".
+Então o sistema deve gravar a nova senha cifrada, exibir [MSG21](#msg21) e não alterar nenhum outro dado do usuário.
+
+### 16.15 A edição de usuário não expõe nem altera a senha
+
+Dado que abro o modal de edição de um usuário existente.
+Quando o modal for exibido.
+Então não deve haver campo Senha nem Confirmação de senha.
+E ao salvar, a senha atual do usuário deve permanecer inalterada.
+
+### 16.16 Usuário atualiza os próprios dados sem trocar a senha
+
+Dado que estou autenticado e abro "Configurações da Conta".
+E que altero o nome e o e-mail e deixo Nova senha e Confirmação vazios.
+Quando eu clicar em "Salvar".
+Então o sistema deve atualizar os dados, manter a senha atual e exibir [MSG22](#msg22).
+
+### 16.17 Usuário troca a própria senha nas Configurações
+
+Dado que estou em "Configurações da Conta", aba "Alterar Senha".
+Quando eu informar Nova senha e Confirmação iguais (mín. 6) e clicar em "Salvar".
+Então o sistema deve cifrar e gravar a nova senha e exibir [MSG22](#msg22).
+
+### 16.18 Usuário não consegue alterar o próprio perfil por essa tela
+
+Dado que estou autenticado como USER em "Configurações da Conta".
+Quando a tela for exibida e eu salvar, mesmo que a requisição inclua perfil = ADMIN.
+Então não deve existir campo Perfil na tela.
+E o perfil do meu usuário deve permanecer USER.
+
+### 16.19 Login ou e-mail já usado por outro em Configurações da Conta
+
+Dado que existe outro usuário com o e-mail "ana@x.com".
+Quando eu, em "Configurações da Conta", tentar salvar com o e-mail "ana@x.com".
+Então o sistema deve impedir e exibir [MSG04](#msg04).
+
 ---
 
 ## 17. Workshop de Análise
@@ -624,12 +750,13 @@ E uma chamada direta a "/usuarios/excluir/{id}" deve retornar HTTP 403.
 Data: —
 Convidados: Diego Cordeiro
 Participantes: Diego Cordeiro
-Descrição: Levantamento feito a partir do código das gerações 1 (`dsc-backend` + `dsc-frontend`) e 2 (`dsc-spring-mvc`). Decisões: grid client-side; ADMIN por carga inicial (não por string de login); adicionar editar e excluir (inexistentes); exclusão lógica com travas (próprio usuário, último ADMIN); recuperação de senha por token; verificação de e-mail no auto-cadastro fica fora da v1 (incremento futuro); editor de perfil × permissão vira documento próprio. Revisão v1.2: permissão única quebrada em cinco, granulares por operação (`USUARIOS_LISTAR`/`_INSERIR`/`_EDITAR`/`_EXCLUIR`/`_VER_HISTORICO`), convenção domínio-primeiro.
+Descrição: Levantamento feito a partir do código das gerações 1 (`dsc-backend` + `dsc-frontend`) e 2 (`dsc-spring-mvc`). Decisões: grid client-side; ADMIN por carga inicial (não por string de login); adicionar editar e excluir (inexistentes); exclusão lógica com travas (próprio usuário, último ADMIN); recuperação de senha por token; verificação de e-mail no auto-cadastro fica fora da v1 (incremento futuro); editor de perfil × permissão vira documento próprio. Revisão v1.2: permissão única quebrada em cinco, granulares por operação (`USUARIOS_LISTAR`/`_INSERIR`/`_EDITAR`/`_EXCLUIR`/`_VER_HISTORICO`), convenção domínio-primeiro. Revisão v1.3: troca de senha retirada da edição cadastral e transformada em ação dedicada no grid (ADMIN) e na nova tela self-service **Configurações da Conta**, onde o usuário edita os próprios dados e a própria senha sem alterar o perfil; nenhuma mudança de schema.
 
 ---
 
 ## 18. Anexos
 
+- **Pendência (v1.3):** gerar os wireframes `.drawio` + PNG do modal Alterar Senha do Usuário ([QUADRO_DESCRITIVO_7](#quadro-descritivo-7)) e da tela Configurações da Conta ([QUADRO_DESCRITIVO_8](#quadro-descritivo-8)), acrescentar a coluna de ícone "Alterar senha" ao wireframe do grid ([QUADRO_DESCRITIVO_2](#quadro-descritivo-2)) e refletir tudo no protótipo navegável.
 - Documento 0 — Fundação: `../00 - analise-geral/documento-0-fundacao.md`
 - Código de referência geração 1: `dsc-backend` (`UsuarioController`, `UsuarioService`, `AuthenticationController`, `AutorizationService`, `UsuarioValidation`), `dsc-frontend` (`usuario.service.ts`).
 - Código de referência geração 2: `dsc-spring-mvc` (`UsuarioController`, `UsuarioService`, `UsuarioValidator`, `UsuarioDTO`, `AutorizacaoService`, `SecurityConfig`, `login.html`).
