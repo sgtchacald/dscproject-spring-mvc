@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface UsuarioRepository
-        extends JpaRepository<Usuario, Long>, RevisionRepository<Usuario, Long, Long> {
+        extends JpaRepository<Usuario, Long>, RevisionRepository<Usuario, Long, Integer> {
 
     /** Autenticação por login OU e-mail (AutorizacaoService). */
     Usuario findByLoginOrEmail(String login, String email);

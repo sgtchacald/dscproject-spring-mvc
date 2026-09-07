@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Getter
 public class RevisaoUsuarioDTO {
 
-    private final Long revisao;
+    private final Integer revisao;
     private final String tipo;
     private final Instant data;
     private final String autor;
@@ -27,7 +27,7 @@ public class RevisaoUsuarioDTO {
     private final String generoDescricao;
     private final LocalDate nascimento;
 
-    public RevisaoUsuarioDTO(Revision<Long, Usuario> revision) {
+    public RevisaoUsuarioDTO(Revision<Integer, Usuario> revision) {
         this.revisao = revision.getRequiredRevisionNumber();
         this.tipo = traduzirTipo(revision.getMetadata().getRevisionType());
         this.data = revision.getMetadata().getRequiredRevisionInstant();
