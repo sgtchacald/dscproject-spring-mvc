@@ -27,9 +27,7 @@ public class EmailService {
     private final MessageSource messageSource;
     private final String remetente;
 
-    public EmailService(ObjectProvider<JavaMailSender> mailSenderProvider,
-                        MessageSource messageSource,
-                        @Value("${spring.mail.username:}") String remetente) {
+    public EmailService(ObjectProvider<JavaMailSender> mailSenderProvider, MessageSource messageSource, @Value("${spring.mail.username:}") String remetente) {
         this.mailSender = mailSenderProvider.getIfAvailable();
         this.messageSource = messageSource;
         this.remetente = remetente;

@@ -43,9 +43,7 @@ public class UsuarioController {
     private final MessageSource messageSource;
     private final SmartValidator smartValidator;
 
-    public UsuarioController(UsuarioService usuarioService,
-                             MessageSource messageSource,
-                             SmartValidator smartValidator) {
+    public UsuarioController(UsuarioService usuarioService, MessageSource messageSource, SmartValidator smartValidator) {
         this.usuarioService = usuarioService;
         this.messageSource = messageSource;
         this.smartValidator = smartValidator;
@@ -94,9 +92,7 @@ public class UsuarioController {
 
     @PutMapping("/editar/{id}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> editar(@PathVariable Long id,
-                                                      @ModelAttribute UsuarioDTO dto,
-                                                      Locale locale) {
+    public ResponseEntity<Map<String, Object>> editar(@PathVariable Long id, @ModelAttribute UsuarioDTO dto, Locale locale) {
         dto.setId(id);
         BindingResult resultado = validar(dto, locale);
         if (resultado.hasErrors()) {
@@ -115,9 +111,7 @@ public class UsuarioController {
 
     @GetMapping("/historico/{id}")
     @ResponseBody
-    public Page<RevisaoUsuarioDTO> historico(@PathVariable Long id,
-                                             @RequestParam(defaultValue = "0") int pagina,
-                                             @RequestParam(defaultValue = "20") int tamanho) {
+    public Page<RevisaoUsuarioDTO> historico(@PathVariable Long id, @RequestParam(defaultValue = "0") int pagina, @RequestParam(defaultValue = "20") int tamanho) {
         return usuarioService.buscarHistorico(id, PageRequest.of(pagina, tamanho));
     }
 
@@ -125,8 +119,7 @@ public class UsuarioController {
 
     @GetMapping("/existe")
     @ResponseBody
-    public boolean existe(@RequestParam String valor,
-                          @RequestParam(required = false) Long idAtual) {
+    public boolean existe(@RequestParam String valor, @RequestParam(required = false) Long idAtual) {
         return usuarioService.verificarSeExiste(valor, idAtual);
     }
 

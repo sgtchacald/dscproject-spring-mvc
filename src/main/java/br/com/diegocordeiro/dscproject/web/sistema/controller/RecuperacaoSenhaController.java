@@ -30,9 +30,7 @@ public class RecuperacaoSenhaController {
     private final MessageSource messageSource;
     private final SmartValidator smartValidator;
 
-    public RecuperacaoSenhaController(RecuperacaoSenhaService recuperacaoSenhaService,
-                                     MessageSource messageSource,
-                                     SmartValidator smartValidator) {
+    public RecuperacaoSenhaController(RecuperacaoSenhaService recuperacaoSenhaService, MessageSource messageSource, SmartValidator smartValidator) {
         this.recuperacaoSenhaService = recuperacaoSenhaService;
         this.messageSource = messageSource;
         this.smartValidator = smartValidator;
@@ -49,8 +47,7 @@ public class RecuperacaoSenhaController {
     /** EDP10 — resposta sempre MSG15, exista ou não a conta (RNF07). */
     @PostMapping("/solicitar")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> solicitar(@ModelAttribute RecuperarSenhaSolicitacaoDTO dto,
-                                                         Locale locale) {
+    public ResponseEntity<Map<String, Object>> solicitar(@ModelAttribute RecuperarSenhaSolicitacaoDTO dto, Locale locale) {
         BindingResult resultado = new BeanPropertyBindingResult(dto, "recuperarSenhaSolicitacaoDTO");
         smartValidator.validate(dto, resultado);
         if (resultado.hasErrors()) {
@@ -65,8 +62,7 @@ public class RecuperacaoSenhaController {
     /** EDP11 — troca a senha; token inválido/expirado/excedido cai no advice (422). */
     @PostMapping("/confirmar")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> confirmar(@ModelAttribute RecuperarSenhaConfirmacaoDTO dto,
-                                                         Locale locale) {
+    public ResponseEntity<Map<String, Object>> confirmar(@ModelAttribute RecuperarSenhaConfirmacaoDTO dto, Locale locale) {
         BindingResult resultado = new BeanPropertyBindingResult(dto, "recuperarSenhaConfirmacaoDTO");
         smartValidator.validate(dto, resultado);
         if (!dto.senhasConferem() && !resultado.hasFieldErrors("senha")) {
