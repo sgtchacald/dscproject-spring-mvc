@@ -29,7 +29,9 @@ import java.time.Instant;
 @Table(
     name = "USUARIOS_RECUPERACAO_SENHA",
     uniqueConstraints = @UniqueConstraint(
-        name = "uq_usuarios_recuperacao_senha_token", columnNames = "URSE_TOKEN_HASH")
+        name = "uq_usuarios_recuperacao_senha_token",
+        columnNames = "URSE_TOKEN_HASH"
+    )
 )
 public class UsuarioRecuperacaoSenha extends AbstractAuditoria {
 

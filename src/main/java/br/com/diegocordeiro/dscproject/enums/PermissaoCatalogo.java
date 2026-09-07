@@ -7,16 +7,11 @@ package br.com.diegocordeiro.dscproject.enums;
  */
 public enum PermissaoCatalogo {
 
-    USUARIOS_LISTAR("Listar usuários",
-        "Abrir a tela de Usuários, listar e filtrar. Controla a visibilidade do menu 'Usuários'."),
-    USUARIOS_INSERIR("Inserir usuário",
-        "Cadastrar novo usuário, inclusive escolher o perfil."),
-    USUARIOS_EDITAR("Editar usuário",
-        "Editar usuário existente, inclusive trocar o perfil e a senha."),
-    USUARIOS_EXCLUIR("Excluir usuário",
-        "Exclusão lógica de usuário, respeitadas as travas."),
-    USUARIOS_VER_HISTORICO("Ver histórico de usuário",
-        "Ver o histórico de alterações de um usuário.");
+    USUARIOS_LISTAR("Listar usuários", "Abrir a tela de Usuários, listar e filtrar. Controla a visibilidade do menu 'Usuários'."),
+    USUARIOS_INSERIR("Inserir usuário", "Cadastrar novo usuário, inclusive escolher o perfil."),
+    USUARIOS_EDITAR("Editar usuário", "Editar usuário existente, inclusive trocar o perfil e a senha."),
+    USUARIOS_EXCLUIR("Excluir usuário", "Exclusão lógica de usuário, respeitadas as travas."),
+    USUARIOS_VER_HISTORICO("Ver histórico de usuário", "Ver o histórico de alterações de um usuário.");
 
     public static final String MODULO = "Usuários";
     public static final String PREFIXO_AUTHORITY = "PERM_";
