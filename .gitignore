@@ -41,3 +41,6 @@ scripts/tests/bats-core/
 
 ### draw.io ###
 .$*.bkp
+
+### Config local (nao versionar) ###
+src/main/resources/application-dev.properties
