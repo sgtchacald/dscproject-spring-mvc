@@ -7,28 +7,45 @@
     <title th:text="#{usuario.lista.titulo}">Usuários</title>
 </head>
 <body>
-<section layout:fragment="corpo">
 
-    <div class="page-header d-print-none">
-        <div class="row align-items-center">
-            <div class="col">
-                <div class="page-pretitle" th:text="#{usuario.lista.breadcrumb}">Administração &gt; Usuários</div>
-                <h2 class="page-title" th:text="#{usuario.lista.titulo}">Usuários</h2>
-                <div class="text-secondary" th:text="#{usuario.lista.descricao}">Gerencie os usuários do sistema.</div>
-            </div>
-            <div class="col-auto ms-auto">
-                <button class="btn" id="btnFiltrar" data-bs-toggle="modal" data-bs-target="#modalFiltro">
-                    <span th:text="#{usuario.lista.botao.filtrar}">Filtrar</span>
-                </button>
-                <button class="btn btn-primary" id="btnNovo" sec:authorize="hasAuthority('PERM_USUARIOS_INSERIR')"
-                        data-bs-toggle="modal" data-bs-target="#modalUsuario">
-                    <span th:text="#{usuario.lista.botao.novo}">Novo usuário</span>
-                </button>
-            </div>
+<div layout:fragment="cabecalho">
+    <div class="row g-2 align-items-center">
+        <div class="col">
+            <h2 class="page-title" th:text="#{usuario.lista.cabecalho}">Gerenciar Usuários</h2>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" aria-hidden="true" focusable="false" class="icon">
+                                <path d="M5 12l-2 0l9 -9l9 9l-2 0"></path>
+                                <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
+                                <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item" th:text="#{usuario.lista.breadcrumb.pai}">Administração</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{usuario.lista.titulo}">Usuários</li>
+                </ol>
+            </nav>
+            <div class="text-secondary mt-1" th:text="#{usuario.lista.descricao}">Gerencie os usuários do sistema.</div>
+        </div>
+        <div class="col-auto ms-auto">
+            <button class="btn" id="btnFiltrar" data-bs-toggle="modal" data-bs-target="#modalFiltro">
+                <span th:text="#{usuario.lista.botao.filtrar}">Filtrar</span>
+            </button>
+            <button class="btn btn-primary" id="btnNovo" sec:authorize="hasAuthority('PERM_USUARIOS_INSERIR')"
+                    data-bs-toggle="modal" data-bs-target="#modalUsuario">
+                <span th:text="#{usuario.lista.botao.novo}">Novo usuário</span>
+            </button>
         </div>
     </div>
+</div>
 
-    <div class="card mt-3">
+<section layout:fragment="corpo">
+
+    <div class="card">
         <div class="table-responsive">
             <table class="table table-vcenter card-table" id="tabelaUsuarios">
                 <thead>

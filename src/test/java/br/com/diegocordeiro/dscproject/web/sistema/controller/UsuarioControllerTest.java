@@ -94,6 +94,18 @@ class UsuarioControllerTest {
                 org.hamcrest.Matchers.containsString("/js/usuario/listar.js"))));
     }
 
+    @Test
+    @WithMockUser(authorities = "PERM_USUARIOS_LISTAR")
+    void listar_renderizaCabecalhoNoLugarDoDashboardComBreadcrumb() throws Exception {
+        mockMvc.perform(get("/usuarios/listar"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(org.hamcrest.Matchers.allOf(
+                org.hamcrest.Matchers.containsString("Gerenciar Usuários"),
+                org.hamcrest.Matchers.containsString("<ol class=\"breadcrumb\">"),
+                org.hamcrest.Matchers.containsString("aria-current=\"page\""),
+                org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(">Dashboard<")))));
+    }
+
     // ---------- BDD 16.2 — cadastrar ----------
 
     @Test
