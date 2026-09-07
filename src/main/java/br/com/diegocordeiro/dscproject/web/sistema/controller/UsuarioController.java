@@ -1,5 +1,6 @@
 package br.com.diegocordeiro.dscproject.web.sistema.controller;
 
+import br.com.diegocordeiro.dscproject.dto.usuario.AlterarSenhaDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.RevisaoUsuarioDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioEdicaoDTO;
@@ -102,6 +103,22 @@ public class UsuarioController {
         return ResponseEntity.ok(Map.of("sucesso", true));
     }
 
+    @PutMapping("/{id}/senha")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> alterarSenha(@PathVariable Long id, @ModelAttribute AlterarSenhaDTO dto, Locale locale) {
+        BindingResult resultado = new BeanPropertyBindingResult(dto, "alterarSenhaDTO");
+        smartValidator.validate(dto, resultado);
+        if (!dto.senhasConferem() && !resultado.hasFieldErrors("senha")) {
+            resultado.rejectValue("confirmacaoSenha", "Differ.alterarSenhaDTO.confirmacaoSenha",
+                mensagem("usuario.confirmacaoSenha.diferente", locale));
+        }
+        if (resultado.hasErrors()) {
+            return respostaErros(resultado);
+        }
+        usuarioService.alterarSenha(id, dto.getSenha());
+        return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.usuario.senha.alterada", locale)));
+    }
+
     @DeleteMapping("/excluir/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> excluir(@PathVariable Long id, Authentication authentication) {
@@ -167,5 +184,9 @@ public class UsuarioController {
         body.put("errosCampos", errosCampos);
         body.put("errosNegocio", errosNegocio);
         return ResponseEntity.unprocessableEntity().body(body);
+    }
+
+    private String mensagem(String chave, Locale locale) {
+        return messageSource.getMessage(chave, null, locale);
     }
 }

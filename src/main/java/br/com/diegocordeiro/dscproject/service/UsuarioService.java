@@ -1,5 +1,6 @@
 package br.com.diegocordeiro.dscproject.service;
 
+import br.com.diegocordeiro.dscproject.dto.minhaconta.MinhaContaDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.RevisaoUsuarioDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioEdicaoDTO;
@@ -91,10 +92,42 @@ public class UsuarioService {
 
         aplicarDados(usuario, dto);
         usuario.setPerfil(novoPerfil);
-        if (dto.senhaInformada()) {   // a senha só troca quando o formulário manda uma nova
+        return usuarioRepository.save(usuario);
+    }
+
+    /** Ação administrativa dedicada: troca só a senha, cifrando com BCrypt. Nenhum outro campo é tocado. */
+    @Transactional
+    public Usuario alterarSenha(Long id, String novaSenha) {
+        Usuario usuario = buscarPorId(id);
+        usuario.setSenha(passwordEncoder.encode(novaSenha));
+        return usuarioRepository.save(usuario);
+    }
+
+    /**
+     * Atualização self-service: o usuário edita o próprio registro, identificado pelo login autenticado.
+     * Persiste sempre os dados cadastrais; a senha só quando informada. O perfil não muda.
+     */
+    @Transactional
+    public Usuario atualizarPropriaConta(String login, MinhaContaDTO dto) {
+        Usuario usuario = buscarPorLogin(login);
+        usuario.setNome(dto.getNome());
+        usuario.setGenero(dto.getGenero());
+        usuario.setNascimento(dto.getNascimento());
+        usuario.setEmail(dto.getEmail() != null ? dto.getEmail().trim() : null);
+        usuario.setLogin(dto.getLogin() != null ? dto.getLogin().trim() : null);
+        if (dto.senhaInformada()) {
             usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
         }
         return usuarioRepository.save(usuario);
+    }
+
+    @Transactional(readOnly = true)
+    public Usuario buscarPorLogin(String login) {
+        Usuario usuario = usuarioRepository.findByLoginOrEmail(login, login);
+        if (usuario == null) {
+            throw new RegistroNaoEncontradoException("usuario.nao.encontrado");
+        }
+        return usuario;
     }
 
     /** Exclusão lógica, com as travas de não excluir a si mesmo nem o último ADMIN. */

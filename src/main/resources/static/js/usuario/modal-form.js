@@ -19,7 +19,7 @@ function prepararNovo() {
     limparForm();
     document.getElementById('usuId').value = '';
     document.getElementById('modalUsuarioTitulo').textContent = 'Novo usuário';
-    document.getElementById('hintSenha').style.display = 'none';
+    document.getElementById('blocoSenha').hidden = false;
 }
 
 export async function abrirEdicao(id) {
@@ -33,7 +33,7 @@ export async function abrirEdicao(id) {
     document.getElementById('login').value = u.login;
     document.getElementById('perfilCodigo').value = u.perfilCodigo;
     document.getElementById('modalUsuarioTitulo').textContent = 'Editar usuário';
-    document.getElementById('hintSenha').style.display = 'block';
+    document.getElementById('blocoSenha').hidden = true;
     abrirModal('modalUsuario');
 }
 

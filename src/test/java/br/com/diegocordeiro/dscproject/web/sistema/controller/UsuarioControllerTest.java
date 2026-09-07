@@ -292,4 +292,63 @@ class UsuarioControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.sucesso").value(true));
     }
+
+    // ---------- BDD 16.14 / EDP12 / RT13 — ADMIN altera a senha pela ação dedicada ----------
+
+    @Test
+    @WithMockUser(authorities = "PERM_USUARIOS_EDITAR")
+    void alterarSenha_dadosValidos_200ComMsg21() throws Exception {
+        when(usuarioService.alterarSenha(eq(5L), eq("senha123"))).thenReturn(new Usuario());
+
+        mockMvc.perform(put("/usuarios/5/senha").with(csrf())
+                .param("senha", "senha123")
+                .param("confirmacaoSenha", "senha123")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sucesso").value(true))
+            .andExpect(jsonPath("$.mensagem").value("Senha do usuário alterada com sucesso."));
+    }
+
+    @Test
+    @WithMockUser(authorities = "PERM_USUARIOS_EDITAR")
+    void alterarSenha_confirmacaoDiferente_422ComMsg07() throws Exception {
+        mockMvc.perform(put("/usuarios/5/senha").with(csrf())
+                .param("senha", "senha123")
+                .param("confirmacaoSenha", "outrasenha")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(jsonPath("$.errosNegocio.confirmacaoSenha").value("As senhas não conferem."));
+    }
+
+    @Test
+    @WithMockUser(authorities = "PERM_USUARIOS_EDITAR")
+    void alterarSenha_senhaCurta_422ErroDeCampo() throws Exception {
+        mockMvc.perform(put("/usuarios/5/senha").with(csrf())
+                .param("senha", "123")
+                .param("confirmacaoSenha", "123")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(jsonPath("$.errosCampos.senha").exists());
+    }
+
+    @Test
+    @WithMockUser(authorities = "ROLE_USER")
+    void alterarSenha_semPermissaoEditar_403() throws Exception {
+        mockMvc.perform(put("/usuarios/5/senha").with(csrf())
+                .param("senha", "senha123").param("confirmacaoSenha", "senha123"))
+            .andExpect(status().isForbidden());
+    }
+
+    // ---------- BDD 16.15 — edição sem campo de senha; modal dedicado presente ----------
+
+    @Test
+    @WithMockUser(authorities = {"PERM_USUARIOS_LISTAR", "PERM_USUARIOS_EDITAR"})
+    void listar_trazBlocoDeSenhaSeparadoEModalDedicado() throws Exception {
+        mockMvc.perform(get("/usuarios/listar"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(org.hamcrest.Matchers.allOf(
+                org.hamcrest.Matchers.containsString("id=\"blocoSenha\""),
+                org.hamcrest.Matchers.containsString("id=\"modalAlterarSenha\""),
+                org.hamcrest.Matchers.containsString("data-perm=\"alterar-senha\""))));
+    }
 }

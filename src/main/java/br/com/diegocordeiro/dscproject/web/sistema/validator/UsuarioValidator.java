@@ -36,16 +36,16 @@ public class UsuarioValidator implements Validator {
     public void validate(Object target, Errors errors) {
         UsuarioDTO dto = (UsuarioDTO) target;
 
-        // senha obrigatória na criação, opcional na edição
-        if (!dto.isEdicao() && !dto.senhaInformada() && !errors.hasFieldErrors("senha")) {
-            errors.rejectValue("senha", "NotBlank.usuarioDTO.senha",
-                mensagem("usuario.senha.obrigatoria"));
-        }
-
-        // confirmação só é exigida quando a senha foi informada
-        if (dto.senhaInformada() && !dto.getSenha().equals(dto.getConfirmacaoSenha())) {
-            errors.rejectValue("confirmacaoSenha", "Differ.usuarioDTO.confirmacaoSenha",
-                mensagem("usuario.confirmacaoSenha.diferente"));
+        // senha e confirmação existem só no cadastro; a edição administrativa não mexe em senha
+        if (!dto.isEdicao()) {
+            if (!dto.senhaInformada() && !errors.hasFieldErrors("senha")) {
+                errors.rejectValue("senha", "NotBlank.usuarioDTO.senha",
+                    mensagem("usuario.senha.obrigatoria"));
+            }
+            if (dto.senhaInformada() && !dto.getSenha().equals(dto.getConfirmacaoSenha())) {
+                errors.rejectValue("confirmacaoSenha", "Differ.usuarioDTO.confirmacaoSenha",
+                    mensagem("usuario.confirmacaoSenha.diferente"));
+            }
         }
 
         // login e e-mail únicos entre usuários não excluídos

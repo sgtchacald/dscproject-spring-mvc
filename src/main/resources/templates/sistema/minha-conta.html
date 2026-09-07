@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{sistema/template-admin/layout}">
+<head>
+    <title th:text="#{minha-conta.pagina.titulo}">Configurações da Conta</title>
+</head>
+<body>
+
+<div layout:fragment="cabecalho">
+    <h2 class="page-title" th:text="#{minha-conta.pagina.titulo}">Configurações da Conta</h2>
+</div>
+
+<section layout:fragment="corpo">
+
+    <form id="formMinhaConta" novalidate
+          th:object="${minhaConta}"
+          th:data-erro-comunicacao="#{erro.comunicacao}"
+          th:data-url="@{/minha-conta}"
+          th:data-msg-sucesso="#{msg.minha-conta.atualizada}">
+        <div class="card">
+            <div class="row g-0">
+                <div class="col-12 col-md-3 border-end">
+                    <div class="card-body">
+                        <div class="list-group list-group-transparent" role="tablist">
+                            <a class="list-group-item list-group-item-action active" data-bs-toggle="tab"
+                               href="#tab-dados" role="tab" th:text="#{minha-conta.aba.dados}">Minha Conta</a>
+                            <a class="list-group-item list-group-item-action" data-bs-toggle="tab"
+                               href="#tab-senha" role="tab" th:text="#{minha-conta.aba.senha}">Alterar Senha</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-9">
+                    <div class="card-body">
+                        <div id="alertaMinhaConta" class="alert alert-danger" style="display:none;"></div>
+                        <div class="tab-content">
+
+                            <div class="tab-pane active show" id="tab-dados" role="tabpanel">
+                                <h3 class="card-title mb-3" th:text="#{minha-conta.card.titulo}">Meus Dados</h3>
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label required" for="nome" th:text="#{cadastro.campo.nome.label}">Nome</label>
+                                        <input type="text" id="nome" name="nome" class="form-control" maxlength="100" th:field="*{nome}">
+                                        <div class="invalid-feedback" id="erro-nome"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label required" for="genero" th:text="#{cadastro.campo.genero.label}">Gênero</label>
+                                        <select id="genero" name="genero" class="form-select">
+                                            <option value="" th:text="#{cadastro.campo.selecione}">Selecione</option>
+                                            <option th:each="g : ${generos}" th:value="${g.codigo}" th:text="${g.descricao}"
+                                                    th:selected="${minhaConta.genero != null and g == minhaConta.genero}"></option>
+                                        </select>
+                                        <div class="invalid-feedback" id="erro-genero"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label required" for="nascimento" th:text="#{cadastro.campo.nascimento.label}">Data de nascimento</label>
+                                        <input type="date" id="nascimento" name="nascimento" class="form-control" th:field="*{nascimento}">
+                                        <div class="invalid-feedback" id="erro-nascimento"></div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label required" for="email" th:text="#{cadastro.campo.email.label}">E-mail</label>
+                                        <input type="email" id="email" name="email" class="form-control" maxlength="512" th:field="*{email}">
+                                        <div class="invalid-feedback" id="erro-email"></div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label required" for="login" th:text="#{cadastro.campo.login.label}">Login</label>
+                                        <input type="text" id="login" name="login" class="form-control" maxlength="40" minlength="4" th:field="*{login}">
+                                        <div class="invalid-feedback" id="erro-login"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane" id="tab-senha" role="tabpanel">
+                                <h3 class="card-title mb-3" th:text="#{minha-conta.aba.senha}">Alterar Senha</h3>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="senha" th:text="#{minha-conta.campo.novaSenha}">Nova senha</label>
+                                        <input type="password" id="senha" name="senha" class="form-control" autocomplete="new-password">
+                                        <div class="form-hint" th:text="#{minha-conta.campo.novaSenha.hint}"></div>
+                                        <div class="invalid-feedback" id="erro-senha"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="confirmacaoSenha" th:text="#{minha-conta.campo.confirmarSenha}">Confirmar nova senha</label>
+                                        <input type="password" id="confirmacaoSenha" name="confirmacaoSenha" class="form-control" autocomplete="new-password">
+                                        <div class="invalid-feedback" id="erro-confirmacaoSenha"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="card-footer text-end">
+                        <button type="submit" class="btn btn-primary" id="btnSalvarMinhaConta" th:text="#{minha-conta.botao.salvar}">Salvar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
+</section>
+
+<th:block layout:fragment="js">
+    <script type="module" th:src="@{/js/minha-conta.js}"></script>
+</th:block>
+</body>
+</html>

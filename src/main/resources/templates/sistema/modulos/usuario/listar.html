@@ -12,6 +12,7 @@
     <div class="row g-2 align-items-center">
         <div class="col">
             <h2 class="page-title" th:text="#{usuario.lista.cabecalho}">Gerenciar Usuários</h2>
+            <br><br>
             <nav aria-label="Breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
@@ -29,8 +30,10 @@
                     <li class="breadcrumb-item active" aria-current="page" th:text="#{usuario.lista.titulo}">Usuários</li>
                 </ol>
             </nav>
+            <br>
             <div class="text-secondary mt-1" th:text="#{usuario.lista.descricao}">Gerencie os usuários do sistema.</div>
         </div>
+        <br>
         <div class="col-auto ms-auto">
             <button class="btn" id="btnFiltrar" data-bs-toggle="modal" data-bs-target="#modalFiltro">
                 <span th:text="#{usuario.lista.botao.filtrar}">Filtrar</span>
@@ -70,6 +73,7 @@
 
     <div th:replace="~{sistema/modulos/usuario/fragments/modal-filtro :: modal}"></div>
     <div th:replace="~{sistema/modulos/usuario/fragments/modal-form :: modal}"></div>
+    <div th:replace="~{sistema/modulos/usuario/fragments/modal-alterar-senha :: modal}"></div>
     <div th:replace="~{sistema/modulos/usuario/fragments/modal-historico :: modal}"></div>
 
     <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
@@ -77,6 +81,7 @@
     <span sec:authorize="hasAuthority('PERM_USUARIOS_EDITAR')" data-perm="editar" hidden></span>
     <span sec:authorize="hasAuthority('PERM_USUARIOS_EXCLUIR')" data-perm="excluir" hidden></span>
     <span sec:authorize="hasAuthority('PERM_USUARIOS_VER_HISTORICO')" data-perm="historico" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_USUARIOS_EDITAR')" data-perm="alterar-senha" hidden></span>
 
     <div id="dadosTela"
          th:data-login-atual="${#authentication?.name}"

@@ -46,16 +46,20 @@
                             <input type="text" id="login" name="login" class="form-control" maxlength="40" minlength="4">
                             <div class="invalid-feedback" id="erro-login"></div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="senha" th:text="#{cadastro.campo.senha.label}">Senha</label>
-                            <input type="password" id="senha" name="senha" class="form-control" autocomplete="new-password">
-                            <div class="form-hint" id="hintSenha" th:text="#{usuario.modal.senha.edicao.hint}"></div>
-                            <div class="invalid-feedback" id="erro-senha"></div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="confirmacaoSenha" th:text="#{cadastro.campo.confirmacaoSenha.label}">Confirmar senha</label>
-                            <input type="password" id="confirmacaoSenha" name="confirmacaoSenha" class="form-control" autocomplete="new-password">
-                            <div class="invalid-feedback" id="erro-confirmacaoSenha"></div>
+                        <!-- Senha e Confirmação só aparecem no cadastro; na edição o bloco some (troca de senha é ação dedicada do grid). -->
+                        <div class="col-12" id="blocoSenha">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label required" for="senha" th:text="#{cadastro.campo.senha.label}">Senha</label>
+                                    <input type="password" id="senha" name="senha" class="form-control" autocomplete="new-password">
+                                    <div class="invalid-feedback" id="erro-senha"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label required" for="confirmacaoSenha" th:text="#{cadastro.campo.confirmacaoSenha.label}">Confirmar senha</label>
+                                    <input type="password" id="confirmacaoSenha" name="confirmacaoSenha" class="form-control" autocomplete="new-password">
+                                    <div class="invalid-feedback" id="erro-confirmacaoSenha"></div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-12">
                             <label class="form-label required" for="perfilCodigo" th:text="#{usuario.col.perfil}">Perfil</label>

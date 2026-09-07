@@ -2,6 +2,7 @@ import { getJson } from '../comum/http.js';
 import { semAcento, dataBr } from '../comum/ui.js';
 import { abrirEdicao, excluir, EVENTO_ALTERADO } from './modal-form.js';
 import { abrirHistorico } from './modal-historico.js';
+import { abrirAlterarSenha } from './modal-alterar-senha.js';
 
 const cfg = document.getElementById('dadosTela').dataset;
 const loginAtual = cfg.loginAtual || '';
@@ -9,7 +10,8 @@ const loginAtual = cfg.loginAtual || '';
 const pode = {
     editar: !!document.querySelector('[data-perm="editar"]'),
     excluir: !!document.querySelector('[data-perm="excluir"]'),
-    historico: !!document.querySelector('[data-perm="historico"]')
+    historico: !!document.querySelector('[data-perm="historico"]'),
+    alterarSenha: !!document.querySelector('[data-perm="alterar-senha"]')
 };
 
 let todos = [];
@@ -55,13 +57,14 @@ const ICONES = {
     excluir: '<path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" />'
         + '<path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />'
         + '<path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />',
-    historico: '<path d="M12 8l0 4l2 2" /><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />'
+    historico: '<path d="M12 8l0 4l2 2" /><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />',
+    'alterar-senha': '<path d="M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.977a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.977a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0z" /><path d="M15 9h.01" />'
 };
 
 function botaoAcao(acao, rotulo, u, classeCor) {
     return '<button type="button" class="btn btn-action' + classeCor + '"'
         + ' data-acao="' + acao + '" data-id="' + u.id + '"'
-        + (acao === 'excluir' ? ' data-nome="' + u.nome + '"' : '')
+        + (acao === 'excluir' || acao === 'alterar-senha' ? ' data-nome="' + u.nome + '"' : '')
         + ' title="' + rotulo + '" aria-label="' + rotulo + '">'
         + '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"'
         + ' stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'
@@ -75,6 +78,9 @@ function acoes(u) {
     }
     if (pode.excluir && !u.excluido && u.login !== loginAtual) {
         html += botaoAcao('excluir', 'Excluir', u, ' text-danger');
+    }
+    if (pode.alterarSenha && !u.excluido) {
+        html += botaoAcao('alterar-senha', 'Alterar senha', u, '');
     }
     if (pode.historico) {
         html += botaoAcao('historico', 'Ver histórico', u, '');
@@ -125,6 +131,7 @@ corpo.addEventListener('click', function (e) {
     const { acao, id, nome } = btn.dataset;
     if (acao === 'editar') abrirEdicao(id);
     if (acao === 'excluir') excluir(id, nome);
+    if (acao === 'alterar-senha') abrirAlterarSenha(id, nome);
     if (acao === 'historico') abrirHistorico(id);
 });
 

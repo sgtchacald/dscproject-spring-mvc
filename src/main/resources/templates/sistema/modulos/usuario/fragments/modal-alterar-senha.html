@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div class="modal modal-blur fade" id="modalAlterarSenha" tabindex="-1" th:fragment="modal">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formAlterarSenha" novalidate
+                  th:data-erro-comunicacao="#{erro.comunicacao}"
+                  th:data-url-base="@{/usuarios}"
+                  th:data-titulo-tpl="#{usuario.senha.modal.titulo.tpl}"
+                  th:data-msg-sucesso="#{msg.usuario.senha.alterada}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAlterarSenhaTitulo" th:text="#{usuario.acao.alterar-senha}">Alterar senha</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="alterarSenhaId">
+                    <div class="mb-3">
+                        <label class="form-label required" for="alterarSenhaNova" th:text="#{usuario.senha.modal.nova}">Nova senha</label>
+                        <input type="password" id="alterarSenhaNova" name="senha" class="form-control" autocomplete="new-password">
+                        <div class="invalid-feedback" id="erro-senha"></div>
+                    </div>
+                    <div class="mb-1">
+                        <label class="form-label required" for="alterarSenhaConfirmacao" th:text="#{usuario.senha.modal.confirmar}">Confirmar nova senha</label>
+                        <input type="password" id="alterarSenhaConfirmacao" name="confirmacaoSenha" class="form-control" autocomplete="new-password">
+                        <div class="invalid-feedback" id="erro-confirmacaoSenha"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal" th:text="#{cadastro.botao.cancelar}">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarAlterarSenha" th:text="#{usuario.modal.salvar}">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

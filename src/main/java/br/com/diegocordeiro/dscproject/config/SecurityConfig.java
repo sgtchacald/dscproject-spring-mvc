@@ -44,6 +44,8 @@ public class SecurityConfig {
                     .hasAuthority("PERM_USUARIOS_EDITAR")
                 .requestMatchers(HttpMethod.POST, "/usuarios/inserir")
                     .hasAuthority("PERM_USUARIOS_INSERIR")
+                .requestMatchers(HttpMethod.PUT, "/usuarios/*/senha")
+                    .hasAuthority("PERM_USUARIOS_EDITAR")
                 .requestMatchers(HttpMethod.PUT, "/usuarios/editar/**")
                     .hasAuthority("PERM_USUARIOS_EDITAR")
                 .requestMatchers(HttpMethod.DELETE, "/usuarios/excluir/**")

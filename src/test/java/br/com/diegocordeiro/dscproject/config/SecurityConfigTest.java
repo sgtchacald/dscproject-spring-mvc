@@ -17,6 +17,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -86,5 +87,33 @@ class SecurityConfigTest {
     void excluir_semPermissaoExcluir_403() throws Exception {
         mockMvc.perform(delete("/usuarios/excluir/1").with(csrf()))
             .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = {"PERM_USUARIOS_LISTAR"})
+    void alterarSenha_semPermissaoEditar_403() throws Exception {
+        mockMvc.perform(put("/usuarios/1/senha").with(csrf())
+                .param("senha", "senha123").param("confirmacaoSenha", "senha123"))
+            .andExpect(status().isForbidden());
+    }
+
+    // ---------- RN19 — Configurações da Conta exige apenas autenticação ----------
+
+    @Test
+    void minhaConta_semAutenticacao_redirecionaParaLogin() throws Exception {
+        mockMvc.perform(get("/minha-conta"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    @WithMockUser(username = "diego", authorities = "ROLE_USER")
+    void minhaConta_usuarioComum_naoRecebe403() throws Exception {
+        when(usuarioService.buscarPorLogin("diego"))
+            .thenReturn(br.com.diegocordeiro.dscproject.support.TestFixtures.usuario(
+                1L, "diego", br.com.diegocordeiro.dscproject.support.TestFixtures.perfil("USER")));
+
+        var status = mockMvc.perform(get("/minha-conta")).andReturn().getResponse().getStatus();
+        assertThat(status).isNotEqualTo(403);
     }
 }

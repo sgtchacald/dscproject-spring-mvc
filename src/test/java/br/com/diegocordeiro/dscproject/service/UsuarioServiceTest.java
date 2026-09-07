@@ -1,5 +1,6 @@
 package br.com.diegocordeiro.dscproject.service;
 
+import br.com.diegocordeiro.dscproject.dto.minhaconta.MinhaContaDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioDTO;
 import br.com.diegocordeiro.dscproject.enums.Genero;
 import br.com.diegocordeiro.dscproject.model.Perfil;
@@ -98,17 +99,17 @@ class UsuarioServiceTest {
         assertThat(salvo.getPerfil().getCodigo()).isEqualTo("ADMIN");
     }
 
-    // ---------- RN07 ----------
+    // ---------- RN07 / EDP05 — edição administrativa não mexe em senha ----------
 
     @Test
-    void editar_senhaVazia_mantemSenhaAtual() {
+    void editar_mantemSenhaAtual_mesmoQuandoDtoTrazSenha() {
         Usuario existente = usuario(7L, "diego", user);
         existente.setSenha("$2a$10$hashAntigo");
         when(usuarioRepository.findById(7L)).thenReturn(Optional.of(existente));
 
         UsuarioDTO dto = dtoValido();
-        dto.setSenha(null);
-        dto.setConfirmacaoSenha(null);
+        dto.setSenha("novaSenhaQualquer");
+        dto.setConfirmacaoSenha("novaSenhaQualquer");
 
         Usuario salvo = usuarioService.editar(7L, dto);
 
@@ -117,19 +118,98 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void editar_senhaPreenchida_reencodaSenha() {
+    void editar_atualizaDadosCadastrais() {
+        Usuario existente = usuario(7L, "diego", user);
+        when(usuarioRepository.findById(7L)).thenReturn(Optional.of(existente));
+
+        UsuarioDTO dto = dtoValido();
+        dto.setNome("Nome Novo");
+
+        Usuario salvo = usuarioService.editar(7L, dto);
+
+        assertThat(salvo.getNome()).isEqualTo("Nome Novo");
+    }
+
+    // ---------- RN18 / EDP12 — alterar senha pela ação dedicada ----------
+
+    @Test
+    void alterarSenha_cifraNovaSenhaComBCrypt() {
         Usuario existente = usuario(7L, "diego", user);
         existente.setSenha("$2a$10$hashAntigo");
         when(usuarioRepository.findById(7L)).thenReturn(Optional.of(existente));
 
-        UsuarioDTO dto = dtoValido();
+        Usuario salvo = usuarioService.alterarSenha(7L, "senhaNova");
+
+        verify(passwordEncoder).encode(eq("senhaNova"));
+        assertThat(salvo.getSenha()).isEqualTo("$2a$10$novoHash");
+    }
+
+    @Test
+    void alterarSenha_naoAlteraNenhumOutroCampo() {
+        Usuario existente = usuario(7L, "diego", user);
+        existente.setNome("Diego Original");
+        existente.setEmail("diego@test.com");
+        when(usuarioRepository.findById(7L)).thenReturn(Optional.of(existente));
+
+        Usuario salvo = usuarioService.alterarSenha(7L, "senhaNova");
+
+        assertThat(salvo.getNome()).isEqualTo("Diego Original");
+        assertThat(salvo.getEmail()).isEqualTo("diego@test.com");
+        assertThat(salvo.getLogin()).isEqualTo("diego");
+        assertThat(salvo.getPerfil().getCodigo()).isEqualTo("USER");
+    }
+
+    // ---------- RN19 / EDP14 — atualização da própria conta ----------
+
+    private MinhaContaDTO minhaContaValida() {
+        MinhaContaDTO dto = new MinhaContaDTO();
+        dto.setNome("Diego Cordeiro");
+        dto.setGenero(Genero.MASCULINO);
+        dto.setNascimento(LocalDate.of(1986, 5, 20));
+        dto.setEmail("diego@test.com");
+        dto.setLogin("diego");
+        return dto;
+    }
+
+    @Test
+    void atualizarPropriaConta_semSenha_mantemSenhaAtualEAtualizaDados() {
+        Usuario existente = usuario(3L, "diego", user);
+        existente.setSenha("$2a$10$hashAntigo");
+        when(usuarioRepository.findByLoginOrEmail("diego", "diego")).thenReturn(existente);
+
+        MinhaContaDTO dto = minhaContaValida();
+        dto.setNome("Diego Atualizado");
+
+        Usuario salvo = usuarioService.atualizarPropriaConta("diego", dto);
+
+        assertThat(salvo.getNome()).isEqualTo("Diego Atualizado");
+        assertThat(salvo.getSenha()).isEqualTo("$2a$10$hashAntigo");
+        verify(passwordEncoder, never()).encode(any());
+    }
+
+    @Test
+    void atualizarPropriaConta_comSenha_cifraNovaSenha() {
+        Usuario existente = usuario(3L, "diego", user);
+        when(usuarioRepository.findByLoginOrEmail("diego", "diego")).thenReturn(existente);
+
+        MinhaContaDTO dto = minhaContaValida();
         dto.setSenha("novaSenha");
         dto.setConfirmacaoSenha("novaSenha");
 
-        Usuario salvo = usuarioService.editar(7L, dto);
+        Usuario salvo = usuarioService.atualizarPropriaConta("diego", dto);
 
         verify(passwordEncoder).encode("novaSenha");
         assertThat(salvo.getSenha()).isEqualTo("$2a$10$novoHash");
+    }
+
+    @Test
+    void atualizarPropriaConta_naoAlteraOPerfil() {
+        Usuario existente = usuario(3L, "diego", admin);
+        when(usuarioRepository.findByLoginOrEmail("diego", "diego")).thenReturn(existente);
+
+        Usuario salvo = usuarioService.atualizarPropriaConta("diego", minhaContaValida());
+
+        assertThat(salvo.getPerfil().getCodigo()).isEqualTo("ADMIN");
     }
 
     // ---------- RN10 ----------
