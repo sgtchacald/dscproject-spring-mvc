@@ -7,6 +7,7 @@ import br.com.diegocordeiro.dscproject.repository.PerfilPermissaoRepository;
 import br.com.diegocordeiro.dscproject.repository.PerfilRepository;
 import br.com.diegocordeiro.dscproject.repository.PermissaoRepository;
 import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
+import br.com.diegocordeiro.dscproject.service.PermissaoCatalogoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,21 +34,23 @@ class CargaInicialRunnerTest {
     @Mock private PermissaoRepository permissaoRepository;
     @Mock private PerfilPermissaoRepository perfilPermissaoRepository;
     @Mock private UsuarioRepository usuarioRepository;
+    @Mock private PermissaoCatalogoService permissaoCatalogoService;
     @Mock private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void catalogoJaPopulado() {
         when(perfilRepository.findByCodigo(anyString()))
             .thenReturn(Optional.of(new Perfil("ADMIN", "ADMIN", null, true)));
-        when(permissaoRepository.findByCodigo(anyString()))
-            .thenReturn(Optional.of(new Permissao("X", "X", null, "Usuários")));
+        when(permissaoRepository.findAll())
+            .thenReturn(java.util.List.of(new Permissao("X", "X", null, "Usuários")));
         when(perfilPermissaoRepository.existsByPerfilAndPermissao(any(), any())).thenReturn(true);
         when(passwordEncoder.encode(any())).thenReturn("$2a$10$hash");
     }
 
     private CargaInicialRunner runner(String login, String email, String senha, boolean obrigatorio) {
         return new CargaInicialRunner(perfilRepository, permissaoRepository, perfilPermissaoRepository,
-            usuarioRepository, passwordEncoder, login, email, senha, "Administrador", obrigatorio);
+            usuarioRepository, permissaoCatalogoService, passwordEncoder, true,
+            login, email, senha, "Administrador", obrigatorio);
     }
 
     @Test
@@ -99,6 +102,15 @@ class CargaInicialRunnerTest {
             .isInstanceOf(IllegalStateException.class);
 
         verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void aoSubir_sincronizaOCatalogoDePermissoes() {
+        when(usuarioRepository.contarAdminsAtivos()).thenReturn(1L);
+
+        runner("", "", "", false).run(null);
+
+        verify(permissaoCatalogoService).sincronizar();
     }
 
     @Test
