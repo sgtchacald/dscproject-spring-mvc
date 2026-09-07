@@ -1,26 +1,37 @@
 package br.com.diegocordeiro.dscproject.model;
 
 import br.com.diegocordeiro.dscproject.enums.Genero;
-import br.com.diegocordeiro.dscproject.enums.Perfis;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.Setter;
+import org.hibernate.envers.Audited;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
-import java.io.Serializable;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-@Data @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
-@Table(name="USUARIOS")
-@EntityListeners(AuditingEntityListener.class)
-public class Usuario implements UserDetails, Serializable {
+@Audited
+@Table(name = "USUARIOS")
+public class Usuario extends AbstractAuditoria implements UserDetails {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -35,8 +46,8 @@ public class Usuario implements UserDetails, Serializable {
     @Column(name = "USU_GENERO", length = 1, nullable = false)
     private Genero genero;
 
-    @Column(name = "USU_DT_NASCIMENTO", nullable = true)
-    private Date nascimento;
+    @Column(name = "USU_DT_NASCIMENTO")
+    private LocalDate nascimento;
 
     @Column(name = "USU_EMAIL", length = 512, nullable = false, unique = true)
     private String email;
@@ -47,19 +58,26 @@ public class Usuario implements UserDetails, Serializable {
     @Column(name = "USU_SENHA", length = 1024, nullable = false)
     private String senha;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "USU_PERFIL", nullable = false)
-    private Perfis perfil;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "PERF_ID", nullable = false)
+    private Perfil perfil;
 
+    /**
+     * Autoridades resolvidas do perfil (RN01): {@code ROLE_{PERF_CODIGO}} mais
+     * {@code PERM_{CODIGO}} de cada permissão vinculada ao perfil.
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (this.perfil == Perfis.ADMIN) {
-            return List.of(
-                new SimpleGrantedAuthority("ROLE_ADMIN"),
-                new SimpleGrantedAuthority("ROLE_USER")
-            );
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        if (perfil != null) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + perfil.getCodigo()));
+            for (PerfilPermissao vinculo : perfil.getVinculosPermissao()) {
+                if (!vinculo.isExcluido() && vinculo.getPermissao() != null) {
+                    authorities.add(new SimpleGrantedAuthority("PERM_" + vinculo.getPermissao().getCodigo()));
+                }
+            }
         }
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return authorities;
     }
 
     @Override
@@ -70,5 +88,11 @@ public class Usuario implements UserDetails, Serializable {
     @Override
     public String getUsername() {
         return this.login;
+    }
+
+    /** RN12 — usuário excluído logicamente não autentica. */
+    @Override
+    public boolean isEnabled() {
+        return !isExcluido();
     }
 }

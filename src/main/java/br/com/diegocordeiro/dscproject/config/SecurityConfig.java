@@ -2,6 +2,8 @@ package br.com.diegocordeiro.dscproject.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -10,17 +12,44 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
+
+    /** Rotas públicas — auto-cadastro, recuperação de senha, checagem em tempo real, estáticos. */
+    private static final String[] PUBLICO_GET = {
+        "/login",
+        "/usuarios/existe",
+        "/usuarios/cadastrar-site",
+        "/usuarios/recuperar-senha",
+        "/webjars/**", "/css/**", "/js/**", "/image/**"
+    };
+    private static final String[] PUBLICO_POST = {
+        "/usuarios/cadastrar-site",
+        "/usuarios/recuperar-senha/solicitar",
+        "/usuarios/recuperar-senha/confirmar"
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/login",
-                    "/usuarios/inserir",
-                    "/webjars/**", "/css/**", "/js/**", "/image/**"
-                ).permitAll()
+                .requestMatchers(HttpMethod.GET, PUBLICO_GET).permitAll()
+                .requestMatchers(HttpMethod.POST, PUBLICO_POST).permitAll()
+
+                // CRUD administrativo — cada operação exige a sua permissão (RN01)
+                .requestMatchers(HttpMethod.GET, "/usuarios/listar", "/usuarios/listar-dados")
+                    .hasAuthority("PERM_USUARIOS_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/usuarios/buscar/**")
+                    .hasAuthority("PERM_USUARIOS_EDITAR")
+                .requestMatchers(HttpMethod.POST, "/usuarios/inserir")
+                    .hasAuthority("PERM_USUARIOS_INSERIR")
+                .requestMatchers(HttpMethod.PUT, "/usuarios/editar/**")
+                    .hasAuthority("PERM_USUARIOS_EDITAR")
+                .requestMatchers(HttpMethod.DELETE, "/usuarios/excluir/**")
+                    .hasAuthority("PERM_USUARIOS_EXCLUIR")
+                .requestMatchers(HttpMethod.GET, "/usuarios/historico/**")
+                    .hasAuthority("PERM_USUARIOS_VER_HISTORICO")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

@@ -8,6 +8,13 @@ import org.springframework.validation.Validator;
 
 import java.util.Locale;
 
+/**
+ * Validação de fronteira que depende do banco / do estado (RN04, RT08)
+ * e a obrigatoriedade condicional da senha (criação x edição — RN07).
+ *
+ * <p>Prefixo do código de erro carrega a natureza:
+ * {@code Duplicate.} / {@code Differ.} = erro de negócio; os demais = erro de campo.</p>
+ */
 public class UsuarioValidator implements Validator {
 
     private final UsuarioService service;
@@ -27,22 +34,40 @@ public class UsuarioValidator implements Validator {
 
     @Override
     public void validate(Object target, Errors errors) {
-        if (errors.hasErrors()) {
-            return;
-        }
         UsuarioDTO dto = (UsuarioDTO) target;
 
-        if (!dto.getSenha().equals(dto.getConfirmacaoSenha())) {
+        // Senha é obrigatória na criação; opcional na edição (RN07).
+        if (!dto.isEdicao() && !dto.senhaInformada() && !errors.hasFieldErrors("senha")) {
+            errors.rejectValue("senha", "NotBlank.usuarioDTO.senha",
+                mensagem("usuario.senha.obrigatoria"));
+        }
+
+        // RT08 / MSG07 — confirmação só é exigida quando a senha foi informada.
+        if (dto.senhaInformada() && !dto.getSenha().equals(dto.getConfirmacaoSenha())) {
             errors.rejectValue("confirmacaoSenha", "Differ.usuarioDTO.confirmacaoSenha",
-                messageSource.getMessage("usuario.confirmacaoSenha.diferente", null, locale));
+                mensagem("usuario.confirmacaoSenha.diferente"));
         }
-        if (service.verificarSeExisteUsuario(dto.getLogin())) {
+
+        // RN04 / C2 — login e e-mail únicos entre usuários não excluídos.
+        if (hasTexto(dto.getLogin())
+                && !errors.hasFieldErrors("login")
+                && service.verificarSeExiste(dto.getLogin(), dto.getId())) {
             errors.rejectValue("login", "Duplicate.usuarioDTO.login",
-                messageSource.getMessage("usuario.login.duplicado", null, locale));
+                mensagem("usuario.login.duplicado"));
         }
-        if (service.verificarSeExisteUsuario(dto.getEmail())) {
+        if (hasTexto(dto.getEmail())
+                && !errors.hasFieldErrors("email")
+                && service.verificarSeExiste(dto.getEmail(), dto.getId())) {
             errors.rejectValue("email", "Duplicate.usuarioDTO.email",
-                messageSource.getMessage("usuario.email.duplicado", null, locale));
+                mensagem("usuario.email.duplicado"));
         }
+    }
+
+    private boolean hasTexto(String valor) {
+        return valor != null && !valor.isBlank();
+    }
+
+    private String mensagem(String chave) {
+        return messageSource.getMessage(chave, null, locale);
     }
 }

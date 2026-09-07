@@ -10,6 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.time.Instant;
+
+import static br.com.diegocordeiro.dscproject.support.TestFixtures.perfil;
+import static br.com.diegocordeiro.dscproject.support.TestFixtures.usuario;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
@@ -25,26 +29,10 @@ class AutorizacaoServiceTest {
 
     @Test
     void loadUserByUsername_encontraPorLogin() {
-        Usuario usuario = new Usuario();
-        usuario.setLogin("chacalsgt");
-        usuario.setSenha("$2a$10$hash");
+        Usuario usuario = usuario(1L, "chacalsgt", perfil("USER"));
         when(usuarioRepository.findByLoginOrEmail("chacalsgt", "chacalsgt")).thenReturn(usuario);
 
         UserDetails result = autorizacaoService.loadUserByUsername("chacalsgt");
-
-        assertThat(result.getUsername()).isEqualTo("chacalsgt");
-    }
-
-    @Test
-    void loadUserByUsername_encontraPorEmail() {
-        Usuario usuario = new Usuario();
-        usuario.setLogin("chacalsgt");
-        usuario.setEmail("sgt.chacal.d@gmail.com");
-        usuario.setSenha("$2a$10$hash");
-        when(usuarioRepository.findByLoginOrEmail("sgt.chacal.d@gmail.com", "sgt.chacal.d@gmail.com"))
-            .thenReturn(usuario);
-
-        UserDetails result = autorizacaoService.loadUserByUsername("sgt.chacal.d@gmail.com");
 
         assertThat(result.getUsername()).isEqualTo("chacalsgt");
     }
@@ -56,5 +44,15 @@ class AutorizacaoServiceTest {
         assertThatThrownBy(() -> autorizacaoService.loadUserByUsername("naoexiste"))
             .isInstanceOf(UsernameNotFoundException.class)
             .hasMessageContaining("naoexiste");
+    }
+
+    @Test
+    void loadUserByUsername_usuarioExcluido_recusaComMensagemGenerica() {
+        Usuario excluido = usuario(2L, "antigo", perfil("USER"));
+        excluido.setDataExclusao(Instant.now());
+        when(usuarioRepository.findByLoginOrEmail("antigo", "antigo")).thenReturn(excluido);
+
+        assertThatThrownBy(() -> autorizacaoService.loadUserByUsername("antigo"))
+            .isInstanceOf(UsernameNotFoundException.class);
     }
 }
