@@ -2,7 +2,7 @@
 ## Documento 0 — Fundação (Banco de Dados e Mapeamento JPA)
 
 **Gerado em:** 06/09/2026
-**Versão:** 1.3
+**Versão:** 1.4
 **Projeto:** `dscproject-spring-mvc` (geração 2 — monólito Spring MVC + Thymeleaf)
 
 ---
@@ -28,6 +28,7 @@
 | 1.1 | 06/09/2026 | Diego dos Santos Cordeiro | Abstração de provedor de Open Finance: novas tabelas `OPFI_PROVEDORES`, `OPFI_INSTITUICAO_PROVEDOR` e `CATEGORIAS_PROVEDOR`; colunas de id externo renomeadas de `..._PLUGGY_...` para `..._ID_EXTERNO`; `OPFI_CREDENCIAIS` passa a ser única por usuário + provedor. Total de 23 tabelas. Auditoria alinhada à `AbstractAuditoria` da geração 1 (prefixo `audit_`). Estratégia de migrations em duas fases (`ddl-auto=update` no desenvolvimento, Flyway a partir da homologação). Sem migração de dados da geração 1 |
 | 1.2 | 06/09/2026 | Diego dos Santos Cordeiro | RBAC: o enum `Perfis` vira as tabelas `PERFIS`, `PERMISSOES` e `PERFIL_PERMISSAO` (N:N). `USUARIOS.USU_PERFIL` (enum) passa a `PERF_ID` (FK). `PERMISSOES` tem a marca `PERM_FL_CONCEDIVEL_POR_PLANO` — costura para um módulo futuro de planos pagos, sem modelar as tabelas de plano agora. Total de 26 tabelas. Origem no documento `01 - manter-usuario` |
 | 1.3 | 07/09/2026 | Diego dos Santos Cordeiro | `PERMISSOES` ganha `PERM_MODULO` (agrupa o seletor de perfil) e `PERM_FL_ORFA` (permissão sem correspondente no catálogo do código). Convenção do `PERM_CODIGO` fixada como **domínio-primeiro** (`USUARIOS_LISTAR`, `PERFIS_MANTER`). Sem mudança nas três tabelas de RBAC além dessas colunas. Origem nos documentos `01 - manter-usuario` e `02 - manter-perfil-permissao` |
+| 1.4 | 08/09/2026 | Diego dos Santos Cordeiro | Duas mudanças: (a) `INSTITUICOES_FINANCEIRAS` ganha `INFI_FL_SISTEMA` (QUADRO_DESCRITIVO_4 e DDL_4) — padroniza a proteção da carga inicial com `CATE_FL_SISTEMA`; (b) nova tabela `PARAMETROS_GLOBAIS` (QUADRO_DESCRITIVO_28, prefixo `PAGL_`, tabela-raiz sem FK), semeada por um loader no código na inicialização — mesmo padrão do catálogo de permissões; `PAGL_TIPO_DADO` com domínio `STRING`/`INTEGER`/`DECIMAL`/`BOOLEAN`/`JSON` e `CHECK`. Total passa de 26 para **27 tabelas**. Origem no documento `03 - manter-parametro-global` |
 
 ---
 
@@ -43,7 +44,7 @@
 
 ## 1. Introdução
 
-Este é o **documento de fundação** (Documento 0) do `dscproject-spring-mvc`. Diferente dos documentos de tela — que descrevem uma funcionalidade específica (Manter Despesa, Importar Extrato, Dashboard, etc.) — este documento tem um objetivo único e transversal: **definir, de uma só vez, toda a estrutura de dados do sistema (26 tabelas) e o mapeamento das entidades Java correspondente.**
+Este é o **documento de fundação** (Documento 0) do `dscproject-spring-mvc`. Diferente dos documentos de tela — que descrevem uma funcionalidade específica (Manter Despesa, Importar Extrato, Dashboard, etc.) — este documento tem um objetivo único e transversal: **definir, de uma só vez, toda a estrutura de dados do sistema (27 tabelas) e o mapeamento das entidades Java correspondente.**
 
 O `dscproject` é um sistema pessoal de organização de finanças (receitas, despesas, transações bancárias, cartões, faturas, investimentos, instituições financeiras e dashboard). Existem hoje duas gerações:
 
@@ -58,11 +59,11 @@ Este documento consolida **o modelo de todo o domínio financeiro da geração 1
 
 ### Por que criar toda a estrutura num único passo
 
-As 26 tabelas têm forte interdependência por chaves estrangeiras: `CONTAS` depende de `INSTITUICOES_FINANCEIRAS` e `USUARIOS`; `DESPESAS` depende de `CONTAS`, `CARTOES_CREDITO`, `FATURAS_CARTAO` e `CATEGORIAS`; as tabelas `OPFI_` encadeiam provedor → credencial → conexão → conta externa → transação. Criar a estrutura completa na ordem correta de dependência (Seção 6.4) evita migrations parciais que deixariam o schema inconsistente entre as entregas das telas.
+As 27 tabelas têm forte interdependência por chaves estrangeiras: `CONTAS` depende de `INSTITUICOES_FINANCEIRAS` e `USUARIOS`; `DESPESAS` depende de `CONTAS`, `CARTOES_CREDITO`, `FATURAS_CARTAO` e `CATEGORIAS`; as tabelas `OPFI_` encadeiam provedor → credencial → conexão → conta externa → transação. Criar a estrutura completa na ordem correta de dependência (Seção 6.4) evita migrations parciais que deixariam o schema inconsistente entre as entregas das telas.
 
 ### Escopo deste documento
 
-- Estrutura completa de banco das 26 tabelas (Seção 6), com um QUADRO_DESCRITIVO e um DDL por tabela, na ordem de dependência de criação.
+- Estrutura completa de banco das 27 tabelas (Seção 6), com um QUADRO_DESCRITIVO e um DDL por tabela, na ordem de dependência de criação.
 - Mapeamento das entidades Java (Seção 7), incluindo a superclasse de auditoria, os conversores e os enums de domínio.
 
 ### Não contempla
@@ -80,7 +81,7 @@ As 26 tabelas têm forte interdependência por chaves estrangeiras: `CONTAS` dep
 | 1 | **Nomenclatura de tabelas:** MAIÚSCULAS, no plural, **sem prefixo de módulo** no domínio (`USUARIOS`, `DESPESAS`, `CONTAS`). O domínio financeiro *é* o sistema — não há outro módulo com que colidir. A **única exceção** é a camada Open Finance, com prefixo `OPFI_`, por ser um contexto separado de sincronização externa. `CATEGORIAS_PROVEDOR` fica no domínio (prefixo de coluna `CAPR_`) por ser um mapa de categoria; as demais tabelas de mapeamento e *staging* são `OPFI_`. | Padrão do schema da geração 1 |
 | 1a | **Abstração de provedor (decisão de 06/09/2026):** a camada Open Finance **não é acoplada à Pluggy**. Há um catálogo `OPFI_PROVEDORES` (`PLUGGY`, `BELVO`, uma API própria certificada, etc.), e cada provedor tem uma classe *Strategy* Java que fala com a API dele. Todas as colunas de id vindas de fora são `..._ID_EXTERNO` (não `..._PLUGGY_...`), sempre acompanhadas do provedor. Adicionar um provedor novo = uma linha em `OPFI_PROVEDORES` + uma *Strategy* + as credenciais; **zero mudança de schema**. Mesmo padrão do `ia_provedores` do módulo de I.A. | [QUADRO_DESCRITIVO_13](#quadro-descritivo-13) |
 | 2 | **Nomenclatura de colunas:** cada tabela tem um **prefixo próprio** (3 a 4 letras) para suas colunas (`USU_`, `DESP_`, `CTA_`, `OFTR_`), conforme o padrão da geração 1. FKs carregam o prefixo da tabela **de origem** (`DESPESAS.CTA_ID` referencia `CONTAS`). | Padrão do schema da geração 1 |
-| 3 | **Auditoria (melhoria A):** a classe `AbstractAuditoria` da geração 1 (`@MappedSuperclass`, `@Audited` — Hibernate Envers) é **portada preservando os nomes**: prefixo de coluna `audit_`, campos `audit_data_criacao`, `audit_criado_por`, `audit_data_alteracao`, `audit_alterado_por`. Duas mudanças pontuais: autor passa de `VARCHAR(40)` para `VARCHAR(400)`, e são acrescentados 2 campos de *soft delete* — `audit_data_exclusao` e `audit_excluido_por`. Datas em `DATETIME(6)`. Herdada por todas as 23 tabelas de dados + as 3 de RBAC (26 no total), inclusive associativas e de *staging*. | Classe `AbstractAuditoria` da geração 1 |
+| 3 | **Auditoria (melhoria A):** a classe `AbstractAuditoria` da geração 1 (`@MappedSuperclass`, `@Audited` — Hibernate Envers) é **portada preservando os nomes**: prefixo de coluna `audit_`, campos `audit_data_criacao`, `audit_criado_por`, `audit_data_alteracao`, `audit_alterado_por`. Duas mudanças pontuais: autor passa de `VARCHAR(40)` para `VARCHAR(400)`, e são acrescentados 2 campos de *soft delete* — `audit_data_exclusao` e `audit_excluido_por`. Datas em `DATETIME(6)`. Herdada por todas as 24 tabelas de dados/infraestrutura + as 3 de RBAC (27 no total), inclusive associativas e de *staging*. | Classe `AbstractAuditoria` da geração 1 |
 | 4 | **Soft delete:** exclusão lógica via `audit_data_exclusao` / `audit_excluido_por`. Nenhum `DELETE` físico no domínio. Consultas do sistema filtram `audit_data_exclusao IS NULL`. | Melhoria A |
 | 5 | **Chave primária:** `{PREFIXO}_ID` do tipo `BIGINT NOT NULL AUTO_INCREMENT`, mapeada com `@GeneratedValue(strategy = GenerationType.IDENTITY)`. | Padrão do schema da geração 1 |
 | 6 | **Banco:** MySQL 8 (InnoDB, `utf8mb4`). Tipos: `BIGINT`, `VARCHAR`, `CHAR`, `DECIMAL(15,2)` para valores monetários, `DATE` para datas de negócio, `DATETIME(6)` para carimbos de tempo, `JSON` para dados brutos do provedor, `BOOLEAN` (`TINYINT(1)`) para flags. | RNF03 |
@@ -116,7 +117,7 @@ As 26 tabelas têm forte interdependência por chaves estrangeiras: `CONTAS` dep
 | RNF01 | Independência do provedor | O sistema deve ser plenamente utilizável sem nenhuma conexão Open Finance. Toda entidade do domínio tem cadastro manual. | Validado ao criar receita, despesa, transação, fatura e investimento sem nenhuma credencial `OPFI_` cadastrada. |
 | RNF02 | Segurança da credencial | `OFCR_CLIENT_SECRET` deve ser persistido cifrado, com chave simétrica fora do banco, e nunca retornado em claro na leitura comum. | Validado por inspeção do valor persistido na coluna. |
 | RNF03 | Nomenclatura | O schema segue o padrão do `dscproject`: tabelas MAIÚSCULAS no plural sem prefixo de módulo (exceto `OPFI_`), colunas com prefixo próprio por tabela, PK `{PREFIXO}_ID BIGINT AUTO_INCREMENT`, 6 campos `audit_*`. | Validado por revisão do DDL contra este documento. |
-| RNF04 | Auditoria | Todas as 26 tabelas têm auditoria completa via Hibernate Envers (`@Audited`), gerando a tabela `_aud` correspondente, inclusive as associativas e as de *staging*. | Validado por inspeção das tabelas `_aud` após operações de CRUD. |
+| RNF04 | Auditoria | Todas as 27 tabelas têm auditoria completa via Hibernate Envers (`@Audited`), gerando a tabela `_aud` correspondente, inclusive as associativas e as de *staging*. | Validado por inspeção das tabelas `_aud` após operações de CRUD. |
 | RNF05 | Integridade monetária | Valores monetários em `DECIMAL(15,2)`. Nunca `DOUBLE`/`FLOAT`. | Validado por revisão do DDL. |
 | RNF06 | Integridade do JSON | As colunas `..._DADOS_BRUTOS` e `..._PARAMETROS` (`JSON`) devem ser validadas como JSON válido na camada de negócio antes de persistir. | Validado por teste de persistência com JSON válido e inválido. |
 | RNF07 | Idempotência da sincronização | Reprocessar o mesmo evento de webhook ou a mesma transação do provedor não pode duplicar registros. Garantido pelas chaves únicas dos ids externos por provedor (`OFTR_ID_EXTERNO`, `OFEV_ID_EVENTO_EXTERNO`, etc.). | Validado por reprocessamento do mesmo evento duas vezes. |
@@ -127,7 +128,7 @@ As 26 tabelas têm forte interdependência por chaves estrangeiras: `CONTAS` dep
 
 ## 6. Banco de Dados
 
-Esta seção descreve as **26 tabelas** do `dscproject-spring-mvc`, na **ordem de criação por dependência de FK** — cada tabela só referencia tabelas criadas antes dela.
+Esta seção descreve as **27 tabelas** do `dscproject-spring-mvc`, na **ordem de criação por dependência de FK** — cada tabela só referencia tabelas criadas antes dela.
 
 Todas as tabelas seguem `AbstractAuditoria` (6 campos `audit_*`, [QUADRO_DESCRITIVO_1](#quadro-descritivo-1)) e são auditadas via Hibernate Envers.
 
@@ -163,13 +164,14 @@ Todas as tabelas seguem `AbstractAuditoria` (6 campos `audit_*`, [QUADRO_DESCRIT
 | 24 | 22 | `OFIN_` | `OPFI_INVESTIMENTOS` | Open Finance | *Staging* de investimentos do provedor |
 | 25 | 23 | `OFEV_` | `OPFI_EVENTOS_WEBHOOK` | Open Finance | Log de eventos de webhook (idempotência e reprocessamento) |
 | 26 | 24 | `OFSI_` | `OPFI_SINCRONIZACOES` | Open Finance | Log de cada execução do job de sincronização |
+| 27 | 28 | `PAGL_` | `PARAMETROS_GLOBAIS` | Infraestrutura | Parâmetros globais de configuração (contrato lido em runtime por `buscarValorPorCodigo`); tabela-raiz sem FK, semeada por um loader no código na inicialização |
 
 ---
 
 ### <a id="quadro-descritivo-1"></a>QUADRO_DESCRITIVO_1 — AbstractAuditoria (`@MappedSuperclass`)
 
 > **SUPERCLASSE DE AUDITORIA:** AbstractAuditoria (`@MappedSuperclass`)
-> OBSERVAÇÕES: Não é tabela. Portada da geração 1 (`br.com.dscproject.domain.AbstractAuditoria`) — mantém prefixo `audit_` e os nomes originais, e acrescenta os 2 campos de exclusão (soft delete). Os 6 campos são herdados por TODAS as 26 tabelas. Nos demais QUADROS, o bloco de auditoria é citado de forma compacta, referenciando este quadro.
+> OBSERVAÇÕES: Não é tabela. Portada da geração 1 (`br.com.dscproject.domain.AbstractAuditoria`) — mantém prefixo `audit_` e os nomes originais, e acrescenta os 2 campos de exclusão (soft delete). Os 6 campos são herdados por TODAS as 27 tabelas. Nos demais QUADROS, o bloco de auditoria é citado de forma compacta, referenciando este quadro.
 
 | ID | NOME | PROPRIEDADES | OBSERVAÇÕES |
 |---|---|---|---|
@@ -299,7 +301,8 @@ CREATE TABLE CATEGORIAS (
 | 3 | CÓDIGO | Campo: INFI_CODIGO<br>Tipo: VARCHAR(100)<br>Obrigatório: NÃO<br>Único: SIM | JÁ EXISTE. Código COMPE / ISPB do banco. |
 | 4 | TIPO DE INSTITUIÇÃO | Campo: INFI_TIPO_INSTITUICAO<br>Tipo: CHAR(1)<br>Obrigatório: SIM<br>Domínio: B, C | JÁ EXISTE. Enum `TipoInstituicaoFinanceira` (B=Banco, C=Corretora). |
 | 5 | ATIVA | Campo: INFI_FL_ATIVO<br>Tipo: BOOLEAN<br>Obrigatório: SIM<br>Default: TRUE | NOVO |
-| 6-11 | AUDITORIA | Ver [QUADRO_DESCRITIVO_1](#quadro-descritivo-1) | NOVO |
+| 6 | INSTITUIÇÃO DE SISTEMA | Campo: INFI_FL_SISTEMA<br>Tipo: BOOLEAN<br>Obrigatório: SIM<br>Default: FALSE | NOVO. TRUE nas instituições da carga inicial (lista-base de bancos/corretoras) — não podem ser excluídas pela tela. Mesmo padrão de `CATE_FL_SISTEMA` ([QUADRO_DESCRITIVO_3](#quadro-descritivo-3)). |
+| 7-12 | AUDITORIA | Ver [QUADRO_DESCRITIVO_1](#quadro-descritivo-1) | NOVO |
 
 > **ALTERAÇÃO NA ESTRUTURA DO BANCO DE DADOS**
 
@@ -311,6 +314,7 @@ CREATE TABLE INSTITUICOES_FINANCEIRAS (
     INFI_CODIGO                 VARCHAR(100)    NULL,
     INFI_TIPO_INSTITUICAO       CHAR(1)         NOT NULL,
     INFI_FL_ATIVO               BOOLEAN         NOT NULL DEFAULT TRUE,
+    INFI_FL_SISTEMA             BOOLEAN         NOT NULL DEFAULT FALSE,
     audit_data_criacao      DATETIME(6)     NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     audit_criado_por        VARCHAR(400)    NOT NULL,
     audit_data_alteracao    DATETIME(6)     NULL,
@@ -1522,11 +1526,61 @@ CREATE TABLE PERFIL_PERMISSAO (
 
 ---
 
+### <a id="quadro-descritivo-28"></a>QUADRO_DESCRITIVO_28 — PARAMETROS_GLOBAIS
+
+_Acréscimo da versão 1.4. Ordem de criação: **tabela-raiz, sem FK** — pode entrar já no primeiro grupo do `V1__init.sql` (Seção 6.4). Origem no documento `03 - manter-parametro-global`._
+
+> **TABELA DO BANCO DE DADOS:** PARAMETROS_GLOBAIS
+> OBSERVAÇÕES: Parâmetros globais de configuração. Portada da feature `ParametroGlobal` do `portal-lgpd-api`, com uma diferença de modelo: os parâmetros **não são criados nem excluídos por tela**. Cada parâmetro é declarado num **catálogo no código** (interface `ParametroDefinido` — `codigo`, `nome`, `descricao`, `modulo`, `tipo`, `valorDefault` — uma classe/`enum` por módulo, um agregador e um sincronizador), refletido aqui por um `ParametroCatalogoService.sincronizar()` que roda na inicialização — mesmo padrão do catálogo de permissões ([QUADRO_DESCRITIVO_26](#quadro-descritivo-26)). A tela `03 - manter-parametro-global` edita apenas `PAGL_VALOR` e `PAGL_MOTIVO` — `PAGL_TIPO_DADO` vem do catálogo do código e é somente-leitura na tela. O resto do sistema lê o valor por `buscarValorPorCodigo(codigo)`. `PAGL_FL_ORFA` marca o parâmetro que existe na tabela mas não no catálogo do código (mesmo conceito de `PERM_FL_ORFA`); o sincronizador nunca apaga linha. Carga inicial pelo sincronizador, **não** pelo `V1__init.sql`.
+
+| ID | NOME | PROPRIEDADES | OBSERVAÇÕES |
+|---|---|---|---|
+| 1 | IDENTIFICADOR | Campo: PAGL_ID<br>Tipo: BIGINT<br>Obrigatório: SIM<br>Chave: PK<br>Auto incremento: SIM | NOVO |
+| 2 | CÓDIGO | Campo: PAGL_CODIGO<br>Tipo: VARCHAR(50)<br>Obrigatório: SIM<br>Único: SIM | NOVO. A chave lida por `buscarValorPorCodigo`. Vem do catálogo do código — somente-leitura na tela. |
+| 3 | NOME | Campo: PAGL_NOME<br>Tipo: VARCHAR(200)<br>Obrigatório: SIM | NOVO. Nome de exibição. Do catálogo — somente-leitura na tela. |
+| 4 | DESCRIÇÃO | Campo: PAGL_DESCRICAO<br>Tipo: VARCHAR(512)<br>Obrigatório: SIM | NOVO. Do catálogo — somente-leitura na tela. |
+| 5 | MÓDULO | Campo: PAGL_MODULO<br>Tipo: VARCHAR(200)<br>Obrigatório: SIM | NOVO. Módulo a que o parâmetro pertence; agrupa a listagem. Do catálogo — somente-leitura na tela. |
+| 6 | TIPO DE DADO | Campo: PAGL_TIPO_DADO<br>Tipo: VARCHAR(15)<br>Obrigatório: SIM<br>Domínio: STRING, INTEGER, DECIMAL, BOOLEAN, JSON | NOVO. Define a validação de `PAGL_VALOR` (para `JSON`, *parse* sintático — mesma abordagem do RNF06). Vem do catálogo do código — somente-leitura na tela. |
+| 7 | VALOR | Campo: PAGL_VALOR<br>Tipo: TEXT<br>Obrigatório: SIM | NOVO. Valor corrente, editável pela tela e validado conforme `PAGL_TIPO_DADO`. `TEXT` (não `JSON` nativo) — a validação de `JSON` é na aplicação, como nas demais colunas `JSON`. O sincronizador nunca sobrescreve este campo depois da primeira carga. |
+| 8 | VALOR PADRÃO | Campo: PAGL_VALOR_DEFAULT<br>Tipo: TEXT<br>Obrigatório: SIM | NOVO. Valor semeado pelo catálogo do código; base do "restaurar padrão" da tela. |
+| 9 | MOTIVO | Campo: PAGL_MOTIVO<br>Tipo: VARCHAR(255)<br>Obrigatório: NÃO | NOVO. Motivo da última alteração; obrigatório a cada edição pela tela e gravado também na revisão do Envers. |
+| 10 | ÓRFÃO | Campo: PAGL_FL_ORFA<br>Tipo: BOOLEAN<br>Obrigatório: SIM<br>Default: FALSE | NOVO. TRUE quando o `PAGL_CODIGO` não existe mais no catálogo do código. Marcado pelo sincronizador; nunca apagado. |
+| 11-16 | AUDITORIA | Ver [QUADRO_DESCRITIVO_1](#quadro-descritivo-1) | NOVO |
+
+> **ALTERAÇÃO NA ESTRUTURA DO BANCO DE DADOS**
+
+```sql
+-- DDL_28
+CREATE TABLE PARAMETROS_GLOBAIS (
+    PAGL_ID                 BIGINT          NOT NULL AUTO_INCREMENT,
+    PAGL_CODIGO             VARCHAR(50)     NOT NULL,
+    PAGL_NOME               VARCHAR(200)    NOT NULL,
+    PAGL_DESCRICAO          VARCHAR(512)    NOT NULL,
+    PAGL_MODULO             VARCHAR(200)    NOT NULL,
+    PAGL_TIPO_DADO          VARCHAR(15)     NOT NULL,
+    PAGL_VALOR              TEXT            NOT NULL,
+    PAGL_VALOR_DEFAULT      TEXT            NOT NULL,
+    PAGL_MOTIVO             VARCHAR(255)    NULL,
+    PAGL_FL_ORFA            BOOLEAN         NOT NULL DEFAULT FALSE,
+    audit_data_criacao      DATETIME(6)     NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    audit_criado_por        VARCHAR(400)    NOT NULL,
+    audit_data_alteracao    DATETIME(6)     NULL,
+    audit_alterado_por      VARCHAR(400)    NULL,
+    audit_data_exclusao     DATETIME(6)     NULL,
+    audit_excluido_por      VARCHAR(400)    NULL,
+    CONSTRAINT pk_parametros_globais         PRIMARY KEY (PAGL_ID),
+    CONSTRAINT uq_parametros_globais_codigo  UNIQUE (PAGL_CODIGO),
+    CONSTRAINT ck_parametros_globais_tipo    CHECK (PAGL_TIPO_DADO IN ('STRING', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'JSON'))
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+```
+
+---
+
 ### 6.1 Diagrama ER
 
 ![DER — Documento 0](images/documento-0-fundacao-der.png)
 
-Fonte editável: `documento-0-fundacao-der.drawio` (26 tabelas, 44 chaves estrangeiras; domínio em azul, camada Open Finance em laranja). O layout automático tem cruzamentos — reorganizar no draw.io quando for para o `.docx`.
+Fonte editável: `documento-0-fundacao-der.drawio` (27 tabelas, 44 chaves estrangeiras; domínio em azul, camada Open Finance em laranja, `PARAMETROS_GLOBAIS` isolada — sem FK). O layout automático tem cruzamentos — reorganizar no draw.io quando for para o `.docx`.
 
 ### 6.1.1 Diagrama de Classes
 
@@ -1536,7 +1590,7 @@ Mapeamento 1:1 entidade ↔ tabela, com a herança de `AbstractAuditoria` e `Lan
 
 ### 6.2 Auditoria de Tabelas
 
-Todas as 26 tabelas são auditadas via Hibernate Envers (`@Audited`), gerando a tabela de histórico `{TABELA}_aud` com os campos `rev` e `revtype`.
+Todas as 27 tabelas são auditadas via Hibernate Envers (`@Audited`), gerando a tabela de histórico `{TABELA}_aud` com os campos `rev` e `revtype`.
 
 | TABELA PRINCIPAL | TABELA DE AUDITORIA |
 |---|---|
@@ -1566,6 +1620,7 @@ Todas as 26 tabelas são auditadas via Hibernate Envers (`@Audited`), gerando a 
 | OPFI_INVESTIMENTOS | OPFI_INVESTIMENTOS_aud |
 | OPFI_EVENTOS_WEBHOOK | OPFI_EVENTOS_WEBHOOK_aud |
 | OPFI_SINCRONIZACOES | OPFI_SINCRONIZACOES_aud |
+| PARAMETROS_GLOBAIS | PARAMETROS_GLOBAIS_aud |
 
 Além destas, o Envers cria a tabela global `REVINFO` (uma linha por revisão, com carimbo de tempo e autor).
 
@@ -1581,13 +1636,13 @@ Não há. Toda a lógica fica na camada de serviços. Faturas em aberto, totais 
 
 #### Fase 2 — congelamento (antes da primeira homologação)
 
-O schema estabilizado é transposto para **um** script Flyway `V1__init.sql`, gerado a partir da Seção 6 (as 26 tabelas na ordem de dependência de FK abaixo). O `ddl-auto` passa a `validate`. A partir daqui, toda mudança de estrutura é um script `V2__…`, `V3__…` versionado.
+O schema estabilizado é transposto para **um** script Flyway `V1__init.sql`, gerado a partir da Seção 6 (as 27 tabelas na ordem de dependência de FK abaixo). O `ddl-auto` passa a `validate`. A partir daqui, toda mudança de estrutura é um script `V2__…`, `V3__…` versionado.
 
 Ordem das tabelas dentro do `V1__init.sql` (cada uma só referencia tabelas criadas antes):
 
 | Grupo | Tabelas |
 |---|---|
-| 0 | `PERFIS`, `PERMISSOES`, `PERFIL_PERMISSAO` (+ carga inicial: perfis `ADMIN`/`USER`, catálogo de permissões e os vínculos perfil×permissão) |
+| 0 | `PERFIS`, `PERMISSOES`, `PERFIL_PERMISSAO` (+ carga inicial: perfis `ADMIN`/`USER`, catálogo de permissões e os vínculos perfil×permissão); `PARAMETROS_GLOBAIS` (tabela-raiz, sem FK; **carga inicial pelo sincronizador do catálogo do código na inicialização**, não pelo `V1__init.sql`) |
 | 1 | `USUARIOS` (FK para `PERFIS`) |
 | 2 | `CATEGORIAS` (+ carga inicial das categorias equivalentes ao enum da geração 1, com `CATE_FL_SISTEMA = TRUE`) |
 | 3 | `INSTITUICOES_FINANCEIRAS`, `CONTAS` |
@@ -1621,14 +1676,14 @@ Pacote raiz: `br.com.diegocordeiro.dscproject`.
 model/
   AbstractAuditoria               (@MappedSuperclass — 6 campos audit_*)
   LancamentoFinanceiro            (@MappedSuperclass — campos comuns de Receita/Despesa/TransacaoBancaria)
-  Perfil  Permissao  PerfilPermissao
+  Perfil  Permissao  PerfilPermissao  ParametroGlobal
   Usuario  Categoria  CategoriaProvedor  InstituicaoFinanceira  Conta  CartaoCredito
   TransacaoBancaria  FaturaCartao  Receita  Despesa  DespesaUsuario  Investimento
   opfi/
     OpfiProvedor  OpfiInstituicaoProvedor  OpfiCredencial  OpfiConexao  OpfiConsentimento
     OpfiContaExterna  OpfiTransacao  OpfiFatura  OpfiInvestimento  OpfiEventoWebhook  OpfiSincronizacao
 enums/
-  Genero  TipoInstituicaoFinanceira  TipoConta  TipoLancamento
+  Genero  TipoInstituicaoFinanceira  TipoConta  TipoLancamento  TipoParametro
   NaturezaMovimento  MeioPagamento  StatusPagamento  StatusFatura  TipoInvestimento  OrigemLancamento
   opfi/
     StatusConexao  StatusConsentimento  StatusConciliacao  StatusSincronizacao  TipoSincronizacao
@@ -1681,6 +1736,7 @@ O *soft delete* é aplicado via `@SQLDelete` + `@SQLRestriction("audit_data_excl
 | `StatusFatura` | `ABERTA`, `FECHADA`, `PAGA`, `PAGA_PARCIAL` | Novo. |
 | `TipoInvestimento` | `RENDA_FIXA`, `RENDA_VARIAVEL`, `FUNDO`, `TESOURO`, `PREVIDENCIA`, `CRIPTO`, `OUTRO` | Novo. |
 | `OrigemLancamento` | `MANUAL`, `OPEN_FINANCE`, `IMPORTACAO` | Novo. |
+| `TipoParametro` | `STRING`, `INTEGER`, `DECIMAL`, `BOOLEAN`, `JSON` | Novo (v1.4). Domínio de `PAGL_TIPO_DADO`; define a validação do valor do parâmetro global (`JSON` = *parse* sintático). |
 
 **Enums da camada Open Finance** (`enums/opfi/`):
 
@@ -1709,6 +1765,7 @@ Aplica-se às colunas `RECE_COMPETENCIA`, `DESP_COMPETENCIA`, `TRBA_COMPETENCIA`
 | `Perfil` | `PERFIS` | `AbstractAuditoria` |
 | `Permissao` | `PERMISSOES` | `AbstractAuditoria` |
 | `PerfilPermissao` | `PERFIL_PERMISSAO` | `AbstractAuditoria` |
+| `ParametroGlobal` | `PARAMETROS_GLOBAIS` | `AbstractAuditoria` (`@Audited`; sem relacionamento — tabela-raiz) |
 | `Usuario` | `USUARIOS` | `AbstractAuditoria` (implementa `UserDetails`; `@ManyToOne Perfil`) |
 | `Categoria` | `CATEGORIAS` | `AbstractAuditoria` |
 | `CategoriaProvedor` | `CATEGORIAS_PROVEDOR` | `AbstractAuditoria` |
