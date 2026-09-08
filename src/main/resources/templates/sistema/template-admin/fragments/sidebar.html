@@ -57,7 +57,7 @@
                 </li>-->
 
                 <li class="nav-item dropdown"
-                    sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR') or hasAuthority('PERM_PERFIS_LISTAR')">
+                    sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR') or hasAuthority('PERM_PERFIS_LISTAR') or hasAuthority('PERM_PARAMETROS_LISTAR')">
                     <a class="nav-link dropdown-toggle" href="#navbar-admin" data-bs-toggle="dropdown"
                        data-bs-auto-close="false" role="button" aria-expanded="false">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -81,6 +81,9 @@
                         <a class="dropdown-item" th:href="@{/perfis/listar}"
                            sec:authorize="hasAuthority('PERM_PERFIS_LISTAR')"
                            th:text="#{menu.perfis-permissoes}">Perfis e Permissões</a>
+                        <a class="dropdown-item" th:href="@{/parametros/listar}"
+                           sec:authorize="hasAuthority('PERM_PARAMETROS_LISTAR')"
+                           th:text="#{menu.parametros-globais}">Parâmetros Globais</a>
                     </div>
                 </li>
 

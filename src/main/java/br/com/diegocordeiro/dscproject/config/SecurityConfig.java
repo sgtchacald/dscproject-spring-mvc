@@ -67,6 +67,14 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/permissoes/sincronizar-catalogo")
                     .hasAuthority("PERM_PERFIS_SINCRONIZAR_CATALOGO")
 
+                // Parâmetros Globais — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/parametros/listar", "/parametros/listar-dados", "/parametros/historico/**")
+                    .hasAuthority("PERM_PARAMETROS_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/parametros/buscar/**")
+                    .hasAuthority("PERM_PARAMETROS_EDITAR")
+                .requestMatchers(HttpMethod.PUT, "/parametros/editar/**", "/parametros/restaurar-padrao/**")
+                    .hasAuthority("PERM_PARAMETROS_EDITAR")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

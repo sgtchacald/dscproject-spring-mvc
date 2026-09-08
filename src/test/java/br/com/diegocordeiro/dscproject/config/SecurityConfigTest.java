@@ -126,6 +126,29 @@ class SecurityConfigTest {
         assertThat(status).isNotEqualTo(403);
     }
 
+    // ---------- Parâmetros Globais — autorização por operação (RN01) ----------
+
+    @Test
+    @WithMockUser(authorities = "ROLE_USER")
+    void parametrosListarDados_semPermissao_403() throws Exception {
+        mockMvc.perform(get("/parametros/listar-dados")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = "PERM_PARAMETROS_LISTAR")
+    void parametrosEditar_soComListar_403() throws Exception {
+        mockMvc.perform(put("/parametros/editar/1").with(csrf())
+                .param("valor", "x").param("motivo", "y"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = "PERM_PARAMETROS_LISTAR")
+    void parametrosHistorico_comListar_naoRecebe403() throws Exception {
+        var status = mockMvc.perform(get("/parametros/historico/1")).andReturn().getResponse().getStatus();
+        assertThat(status).isNotEqualTo(403);
+    }
+
     // ---------- RN19 — Configurações da Conta exige apenas autenticação ----------
 
     @Test

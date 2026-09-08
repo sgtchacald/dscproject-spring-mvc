@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div class="modal modal-blur fade" id="modalHistorico" tabindex="-1" th:fragment="modal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="historicoTitulo" th:text="#{parametro.historico.titulo}">Histórico</h5>
+                    <div class="text-secondary" id="historicoSubtitulo"></div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body table-responsive" style="max-height: 60vh; overflow-y: auto;">
+                <table class="table table-sm table-vcenter">
+                    <thead>
+                    <tr>
+                        <th th:text="#{parametro.historico.data}">Data/hora</th>
+                        <th th:text="#{parametro.historico.autor}">Autor</th>
+                        <th th:text="#{parametro.historico.valor}">Valor</th>
+                        <th th:text="#{parametro.historico.motivo}">Motivo</th>
+                    </tr>
+                    </thead>
+                    <tbody id="corpoHistorico"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal" th:text="#{parametro.historico.fechar}">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div class="modal modal-blur fade" id="modalFiltro" tabindex="-1" th:fragment="modal">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{parametro.filtro.titulo}">Filtrar Parâmetros</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="filtroBusca" th:text="#{parametro.filtro.busca.label}">Busca</label>
+                    <input type="text" id="filtroBusca" class="form-control"
+                           th:placeholder="#{parametro.filtro.busca.placeholder}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="filtroModulo" th:text="#{parametro.filtro.modulo.label}">Módulo</label>
+                    <select id="filtroModulo" class="form-select">
+                        <option value="" th:text="#{parametro.filtro.todos}">Todos</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="filtroTipo" th:text="#{parametro.filtro.tipo.label}">Tipo</label>
+                    <select id="filtroTipo" class="form-select">
+                        <option value="" th:text="#{parametro.filtro.todos}">Todos</option>
+                        <option th:each="t : ${tiposParametro}" th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </div>
+                <div class="mb-1">
+                    <label class="form-label" for="filtroSituacao" th:text="#{parametro.filtro.situacao.label}">Situação</label>
+                    <select id="filtroSituacao" class="form-select">
+                        <option value="" th:text="#{parametro.filtro.todas}">Todas</option>
+                        <option value="ATIVO" th:text="#{parametro.situacao.ativo}">Ativo</option>
+                        <option value="ORFAO" th:text="#{parametro.situacao.orfao}">Órfão</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" id="btnLimparFiltro" th:text="#{parametro.filtro.limpar}">Limpar</button>
+                <button type="button" class="btn btn-primary" id="btnAplicarFiltro" data-bs-dismiss="modal"
+                        th:text="#{parametro.filtro.aplicar}">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
