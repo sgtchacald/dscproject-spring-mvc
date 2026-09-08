@@ -122,7 +122,8 @@ function codigosMarcados() {
 
 function atualizarContador() {
     const n = codigosMarcados().length;
-    document.getElementById('contadorPermissoes').textContent = n + ' de ' + catalogo.length + ' permissões selecionadas';
+    const tpl = cfg().labelContador || '{n} de {total} permissões selecionadas';
+    document.getElementById('contadorPermissoes').textContent = tpl.replace('{n}', n).replace('{total}', catalogo.length);
 }
 
 export async function abrirNovo() {
