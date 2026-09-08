@@ -2,7 +2,7 @@
 ## Módulo Usuário — ADMIN — Manter Perfil e Permissões
 
 **Gerado em:** 06/09/2026
-**Versão:** 1.1
+**Versão:** 1.2
 **Projeto:** `dscproject-spring-mvc` (geração 2)
 
 ---
@@ -26,6 +26,7 @@
 |---|---|---|---|
 | 1.0 | 06/09/2026 | Diego dos Santos Cordeiro | Criação do documento. Tela administrativa de RBAC: gerenciar perfis e vincular permissões a cada perfil. Complementa o documento `01 - manter-usuario` (que introduziu o RBAC e assumiu a carga inicial dos perfis/permissões) |
 | 1.1 | 07/09/2026 | Diego dos Santos Cordeiro | `GERENCIAR_PERFIS` vira três permissões granulares: `PERFIS_LISTAR`, `PERFIS_MANTER`, `PERFIS_SINCRONIZAR_CATALOGO` (convenção domínio-primeiro). Nova Seção 13.1 com a matriz Perfil × Permissão. Anti-lockout e endpoints reescritos em cima das novas permissões. `PERM_MODULO` e `PERM_FL_ORFA` já absorvidos no Documento 0 v1.3 |
+| 1.2 | 07/09/2026 | Diego dos Santos Cordeiro | RN05 (anti-lockout do próprio perfil) passa a retornar `MSG05` tanto na tela quanto no serviço; `MSG06` fica restrita ao anti-lockout global (RN06). RT04 ajustada. Alinhado durante a implementação |
 
 ---
 
@@ -231,7 +232,7 @@ Wireframes gerados de `prototipo/manter-perfil-permissao-prototipo.drawio`. Os n
 | <a id="rt01"></a>RT01 | Ao clicar em "Novo perfil" ([ID4](#qdd1-4)) — visível só com [PERM02](#perm02) —, abrir o modal ([QUADRO_DESCRITIVO_2](#quadro-descritivo-2)) em modo criação: campos vazios, seletor de permissões carregado por [EDP04](#edp04) com tudo desmarcado. |
 | <a id="rt02"></a>RT02 | Ao clicar no ícone Editar de uma linha — visível só com [PERM02](#perm02) —, chamar [EDP03](#edp03) com o id e abrir o modal em modo edição, com nome/descrição preenchidos, código exibido (desabilitado se for perfil de sistema — [RN02](#rn02)) e o seletor de permissões com as permissões atuais marcadas. |
 | <a id="rt03"></a>RT03 | No seletor de permissões: marcar/desmarcar uma permissão atualiza o contador ([ID7](#qdd2-7)) e o estado tri-state do "marcar todos" do módulo. Permissões órfãs ficam desabilitadas. Se a alteração violar o anti-lockout ([RN05](#rn05)), impedir o desmarque e exibir [MSG05](#msg05). |
-| <a id="rt04"></a>RT04 | Ao clicar em "Salvar": validar código e nome obrigatórios ([MSG02](#msg02)). Em criação chamar [EDP05](#edp05); em edição, [EDP06](#edp06), enviando os dados do perfil e a **lista completa** de códigos de permissão marcados. Em sucesso, exibir [MSG01](#msg01) (criação) ou [MSG03](#msg03) (edição), fechar e recarregar o grid. Código duplicado → [MSG04](#msg04). Anti-lockout no servidor → [MSG06](#msg06). |
+| <a id="rt04"></a>RT04 | Ao clicar em "Salvar": validar código e nome obrigatórios ([MSG02](#msg02)). Em criação chamar [EDP05](#edp05); em edição, [EDP06](#edp06), enviando os dados do perfil e a **lista completa** de códigos de permissão marcados. Em sucesso, exibir [MSG01](#msg01) (criação) ou [MSG03](#msg03) (edição), fechar e recarregar o grid. Código duplicado → [MSG04](#msg04). Anti-lockout do próprio perfil no servidor ([RN05](#rn05)) → [MSG05](#msg05); anti-lockout global ([RN06](#rn06)) → [MSG06](#msg06). |
 | <a id="rt05"></a>RT05 | Ao clicar no ícone Excluir — visível só com [PERM02](#perm02) —, exibir a confirmação [MSG07](#msg07). Ao confirmar, chamar [EDP07](#edp07). Perfil de sistema → [MSG08](#msg08); perfil com usuários → [MSG09](#msg09). Em sucesso, exibir [MSG10](#msg10) e recarregar o grid. |
 | <a id="rt06"></a>RT06 | Ao clicar em "Catálogo de permissões" ([ID3](#qdd1-3)), abrir o [QUADRO_DESCRITIVO_3](#quadro-descritivo-3) e carregar a lista por [EDP04](#edp04). O botão "Sincronizar catálogo" dentro do modal só aparece com [PERM03](#perm03). |
 | <a id="rt07"></a>RT07 | Ao clicar em "Sincronizar catálogo" ([ID3](#qdd3-3)) — visível só com [PERM03](#perm03) —, chamar [EDP08](#edp08). Ao concluir, exibir [MSG11](#msg11) com o resumo (n inseridas, n marcadas como órfãs) e recarregar a lista. |
@@ -270,7 +271,7 @@ Wireframes gerados de `prototipo/manter-perfil-permissao-prototipo.drawio`. Os n
 | <a id="rn02"></a>RN02 | `PERF_CODIGO` de um perfil com `PERF_FL_SISTEMA = TRUE` não pode ser alterado ([EDP06](#edp06)). Nome e descrição podem. |
 | <a id="rn03"></a>RN03 | `PERF_CODIGO` é único entre perfis não excluídos. Ao criar ([EDP05](#edp05)) ou editar ([EDP06](#edp06)), se já existir outro perfil com o mesmo código, impedir e retornar [MSG04](#msg04). Executa [C4](#c4). |
 | <a id="rn04"></a>RN04 | Só permissões **não-órfãs** (`PERM_FL_ORFA = FALSE`) podem ser vinculadas a um perfil. Vínculos de permissões que se tornaram órfãs continuam valendo até serem removidos manualmente, mas não podem ser recriados. |
-| <a id="rn05"></a>RN05 | **Anti-lockout (próprio perfil):** o usuário logado não pode remover [PERM02](#perm02) (`PERFIS_MANTER`) do perfil que **ele mesmo** possui. Se tentar, impedir e retornar [MSG05](#msg05) (na tela) / [MSG06](#msg06) (no serviço). |
+| <a id="rn05"></a>RN05 | **Anti-lockout (próprio perfil):** o usuário logado não pode remover [PERM02](#perm02) (`PERFIS_MANTER`) do perfil que **ele mesmo** possui. Se tentar, impedir e retornar [MSG05](#msg05) — tanto na tela quanto no serviço. |
 | <a id="rn06"></a>RN06 | **Anti-lockout (global):** uma gravação ([EDP05](#edp05)/[EDP06](#edp06)/[EDP07](#edp07)) não pode deixar o sistema em um estado onde **nenhum** perfil com ao menos um usuário ativo tenha `PERM_PERFIS_MANTER`, nem onde nenhum tenha `PERM_USUARIOS_EDITAR` (a permissão que reatribui o perfil de um usuário). Executa [C5](#c5). Se violar, impedir e retornar [MSG06](#msg06). |
 | <a id="rn07"></a>RN07 | Exclusão de perfil ([EDP07](#edp07)): recusar se `PERF_FL_SISTEMA = TRUE` ([MSG08](#msg08)); recusar se existir **qualquer** usuário (ativo ou excluído) com `PERF_ID` apontando para este perfil ([MSG09](#msg09)) — executa [C6](#c6). Caso contrário, `audit_data_exclusao` no perfil e nos vínculos `PERFIL_PERMISSAO`. |
 | <a id="rn08"></a>RN08 | O catálogo de permissões do código é a fonte da verdade. O sincronizador ([EDP08](#edp08), e também na inicialização da aplicação) insere em `PERMISSOES` toda permissão do código que não existir na tabela, preenchendo `PERM_CODIGO`, `PERM_NOME`, `PERM_DESCRICAO` e `PERM_MODULO`. |
