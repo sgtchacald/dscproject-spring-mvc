@@ -37,8 +37,7 @@ public class PermissaoController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> sincronizarCatalogo(Locale locale) {
         SincronizacaoCatalogoDTO resultado = permissaoCatalogoService.sincronizar();
-        String mensagem = messageSource.getMessage("msg.permissao.catalogo.sincronizado",
-            new Object[]{resultado.inseridas(), resultado.orfas()}, locale);
+        String mensagem = messageSource.getMessage("msg.permissao.catalogo.sincronizado", new Object[]{resultado.inseridas(), resultado.orfas()}, locale);
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("sucesso", true);

@@ -43,10 +43,13 @@ public class PermissaoCatalogoService {
      */
     @Transactional
     public SincronizacaoCatalogoDTO sincronizar() {
+
         List<PermissaoDefinida> catalogo = CatalogoPermissoes.todas();
+
         Set<String> codigosDoCodigo = catalogo.stream()
             .map(PermissaoDefinida::getCodigo)
             .collect(Collectors.toSet());
+
         Map<String, Permissao> existentes = permissaoRepository.findAll().stream()
             .collect(Collectors.toMap(Permissao::getCodigo, Function.identity()));
 
