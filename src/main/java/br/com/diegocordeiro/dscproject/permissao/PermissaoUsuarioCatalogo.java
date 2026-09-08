@@ -1,11 +1,11 @@
-package br.com.diegocordeiro.dscproject.enums;
+package br.com.diegocordeiro.dscproject.permissao;
 
 /**
  * Catálogo, no código, das permissões do módulo Usuários.
  * A carga inicial reflete estas entradas na tabela {@code PERMISSOES}.
  * Cada uma vira a autoridade {@code PERM_{CODIGO}}.
  */
-public enum PermissaoCatalogo implements PermissaoDefinida {
+public enum PermissaoUsuarioCatalogo implements PermissaoDefinida {
 
     USUARIOS_LISTAR("Listar usuários", "Abrir a tela de Usuários, listar e filtrar. Controla a visibilidade do menu 'Usuários'."),
     USUARIOS_INSERIR("Inserir usuário", "Cadastrar novo usuário, inclusive escolher o perfil."),
@@ -18,7 +18,7 @@ public enum PermissaoCatalogo implements PermissaoDefinida {
     private final String nome;
     private final String descricao;
 
-    PermissaoCatalogo(String nome, String descricao) {
+    PermissaoUsuarioCatalogo(String nome, String descricao) {
         this.nome = nome;
         this.descricao = descricao;
     }

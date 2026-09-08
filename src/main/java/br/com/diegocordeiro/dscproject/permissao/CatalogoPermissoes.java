@@ -1,4 +1,4 @@
-package br.com.diegocordeiro.dscproject.enums;
+package br.com.diegocordeiro.dscproject.permissao;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -15,7 +15,7 @@ public final class CatalogoPermissoes {
     /** Todas as permissões do código, de todos os módulos. */
     public static List<PermissaoDefinida> todas() {
         return Stream.of(
-                Stream.of(PermissaoCatalogo.values()),
+                Stream.of(PermissaoUsuarioCatalogo.values()),
                 Stream.of(PermissaoPerfilCatalogo.values()))
             .flatMap(s -> s)
             .map(PermissaoDefinida.class::cast)

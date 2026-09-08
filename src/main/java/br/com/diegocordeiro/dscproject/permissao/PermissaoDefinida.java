@@ -1,4 +1,4 @@
-package br.com.diegocordeiro.dscproject.enums;
+package br.com.diegocordeiro.dscproject.permissao;
 
 /**
  * Entrada do catálogo de permissões definido no código. Cada enum de módulo

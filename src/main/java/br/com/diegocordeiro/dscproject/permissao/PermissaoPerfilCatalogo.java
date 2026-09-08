@@ -1,4 +1,4 @@
-package br.com.diegocordeiro.dscproject.enums;
+package br.com.diegocordeiro.dscproject.permissao;
 
 /**
  * Catálogo, no código, das permissões do módulo Perfis e Permissões.
@@ -6,13 +6,9 @@ package br.com.diegocordeiro.dscproject.enums;
  */
 public enum PermissaoPerfilCatalogo implements PermissaoDefinida {
 
-    PERFIS_LISTAR("Listar perfis",
-        "Abrir a tela de Perfis e Permissões, listar os perfis e ver o catálogo de permissões em leitura. "
-            + "Controla a visibilidade do menu 'Perfis e Permissões'."),
-    PERFIS_MANTER("Manter perfis",
-        "Criar, editar e excluir perfil, e ligar/desligar os vínculos perfil x permissão."),
-    PERFIS_SINCRONIZAR_CATALOGO("Sincronizar catálogo de permissões",
-        "Disparar a sincronização do catálogo de PERMISSOES com o do código.");
+    PERFIS_LISTAR("Listar perfis", "Abrir a tela de Perfis e Permissões, listar os perfis e ver o catálogo de permissões em leitura. Controla a visibilidade do menu 'Perfis e Permissões'."),
+    PERFIS_MANTER("Manter perfis", "Criar, editar e excluir perfil, e ligar/desligar os vínculos perfil x permissão."),
+    PERFIS_SINCRONIZAR_CATALOGO("Sincronizar catálogo de permissões", "Disparar a sincronização do catálogo de PERMISSOES com o do código.");
 
     public static final String MODULO = "Perfis e Permissões";
 

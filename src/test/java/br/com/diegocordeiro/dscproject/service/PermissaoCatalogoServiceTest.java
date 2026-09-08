@@ -1,7 +1,7 @@
 package br.com.diegocordeiro.dscproject.service;
 
 import br.com.diegocordeiro.dscproject.dto.permissao.SincronizacaoCatalogoDTO;
-import br.com.diegocordeiro.dscproject.enums.CatalogoPermissoes;
+import br.com.diegocordeiro.dscproject.permissao.CatalogoPermissoes;
 import br.com.diegocordeiro.dscproject.model.Permissao;
 import br.com.diegocordeiro.dscproject.repository.PermissaoRepository;
 import org.junit.jupiter.api.Test;
