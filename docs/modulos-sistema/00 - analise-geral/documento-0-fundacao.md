@@ -3,6 +3,7 @@
 
 **Gerado em:** 06/09/2026
 **Versão:** 1.4
+**Status:** Analisado
 **Projeto:** `dscproject-spring-mvc` (geração 2 — monólito Spring MVC + Thymeleaf)
 
 ---

@@ -3,6 +3,7 @@
 
 **Gerado em:** 06/09/2026
 **Versão:** 1.2
+**Status:** Homologado
 **Projeto:** `dscproject-spring-mvc` (geração 2)
 
 ---
