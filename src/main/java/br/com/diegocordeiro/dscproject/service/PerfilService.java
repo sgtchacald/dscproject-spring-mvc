@@ -93,7 +93,7 @@ public class PerfilService {
 
         if (ehPerfilDoUsuarioLogado(loginUsuarioLogado, perfil)
                 && atuais.contains(PERFIS_MANTER) && !desejados.contains(PERFIS_MANTER)) {
-            throw new RegraNegocioException("perfil.antilockout.global");
+            throw new RegraNegocioException("perfil.antilockout.proprio");
         }
 
         substituirVinculos(perfil, desejados, atuais);

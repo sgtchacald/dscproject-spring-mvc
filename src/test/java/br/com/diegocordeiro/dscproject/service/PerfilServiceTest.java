@@ -104,6 +104,24 @@ class PerfilServiceTest {
             .hasMessage("perfil.permissao.orfa");
     }
 
+    @Test
+    void editar_removeVinculoDePermissaoQueSeTornouOrfa_fazSoftDelete() {
+        Perfil perfil = perfil(5L, "RELATORIOS", false);
+        when(perfilRepository.findById(5L)).thenReturn(Optional.of(perfil));
+
+        PerfilPermissao vinculoOrfao = new PerfilPermissao(perfil, permissao("RECURSO_ANTIGO", true));
+        PerfilPermissao vinculoManter = new PerfilPermissao(perfil, permissao("PERFIS_MANTER", false));
+        when(perfilPermissaoRepository.buscarCodigosPermissaoAtivos(5L))
+            .thenReturn(new ArrayList<>(List.of("RECURSO_ANTIGO", "PERFIS_MANTER")));
+        when(perfilPermissaoRepository.findByPerfilAndDataExclusaoIsNull(perfil))
+            .thenReturn(new ArrayList<>(List.of(vinculoOrfao, vinculoManter)));
+
+        perfilService.editar(5L, form("RELATORIOS", "Relatórios", "PERFIS_MANTER"), null);
+
+        assertThat(vinculoOrfao.getDataExclusao()).isNotNull();     // órfã pode ser removida
+        assertThat(vinculoManter.getDataExclusao()).isNull();
+    }
+
     // ---------- RN02 / BDD 16.3 — código de perfil de sistema não muda ----------
 
     @Test
@@ -160,7 +178,7 @@ class PerfilServiceTest {
 
         assertThatThrownBy(() -> perfilService.editar(1L, form("ADMIN", "Administrador", "USUARIOS_EDITAR"), "diego"))
             .isInstanceOf(RegraNegocioException.class)
-            .hasMessage("perfil.antilockout.global");
+            .hasMessage("perfil.antilockout.proprio");
 
         verify(perfilPermissaoRepository, never()).flush();
     }

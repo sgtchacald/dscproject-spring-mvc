@@ -56,11 +56,13 @@ function renderSeletor(marcadas) {
             const linha = document.createElement('label');
             linha.className = 'form-check ms-3';
             const marcada = marcadasSet.has(p.codigo);
-            const desabilitada = p.orfa;
+            // órfã: editável só quando o perfil já a concede (permite desmarcar/remover, nunca marcar de novo)
+            const desabilitada = p.orfa && !marcada;
             const selos = (p.orfa ? ' <span class="text-warning">' + (cfg().labelOrfa || '(órfã)') + '</span>' : '')
                 + (p.concedivelPorPlano ? ' <span class="badge bg-azure-lt">' + (cfg().labelPorPlano || 'concedível por plano') + '</span>' : '');
             linha.innerHTML = '<input class="form-check-input" type="checkbox"'
                 + ' data-codigo="' + p.codigo + '"'
+                + (p.orfa ? ' data-orfa="true"' : '')
                 + (marcada ? ' checked' : '')
                 + (desabilitada ? ' disabled' : '')
                 + '><span class="form-check-label">' + p.nome + selos + '</span>';
@@ -73,7 +75,8 @@ function renderSeletor(marcadas) {
     alvo.querySelectorAll('input[data-marcar-todos]').forEach((cb) => {
         cb.addEventListener('change', function () {
             const grupo = cb.closest('[data-modulo]');
-            grupo.querySelectorAll('input[data-codigo]:not(:disabled)').forEach((item) => {
+            // "marcar todos" nunca reativa uma permissão órfã
+            grupo.querySelectorAll('input[data-codigo]:not([data-orfa])').forEach((item) => {
                 item.checked = cb.checked;
             });
             atualizarContador();
@@ -105,7 +108,8 @@ function aplicarTravaProprioPerfil(cb) {
 }
 
 function sincronizarMarcarTodos(grupo) {
-    const itens = Array.from(grupo.querySelectorAll('input[data-codigo]:not(:disabled)'));
+    // o tri-state considera só as permissões não-órfãs do módulo
+    const itens = Array.from(grupo.querySelectorAll('input[data-codigo]:not([data-orfa])'));
     const marcados = itens.filter((i) => i.checked).length;
     const todos = grupo.querySelector('input[data-marcar-todos]');
     todos.checked = itens.length > 0 && marcados === itens.length;

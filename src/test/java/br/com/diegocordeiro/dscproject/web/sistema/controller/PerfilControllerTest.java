@@ -183,7 +183,7 @@ class PerfilControllerTest {
 
     @Test
     @WithMockUser(authorities = "PERM_PERFIS_MANTER")
-    void editar_antiLockout_422ComMsg06() throws Exception {
+    void editar_antiLockoutGlobal_422ComMsg06() throws Exception {
         when(perfilService.verificarCodigoDuplicado(any(), any())).thenReturn(false);
         doThrow(new RegraNegocioException("perfil.antilockout.global"))
             .when(perfilService).editar(eq(1L), any(), any());
@@ -194,6 +194,21 @@ class PerfilControllerTest {
             .andExpect(status().isUnprocessableEntity())
             .andExpect(jsonPath("$.mensagem")
                 .value("Esta alteração deixaria o sistema sem nenhum perfil capaz de gerenciar perfis ou usuários."));
+    }
+
+    @Test
+    @WithMockUser(authorities = "PERM_PERFIS_MANTER")
+    void editar_antiLockoutProprioPerfil_422ComMsg05() throws Exception {
+        when(perfilService.verificarCodigoDuplicado(any(), any())).thenReturn(false);
+        doThrow(new RegraNegocioException("perfil.antilockout.proprio"))
+            .when(perfilService).editar(eq(1L), any(), any());
+
+        mockMvc.perform(put("/perfis/editar/1").with(csrf())
+                .param("codigo", "ADMIN").param("nome", "Administrador")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(jsonPath("$.mensagem")
+                .value("Você não pode remover a permissão de gerenciar perfis do seu próprio perfil."));
     }
 
     // ---------- EDP07 / RN07 / BDD 16.6 e 16.7 ----------
