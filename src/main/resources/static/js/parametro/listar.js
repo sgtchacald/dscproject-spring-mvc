@@ -158,7 +158,7 @@ function iniciarEdicao(celula, p) {
         });
 }
 
-// RT04 — clicar na célula Valor ou no botão Editar a transforma no editor do tipo da linha.
+// Clicar na célula Valor ou no botão Editar a transforma no editor do tipo da linha.
 corpo.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-acao]');
     if (btn) {
