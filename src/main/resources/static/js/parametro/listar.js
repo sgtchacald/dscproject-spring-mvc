@@ -91,9 +91,11 @@ function acoes(p) {
     let html = '';
     if (podeEditar) {
         html += botaoAcao('editar', cfg.labelEditar || 'Editar valor', p.id, p.orfa);
-        html += botaoAcao('restaurar', cfg.labelRestaurar || 'Restaurar valor padrão', p.id, p.valor === p.valorDefault || p.orfa);
+        if (p.valor !== p.valorDefault && !p.orfa) {
+            html += botaoAcao('restaurar', cfg.labelRestaurar || 'Restaurar valor padrão', p.id);
+        }
     }
-    html += botaoAcao('historico', cfg.labelHistorico || 'Ver histórico', p.id, false);
+    html += botaoAcao('historico', cfg.labelHistorico || 'Ver histórico', p.id);
     return html;
 }
 
