@@ -125,7 +125,9 @@ Este documento cobre:
 
 ## 4. Casos de Uso
 
-[Inserir o diagrama de casos de uso — `prototipo/manter-categoria-casos-uso.drawio` + `images/manter-categoria-casos-uso.png` — quando gerado.]
+![Casos de Uso - Manter Categoria](images/manter-categoria-casos-uso.png)
+
+Fonte: `prototipo/manter-categoria-casos-uso.drawio` (editável) e `prototipo/_diagrama-casos-uso.html` (render).
 
 | CÓDIGO | NOME | ATOR PRINCIPAL | DESCRIÇÃO |
 |---|---|---|---|
@@ -176,7 +178,9 @@ Toda a estrutura está no **Documento 0** (`00 - analise-geral`). Este documento
 
 ### 6.1 Diagrama ER
 
-[Inserir `images/manter-categoria-der.png` quando gerado — subconjunto do DER do Documento 0: `CATEGORIAS`, `CATEGORIAS_PROVEDOR`, `OPFI_PROVEDORES` e as FKs `CATE_ID` em `RECEITAS`/`DESPESAS`/`TRANSACOES_BANCARIAS`. Fonte: `prototipo/manter-categoria-der.drawio`.]
+![DER - Manter Categoria](images/manter-categoria-der.png)
+
+Subconjunto do DER do Documento 0: `CATEGORIAS`, `CATEGORIAS_PROVEDOR`, `OPFI_PROVEDORES` e as FKs `CATE_ID` (nullable) em `RECEITAS`/`DESPESAS`/`TRANSACOES_BANCARIAS`. Fonte: `prototipo/manter-categoria-der.drawio` (editável) e `prototipo/_diagrama-der.html` (render).
 
 ### 6.2 Auditoria de Tabelas
 
@@ -221,11 +225,11 @@ As 19 categorias abaixo equivalem ao enum `CategoriaRegistroFinanceiro` da gera�
 
 ## 7. Protótipos de Interface
 
-Protótipo navegável e wireframes: `prototipo/manter-categoria-prototipo.html` e `prototipo/manter-categoria-prototipo.drawio` (a gerar). Os números em destaque nas telas correspondem aos IDs dos itens do respectivo QUADRO_DESCRITIVO.
+Protótipo navegável: `prototipo/manter-categoria-prototipo.html`. Wireframes editáveis: `prototipo/manter-categoria-prototipo.drawio` (5 páginas, 7.1 a 7.5). PNGs regeráveis por `prototipo/render-pngs.py`. Os números em destaque nas telas correspondem aos IDs dos itens do respectivo QUADRO_DESCRITIVO.
 
 ### <a id="quadro-descritivo-1"></a>7.1 Tela: Categorias (Listagem) — QUADRO_DESCRITIVO_1
 
-[Inserir `images/mc-tela-1.png` quando gerado.]
+![Categorias - Listagem](images/mc-tela-1.png)
 
 > OBSERVAÇÕES: Tela acessada via 'Administração > Categorias'. Restrita a quem tem [PERM01](#perm01). Grid client-side. O filtro é acionado por um modal (botão "Filtrar").
 
@@ -249,7 +253,7 @@ Protótipo navegável e wireframes: `prototipo/manter-categoria-prototipo.html` 
 
 ### <a id="quadro-descritivo-2"></a>7.2 Modal: Filtrar Categorias — QUADRO_DESCRITIVO_2
 
-[Inserir `images/mc-tela-2.png` quando gerado.]
+![Modal Filtrar Categorias](images/mc-tela-2.png)
 
 > OBSERVAÇÕES: Todos os campos são opcionais. O filtro é aplicado em memória sobre a lista já carregada ([RT02](#rt02)).
 
@@ -265,7 +269,7 @@ Protótipo navegável e wireframes: `prototipo/manter-categoria-prototipo.html` 
 
 ### <a id="quadro-descritivo-3"></a>7.3 Modal: Cadastro / Edição de Categoria — QUADRO_DESCRITIVO_3
 
-[Inserir `images/mc-tela-3.png` quando gerado.]
+![Modal Cadastro / Edição de Categoria](images/mc-tela-3.png)
 
 > OBSERVAÇÕES: Modal único de cadastro e edição, restrito a [PERM02](#perm02). Ao editar uma categoria de sistema, o campo Código fica desabilitado ([RN04](#rn04)) e não há como alterar o tipo. O campo Situação (ativa) só aparece na edição.
 
@@ -284,7 +288,7 @@ Protótipo navegável e wireframes: `prototipo/manter-categoria-prototipo.html` 
 
 ### <a id="quadro-descritivo-4"></a>7.4 Tela: Categorias por Provedor (Listagem) — QUADRO_DESCRITIVO_4
 
-[Inserir `images/mc-tela-4.png` quando gerado.]
+![Categorias por Provedor - Listagem](images/mc-tela-4.png)
 
 > OBSERVAÇÕES: Tela acessada via 'Administração > Categorias por Provedor'. Restrita a quem tem [PERM03](#perm03). Grid client-side. Mantém o mapa que a conciliação automática de Open Finance consulta ([Observação 8](#2-observações)).
 
@@ -304,7 +308,7 @@ Protótipo navegável e wireframes: `prototipo/manter-categoria-prototipo.html` 
 
 ### <a id="quadro-descritivo-5"></a>7.5 Modal: Cadastro / Edição de Vínculo Categoria × Provedor — QUADRO_DESCRITIVO_5
 
-[Inserir `images/mc-tela-5.png` quando gerado.]
+![Modal Cadastro / Edição de Vínculo Categoria × Provedor](images/mc-tela-5.png)
 
 > OBSERVAÇÕES: Modal único de cadastro e edição, restrito a [PERM04](#perm04). O par provedor + rótulo externo é único ([RN07](#rn07)).
 
@@ -652,7 +656,7 @@ Descrição: Levantamento a partir do Documento 0 (Observações 14, 16 e 19; [Q
 
 ## 18. Anexos
 
-- **Pendência (v1.0):** gerar o diagrama de casos de uso (`prototipo/manter-categoria-casos-uso.drawio` + PNG), o DER do subconjunto (`prototipo/manter-categoria-der.drawio` + `images/manter-categoria-der.png`), os wireframes das cinco telas/modais (`prototipo/manter-categoria-prototipo.drawio` + `images/mc-tela-*.png`) e o protótipo navegável (`prototipo/manter-categoria-prototipo.html`).
+- **Protótipo e diagramas (v1.0):** gerados. Casos de uso (`prototipo/manter-categoria-casos-uso.drawio` + `images/manter-categoria-casos-uso.png`), DER do subconjunto (`prototipo/manter-categoria-der.drawio` + `images/manter-categoria-der.png`), wireframes das cinco telas/modais (`prototipo/manter-categoria-prototipo.drawio` + `images/mc-tela-1..5.png`) e protótipo navegável (`prototipo/manter-categoria-prototipo.html`). PNGs regeráveis por `prototipo/render-pngs.py` (Playwright).
 - Documento 0 — Fundação: `../00 - analise-geral/documento-0-fundacao.md` ([QUADRO_DESCRITIVO_3](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-3), [QUADRO_DESCRITIVO_13](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-13), [QUADRO_DESCRITIVO_15](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-15)).
 - Documento `01 - manter-usuario`: `../01 - manter-usuario/documento-analise-manter-usuario.md` (referência de forma e voz).
 - Documento `02 - manter-perfil-permissao`: `../02 - manter-perfil-permissao/documento-analise-manter-perfil-permissao.md` (regra do "perfil de sistema" espelhada aqui na categoria de sistema).
