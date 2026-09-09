@@ -55,17 +55,33 @@ export function montarEditor(td, param, onConfirmar, onCancelar) {
     td.classList.add('p-1');
     td.innerHTML = '';
 
+    // Impede que cliques dentro da célula em edição borbulhem para a tabela e cancelem a edição
+    td.addEventListener('click', (e) => e.stopPropagation());
+
     let input;
+    let acoesDiv = null;
+
     if (param.tipoDado === 'BOOLEAN') {
         input = document.createElement('select');
         input.className = 'form-select form-select-sm';
-        input.innerHTML = '<option value="true">true</option><option value="false">false</option>';
+        const labelSim = cfg().labelSim || 'Sim';
+        const labelNao = cfg().labelNao || 'Não';
+        input.innerHTML = '<option value="true">' + escapar(labelSim) + '</option>'
+            + '<option value="false">' + escapar(labelNao) + '</option>';
         input.value = String(original).toLowerCase() === 'true' ? 'true' : 'false';
     } else if (param.tipoDado === 'JSON') {
         input = document.createElement('textarea');
         input.className = 'form-control form-control-sm font-monospace';
         input.rows = 3;
         input.value = original;
+
+        acoesDiv = document.createElement('div');
+        acoesDiv.className = 'd-flex justify-content-between align-items-center mt-1';
+        acoesDiv.innerHTML = '<small class="text-secondary">Ctrl+Enter p/ confirmar • Esc cancelar</small>'
+            + '<div>'
+            + '<button type="button" class="btn btn-sm btn-primary py-0 px-2 me-1 btn-ok" title="Confirmar">OK</button>'
+            + '<button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 btn-cancelar" title="Cancelar">✕</button>'
+            + '</div>';
     } else {
         input = document.createElement('input');
         input.type = 'text';
@@ -79,6 +95,19 @@ export function montarEditor(td, param, onConfirmar, onCancelar) {
     feedback.hidden = true;
 
     td.appendChild(input);
+    if (acoesDiv) {
+        td.appendChild(acoesDiv);
+        acoesDiv.querySelector('.btn-ok').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            confirmar();
+        });
+        acoesDiv.querySelector('.btn-cancelar').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            cancelar();
+        });
+    }
     td.appendChild(feedback);
     input.focus();
     if (input.select) input.select();
@@ -117,11 +146,38 @@ export function montarEditor(td, param, onConfirmar, onCancelar) {
     }
 
     input.addEventListener('input', validar);
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && param.tipoDado !== 'JSON') { e.preventDefault(); confirmar(); }
-        if (e.key === 'Escape') { e.preventDefault(); cancelar(); }
-    });
-    input.addEventListener('blur', confirmar);
 
-    return { cancelar };
+    if (param.tipoDado === 'BOOLEAN') {
+        input.addEventListener('change', () => confirmar());
+    }
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            if (param.tipoDado === 'JSON') {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    confirmar();
+                }
+            } else {
+                e.preventDefault();
+                confirmar();
+            }
+        }
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelar();
+        }
+    });
+
+    input.addEventListener('blur', (e) => {
+        if (encerrado) return;
+        if (e.relatedTarget && td.contains(e.relatedTarget)) return;
+        setTimeout(() => {
+            if (!encerrado) {
+                confirmar();
+            }
+        }, 150);
+    });
+
+    return { celula: td, cancelar };
 }

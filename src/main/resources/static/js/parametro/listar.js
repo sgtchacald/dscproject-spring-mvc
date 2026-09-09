@@ -16,7 +16,10 @@ const rodape = document.getElementById('rodapeContagemParametros');
 
 // Ícones do Tabler (tabler.io/icons).
 const ICONES = {
-    restaurar: '<path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747" /><path d="M20 4v5h-5" />',
+    editar: '<path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />'
+        + '<path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />'
+        + '<path d="M16 5l3 3" />',
+    restaurar: '<path d="M19.95 11a8 8 0 1 0 -.5 4m.5 5v-5h-5" />',
     historico: '<path d="M12 8l0 4l2 2" /><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />'
 };
 
@@ -89,9 +92,10 @@ function botaoAcao(acao, rotulo, id, desabilitado) {
 function acoes(p) {
     let html = '';
     if (podeEditar) {
-        html += botaoAcao('restaurar', cfg.labelRestaurar, p.id, p.valor === p.valorDefault);
+        html += botaoAcao('editar', cfg.labelEditar || 'Editar valor', p.id, p.orfa);
+        html += botaoAcao('restaurar', cfg.labelRestaurar || 'Restaurar valor padrão', p.id, p.valor === p.valorDefault || p.orfa);
     }
-    html += botaoAcao('historico', cfg.labelHistorico, p.id, false);
+    html += botaoAcao('historico', cfg.labelHistorico || 'Ver histórico', p.id, false);
     return html;
 }
 
@@ -105,12 +109,14 @@ function render() {
         lista.forEach((p) => {
             const tr = document.createElement('tr');
             tr.dataset.id = p.id;
+            const editavel = podeEditar && !p.orfa;
             tr.innerHTML =
                 '<td><span class="badge bg-blue-lt">' + escapar(p.modulo) + '</span></td>'
                 + '<td class="font-monospace">' + escapar(p.codigo) + '</td>'
                 + '<td><span title="' + escapar(p.descricao || '') + '">' + escapar(p.nome) + '</span></td>'
                 + '<td><span class="badge bg-secondary-lt">' + escapar(p.tipoDado) + '</span></td>'
-                + '<td class="celula-valor' + (podeEditar ? ' cursor-pointer' : '') + '" data-id="' + p.id + '">'
+                + '<td class="celula-valor' + (editavel ? ' cursor-pointer' : '') + '" data-id="' + p.id + '"'
+                + (editavel ? ' title="' + escapar(cfg.labelCliqueEditar || 'Clique para editar o valor') + '"' : '') + '>'
                 + formatarValor(p) + '</td>'
                 + '<td>' + situacaoBadge(p) + '</td>'
                 + '<td>' + ultimaAlteracao(p) + '</td>'
@@ -133,36 +139,60 @@ function paramPorId(id) {
     return todos.find((p) => String(p.id) === String(id));
 }
 
-// RT04 — clicar na célula Valor a transforma no editor do tipo da linha.
+function iniciarEdicao(celula, p) {
+    if (!podeEditar || p.orfa) return;
+    if (editorAberto) {
+        if (editorAberto.celula === celula) return;
+        fecharEditor();
+    }
+    editorAberto = montarEditor(celula, p,
+        (novoValor) => {
+            editorAberto = null;
+            abrirConfirmacao(p, 'editar', novoValor,
+                () => render(),          // cancelar reverte a célula
+                () => carregar());
+        },
+        () => {
+            editorAberto = null;
+            render();
+        });
+}
+
+// RT04 — clicar na célula Valor ou no botão Editar a transforma no editor do tipo da linha.
 corpo.addEventListener('click', (e) => {
-    const celula = e.target.closest('td.celula-valor');
-    if (celula && podeEditar) {
-        const p = paramPorId(celula.dataset.id);
+    const btn = e.target.closest('button[data-acao]');
+    if (btn) {
+        if (btn.hasAttribute('disabled')) return;
+        const p = paramPorId(btn.dataset.id);
         if (!p) return;
-        if (editorAberto) { fecharEditor(); return; }
-        editorAberto = montarEditor(celula, p,
-            (novoValor) => {
-                editorAberto = null;
-                abrirConfirmacao(p, 'editar', novoValor,
-                    () => render(),          // cancelar reverte a célula
-                    () => carregar());
-            },
-            () => { editorAberto = null; render(); });
+
+        if (btn.dataset.acao === 'editar') {
+            const tr = btn.closest('tr');
+            const celula = tr ? tr.querySelector('td.celula-valor') : null;
+            if (celula) iniciarEdicao(celula, p);
+            return;
+        }
+
+        fecharEditor();
+
+        if (btn.dataset.acao === 'historico') {
+            abrirHistorico(p);
+        } else if (btn.dataset.acao === 'restaurar') {
+            const msg = (cfg.msgConfirmaRestaurar || 'Restaurar "{0}" para "{1}"?')
+                .replace('{0}', p.nome).replace('{1}', p.valorDefault);
+            if (window.confirm(msg)) {
+                abrirConfirmacao(p, 'restaurar', p.valorDefault, () => {}, () => carregar());
+            }
+        }
         return;
     }
 
-    const btn = e.target.closest('button[data-acao]');
-    if (!btn || btn.hasAttribute('disabled')) return;
-    const p = paramPorId(btn.dataset.id);
-    if (!p) return;
-    if (btn.dataset.acao === 'historico') {
-        abrirHistorico(p);
-    } else if (btn.dataset.acao === 'restaurar') {
-        const msg = (cfg.msgConfirmaRestaurar || 'Restaurar "{0}" para "{1}"?')
-            .replace('{0}', p.nome).replace('{1}', p.valorDefault);
-        if (window.confirm(msg)) {
-            abrirConfirmacao(p, 'restaurar', p.valorDefault, () => {}, () => carregar());
-        }
+    const celula = e.target.closest('td.celula-valor');
+    if (celula && podeEditar) {
+        const p = paramPorId(celula.dataset.id);
+        if (!p || p.orfa) return;
+        if (editorAberto && editorAberto.celula === celula) return;
+        iniciarEdicao(celula, p);
     }
 });
 

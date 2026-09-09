@@ -6,3 +6,11 @@
     background-image: none !important;
     padding-right: 0.75rem !important;
 }
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+td.celula-valor.cursor-pointer:hover {
+    background-color: rgba(var(--tblr-primary-rgb, 32, 107, 196), 0.05);
+}
