@@ -87,6 +87,16 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/categorias/excluir/**")
                     .hasAuthority("PERM_CATEGORIAS_EXCLUIR")
 
+                // Categorias por Provedor — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/categorias-provedor/listar")
+                    .hasAuthority("PERM_CATEGORIAS_PROVEDOR_LISTAR")
+                .requestMatchers(HttpMethod.POST, "/categorias-provedor/inserir")
+                    .hasAuthority("PERM_CATEGORIAS_PROVEDOR_INSERIR")
+                .requestMatchers(HttpMethod.PUT, "/categorias-provedor/editar/**")
+                    .hasAuthority("PERM_CATEGORIAS_PROVEDOR_EDITAR")
+                .requestMatchers(HttpMethod.DELETE, "/categorias-provedor/excluir/**")
+                    .hasAuthority("PERM_CATEGORIAS_PROVEDOR_EXCLUIR")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
