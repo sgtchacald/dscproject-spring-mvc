@@ -1,5 +1,6 @@
 package br.com.diegocordeiro.dscproject.repository;
 
+import br.com.diegocordeiro.dscproject.model.Perfil;
 import br.com.diegocordeiro.dscproject.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +17,9 @@ public interface UsuarioRepository
 
     /** Autenticação por login OU e-mail (AutorizacaoService). */
     Usuario findByLoginOrEmail(String login, String email);
+
+    /** Trava de exclusão de perfil: existe algum usuário (ativo ou excluído) apontando para ele. */
+    boolean existsByPerfil(Perfil perfil);
 
     /** Recuperação de senha: usuário ativo com o e-mail informado. */
     Optional<Usuario> findByEmailAndDataExclusaoIsNull(String email);

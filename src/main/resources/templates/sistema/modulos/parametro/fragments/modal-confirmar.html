@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div class="modal modal-blur fade" id="modalConfirmar" tabindex="-1" th:fragment="modal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formConfirmar">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:text="#{parametro.confirmar.titulo}">Confirmar alteração</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">
+                        <strong id="confirmarCodigo" class="font-monospace"></strong>
+                        <span class="text-secondary" id="confirmarNome"></span>
+                    </p>
+                    <div class="mb-3">
+                        <div class="form-label" th:text="#{parametro.confirmar.resumo.label}">Valor</div>
+                        <div>
+                            <span id="confirmarValorAnterior" class="text-secondary text-decoration-line-through"></span>
+                            <span class="mx-1">&rarr;</span>
+                            <span id="confirmarValorNovo" class="fw-bold"></span>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning" id="confirmarAvisoOrfao" role="alert"
+                         th:text="#{parametro.confirmar.orfao.aviso}" hidden>
+                        Este parâmetro não existe mais no catálogo do sistema.
+                    </div>
+                    <div class="mb-1">
+                        <label class="form-label required" for="confirmarMotivo"
+                               th:text="#{parametro.confirmar.motivo.label}">Motivo</label>
+                        <textarea id="confirmarMotivo" name="motivo" class="form-control" rows="3" maxlength="255"
+                                  th:placeholder="#{parametro.confirmar.motivo.placeholder}"></textarea>
+                        <div class="invalid-feedback" id="erro-motivo"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="btnCancelarConfirmar"
+                            th:text="#{parametro.confirmar.cancelar}">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarConfirmar"
+                            th:text="#{parametro.confirmar.salvar}">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

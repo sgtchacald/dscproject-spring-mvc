@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{sistema/template-admin/layout}">
+<head>
+    <title th:text="#{perfil.lista.titulo}">Perfis e Permissões</title>
+</head>
+<body>
+
+<div layout:fragment="cabecalho">
+    <div class="row g-2 align-items-center">
+        <div class="col">
+            <h2 class="page-title" th:text="#{perfil.lista.cabecalho}">Perfis e Permissões</h2>
+            <br><br>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" aria-hidden="true" focusable="false" class="icon">
+                                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item" th:text="#{perfil.lista.breadcrumb.pai}">Administração</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{perfil.lista.titulo}">Perfis e Permissões</li>
+                </ol>
+            </nav>
+            <br>
+            <div class="text-secondary mt-1" th:text="#{perfil.lista.descricao}">Gerencie os perfis de acesso.</div>
+        </div>
+        <div class="col-auto ms-auto">
+            <button class="btn" id="btnCatalogo" data-bs-toggle="modal" data-bs-target="#modalCatalogo">
+                <span th:text="#{perfil.lista.botao.catalogo}">Catálogo de permissões</span>
+            </button>
+            <button class="btn btn-primary" id="btnNovoPerfil" sec:authorize="hasAuthority('PERM_PERFIS_MANTER')"
+                    data-bs-toggle="modal" data-bs-target="#modalPerfil">
+                <span th:text="#{perfil.lista.botao.novo}">Novo perfil</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<section layout:fragment="corpo">
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table" id="tabelaPerfis">
+                <thead>
+                <tr>
+                    <th data-col="codigo" class="sortable" role="button" th:text="#{perfil.col.codigo}">Código</th>
+                    <th data-col="nome" class="sortable" role="button" th:text="#{perfil.col.nome}">Nome</th>
+                    <th data-col="qtdPermissoes" class="sortable" role="button" th:text="#{perfil.col.qtdPermissoes}">Nº de permissões</th>
+                    <th data-col="qtdUsuarios" class="sortable" role="button" th:text="#{perfil.col.qtdUsuarios}">Nº de usuários</th>
+                    <th th:text="#{perfil.col.situacao}">Tipo / Situação</th>
+                    <th class="w-1" th:text="#{perfil.col.acoes}">Ações</th>
+                </tr>
+                </thead>
+                <tbody id="corpoTabelaPerfis"></tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-secondary" id="rodapeContagemPerfis"></p>
+        </div>
+    </div>
+
+    <div th:replace="~{sistema/modulos/perfil/fragments/modal-perfil :: modal}"></div>
+    <div th:replace="~{sistema/modulos/perfil/fragments/modal-catalogo :: modal}"></div>
+
+    <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
+
+    <span sec:authorize="hasAuthority('PERM_PERFIS_MANTER')" data-perm="manter" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_PERFIS_SINCRONIZAR_CATALOGO')" data-perm="sincronizar" hidden></span>
+
+    <div id="dadosTelaPerfil"
+         th:data-perfil-logado="${perfilLogado}"
+         th:data-msg-antilockout-proprio="#{perfil.antilockout.proprio}"
+         th:data-url-dados="@{/perfis/listar-dados}"
+         th:data-url-buscar="@{/perfis/buscar}"
+         th:data-url-inserir="@{/perfis/inserir}"
+         th:data-url-editar="@{/perfis/editar}"
+         th:data-url-excluir="@{/perfis/excluir}"
+         th:data-url-permissoes="@{/permissoes/listar-dados}"
+         th:data-url-sincronizar="@{/permissoes/sincronizar-catalogo}"
+         th:data-msg-confirma-exclusao="#{msg.perfil.confirma.exclusao}"
+         th:data-label-marcar-todos="#{perfil.seletor.marcarTodos}"
+         th:data-label-orfa="#{perfil.seletor.orfa}"
+         th:data-label-por-plano="#{perfil.seletor.porPlano}"
+         th:data-label-contador="#{perfil.seletor.contador}"
+         th:data-label-novo="#{perfil.modal.novo}"
+         th:data-label-editar="#{perfil.modal.editar}"
+         th:data-label-badge-sistema="#{perfil.badge.sistema}"
+         th:data-label-badge-ativo="#{perfil.badge.ativo}"
+         th:data-label-lista-vazia="#{perfil.lista.vazia}"
+         th:data-label-cat-ativa="#{permissao.catalogo.situacao.ativa}"
+         th:data-label-cat-orfa="#{permissao.catalogo.situacao.orfa}"
+         th:data-label-cat-sim="#{permissao.catalogo.sim}"
+         th:data-label-cat-nao="#{permissao.catalogo.nao}"
+         th:data-erro-comunicacao="#{erro.comunicacao}"
+         hidden></div>
+</section>
+
+<th:block layout:fragment="js">
+    <script type="module" th:src="@{/js/perfil/listar.js}"></script>
+</th:block>
+</body>
+</html>

@@ -17,6 +17,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -95,6 +96,57 @@ class SecurityConfigTest {
         mockMvc.perform(put("/usuarios/1/senha").with(csrf())
                 .param("senha", "senha123").param("confirmacaoSenha", "senha123"))
             .andExpect(status().isForbidden());
+    }
+
+    // ---------- Perfis e Permissões — autorização por operação (RN01) ----------
+
+    @Test
+    @WithMockUser(authorities = "ROLE_USER")
+    void perfisListarDados_semPermissao_403() throws Exception {
+        mockMvc.perform(get("/perfis/listar-dados")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = "PERM_PERFIS_LISTAR")
+    void perfisBuscar_soComListar_403() throws Exception {
+        mockMvc.perform(get("/perfis/buscar/1")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = "PERM_PERFIS_MANTER")
+    void sincronizarCatalogo_semPermissaoSincronizar_403() throws Exception {
+        mockMvc.perform(post("/permissoes/sincronizar-catalogo").with(csrf()))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = "PERM_PERFIS_LISTAR")
+    void permissoesListarDados_comListar_naoRecebe403() throws Exception {
+        var status = mockMvc.perform(get("/permissoes/listar-dados")).andReturn().getResponse().getStatus();
+        assertThat(status).isNotEqualTo(403);
+    }
+
+    // ---------- Parâmetros Globais — autorização por operação (RN01) ----------
+
+    @Test
+    @WithMockUser(authorities = "ROLE_USER")
+    void parametrosListarDados_semPermissao_403() throws Exception {
+        mockMvc.perform(get("/parametros/listar-dados")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = "PERM_PARAMETROS_LISTAR")
+    void parametrosEditar_soComListar_403() throws Exception {
+        mockMvc.perform(put("/parametros/editar/1").with(csrf())
+                .param("valor", "x").param("motivo", "y"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = "PERM_PARAMETROS_LISTAR")
+    void parametrosHistorico_comListar_naoRecebe403() throws Exception {
+        var status = mockMvc.perform(get("/parametros/historico/1")).andReturn().getResponse().getStatus();
+        assertThat(status).isNotEqualTo(403);
     }
 
     // ---------- RN19 — Configurações da Conta exige apenas autenticação ----------
