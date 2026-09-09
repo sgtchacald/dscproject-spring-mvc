@@ -53,6 +53,28 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/usuarios/historico/**")
                     .hasAuthority("PERM_USUARIOS_VER_HISTORICO")
 
+                // Perfis e Permissões — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/perfis/listar", "/perfis/listar-dados", "/permissoes/listar-dados")
+                    .hasAuthority("PERM_PERFIS_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/perfis/buscar/**")
+                    .hasAuthority("PERM_PERFIS_MANTER")
+                .requestMatchers(HttpMethod.POST, "/perfis/inserir")
+                    .hasAuthority("PERM_PERFIS_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/perfis/editar/**")
+                    .hasAuthority("PERM_PERFIS_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/perfis/excluir/**")
+                    .hasAuthority("PERM_PERFIS_MANTER")
+                .requestMatchers(HttpMethod.POST, "/permissoes/sincronizar-catalogo")
+                    .hasAuthority("PERM_PERFIS_SINCRONIZAR_CATALOGO")
+
+                // Parâmetros Globais — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/parametros/listar", "/parametros/listar-dados", "/parametros/historico/**")
+                    .hasAuthority("PERM_PARAMETROS_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/parametros/buscar/**")
+                    .hasAuthority("PERM_PARAMETROS_EDITAR")
+                .requestMatchers(HttpMethod.PUT, "/parametros/editar/**", "/parametros/restaurar-padrao/**")
+                    .hasAuthority("PERM_PARAMETROS_EDITAR")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

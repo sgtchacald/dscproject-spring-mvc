@@ -1,0 +1,81 @@
+<title>Casos de Uso — Manter Categoria</title>
+<style>
+  :root{color-scheme:light}
+  *{box-sizing:border-box}
+  body{margin:0;background:#f7f9fb;font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#1b2430}
+  #diagram{width:1180px;padding:26px 30px 30px}
+  h1{font-size:15px;margin:0 0 16px}
+  svg{display:block;width:1120px;height:900px}
+  .frame{fill:none;stroke:#d8dee6}
+  .frame-t{fill:#69747f;font-size:12px;font-weight:700}
+  .uc{fill:#fff;stroke:#1f6fd0}
+  .uc-t{fill:#1b2430;font-size:11px}
+  .lk{stroke:#69747f;stroke-width:1.2}
+  .act-t{fill:#1b2430;font-size:11px;font-weight:600}
+  .foot{fill:#69747f;font-size:10px}
+</style>
+<div id="diagram">
+  <h1>Casos de Uso — Manter Categoria</h1>
+  <svg viewBox="0 0 1120 900">
+    <rect class="frame" x="330" y="40" width="520" height="810" rx="2"/>
+    <text class="frame-t" x="350" y="62">Manter Categoria</text>
+
+    <!-- atores -->
+    <g transform="translate(120,300)">
+      <circle cx="18" cy="10" r="9" fill="none" stroke="#1b2430"/>
+      <line x1="18" y1="19" x2="18" y2="44" stroke="#1b2430"/>
+      <line x1="4" y1="28" x2="32" y2="28" stroke="#1b2430"/>
+      <line x1="18" y1="44" x2="6" y2="64" stroke="#1b2430"/>
+      <line x1="18" y1="44" x2="30" y2="64" stroke="#1b2430"/>
+      <text class="act-t" x="18" y="82" text-anchor="middle">ADMIN (PERF01)</text>
+    </g>
+    <g transform="translate(120,560)">
+      <circle cx="18" cy="10" r="9" fill="none" stroke="#1b2430"/>
+      <line x1="18" y1="19" x2="18" y2="44" stroke="#1b2430"/>
+      <line x1="4" y1="28" x2="32" y2="28" stroke="#1b2430"/>
+      <line x1="18" y1="44" x2="6" y2="64" stroke="#1b2430"/>
+      <line x1="18" y1="44" x2="30" y2="64" stroke="#1b2430"/>
+      <text class="act-t" x="18" y="82" text-anchor="middle">Usuário autenticado</text>
+      <text class="act-t" x="18" y="96" text-anchor="middle">(PERF01 / PERF02)</text>
+    </g>
+    <g transform="translate(1000,660)">
+      <circle cx="18" cy="10" r="9" fill="none" stroke="#1b2430"/>
+      <line x1="18" y1="19" x2="18" y2="44" stroke="#1b2430"/>
+      <line x1="4" y1="28" x2="32" y2="28" stroke="#1b2430"/>
+      <line x1="18" y1="44" x2="6" y2="64" stroke="#1b2430"/>
+      <line x1="18" y1="44" x2="30" y2="64" stroke="#1b2430"/>
+      <text class="act-t" x="18" y="82" text-anchor="middle">Sistema</text>
+      <text class="act-t" x="18" y="96" text-anchor="middle">(job de conciliação)</text>
+    </g>
+
+    <!-- ligações ADMIN -->
+    <g class="lk">
+      <line x1="150" y1="330" x2="460" y2="95"/>
+      <line x1="150" y1="330" x2="460" y2="171"/>
+      <line x1="150" y1="330" x2="460" y2="247"/>
+      <line x1="150" y1="330" x2="460" y2="323"/>
+      <line x1="150" y1="330" x2="460" y2="399"/>
+      <line x1="150" y1="330" x2="460" y2="551"/>
+      <line x1="150" y1="330" x2="460" y2="627"/>
+      <line x1="150" y1="330" x2="460" y2="703"/>
+      <line x1="150" y1="590" x2="460" y2="475"/>
+      <line x1="1000" y1="690" x2="710" y2="779"/>
+    </g>
+
+    <!-- casos de uso -->
+    <g>
+      <ellipse class="uc" cx="585" cy="95"  rx="125" ry="25"/><text class="uc-t" x="585" y="92" text-anchor="middle">CAUS01 — Listar Categorias</text><text class="uc-t" x="585" y="106" text-anchor="middle"></text>
+      <ellipse class="uc" cx="585" cy="171" rx="125" ry="25"/><text class="uc-t" x="585" y="175" text-anchor="middle">CAUS02 — Filtrar Categorias</text>
+      <ellipse class="uc" cx="585" cy="247" rx="125" ry="25"/><text class="uc-t" x="585" y="251" text-anchor="middle">CAUS03 — Cadastrar Categoria</text>
+      <ellipse class="uc" cx="585" cy="323" rx="125" ry="25"/><text class="uc-t" x="585" y="327" text-anchor="middle">CAUS04 — Editar Categoria</text>
+      <ellipse class="uc" cx="585" cy="399" rx="140" ry="25"/><text class="uc-t" x="585" y="396" text-anchor="middle">CAUS05 — Excluir ou Desativar</text><text class="uc-t" x="585" y="410" text-anchor="middle">Categoria</text>
+      <ellipse class="uc" cx="585" cy="475" rx="150" ry="27"/><text class="uc-t" x="585" y="472" text-anchor="middle">CAUS06 — Selecionar Categoria</text><text class="uc-t" x="585" y="486" text-anchor="middle">num Lançamento</text>
+      <ellipse class="uc" cx="585" cy="551" rx="150" ry="27"/><text class="uc-t" x="585" y="548" text-anchor="middle">CAUS07 — Listar Vínculos</text><text class="uc-t" x="585" y="562" text-anchor="middle">Categoria × Provedor</text>
+      <ellipse class="uc" cx="585" cy="627" rx="150" ry="27"/><text class="uc-t" x="585" y="624" text-anchor="middle">CAUS08 — Manter Vínculo</text><text class="uc-t" x="585" y="638" text-anchor="middle">Categoria × Provedor</text>
+      <ellipse class="uc" cx="585" cy="703" rx="150" ry="27"/><text class="uc-t" x="585" y="700" text-anchor="middle">CAUS09 — Excluir Vínculo</text><text class="uc-t" x="585" y="714" text-anchor="middle">Categoria × Provedor</text>
+      <ellipse class="uc" cx="585" cy="779" rx="155" ry="29"/><text class="uc-t" x="585" y="776" text-anchor="middle">CAUS10 — Conciliar Transação</text><text class="uc-t" x="585" y="790" text-anchor="middle">por Categoria do Provedor</text>
+    </g>
+
+    <text class="foot" x="590" y="838" text-anchor="middle">CAUS06 exige só autenticação (EDP05). CAUS10 é contexto — regra no documento 15.</text>
+  </svg>
+</div>

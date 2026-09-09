@@ -1,7 +1,6 @@
 package br.com.diegocordeiro.dscproject.config;
 
 import br.com.diegocordeiro.dscproject.enums.Genero;
-import br.com.diegocordeiro.dscproject.enums.PermissaoCatalogo;
 import br.com.diegocordeiro.dscproject.model.Perfil;
 import br.com.diegocordeiro.dscproject.model.PerfilPermissao;
 import br.com.diegocordeiro.dscproject.model.Permissao;
@@ -10,6 +9,7 @@ import br.com.diegocordeiro.dscproject.repository.PerfilPermissaoRepository;
 import br.com.diegocordeiro.dscproject.repository.PerfilRepository;
 import br.com.diegocordeiro.dscproject.repository.PermissaoRepository;
 import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
+import br.com.diegocordeiro.dscproject.service.PermissaoCatalogoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,9 +20,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Carga inicial idempotente do RBAC: perfis ADMIN/USER, catálogo de permissões,
- * vínculos do perfil ADMIN e — quando não há nenhum usuário ADMIN ativo — o ADMIN
- * inicial, lido de {@code app.admin.*} (a senha nunca fica em código).
+ * Carga inicial idempotente do RBAC: perfis ADMIN/USER, sincronização do catálogo
+ * de permissões com o código, vínculos do perfil ADMIN e — quando não há nenhum
+ * usuário ADMIN ativo — o ADMIN inicial, lido de {@code app.admin.*}
+ * (a senha nunca fica em código).
  */
 @Component
 public class CargaInicialRunner implements ApplicationRunner {
@@ -33,8 +34,10 @@ public class CargaInicialRunner implements ApplicationRunner {
     private final PermissaoRepository permissaoRepository;
     private final PerfilPermissaoRepository perfilPermissaoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final PermissaoCatalogoService permissaoCatalogoService;
     private final PasswordEncoder passwordEncoder;
 
+    private final boolean sincronizarCatalogoNaInicializacao;
     private final String adminLogin;
     private final String adminEmail;
     private final String adminSenha;
@@ -45,7 +48,9 @@ public class CargaInicialRunner implements ApplicationRunner {
                               PermissaoRepository permissaoRepository,
                               PerfilPermissaoRepository perfilPermissaoRepository,
                               UsuarioRepository usuarioRepository,
+                              PermissaoCatalogoService permissaoCatalogoService,
                               PasswordEncoder passwordEncoder,
+                              @Value("${rbac.sync-catalogo-na-inicializacao:true}") boolean sincronizarCatalogoNaInicializacao,
                               @Value("${app.admin.login:}") String adminLogin,
                               @Value("${app.admin.email:}") String adminEmail,
                               @Value("${app.admin.senha:}") String adminSenha,
@@ -55,7 +60,9 @@ public class CargaInicialRunner implements ApplicationRunner {
         this.permissaoRepository = permissaoRepository;
         this.perfilPermissaoRepository = perfilPermissaoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.permissaoCatalogoService = permissaoCatalogoService;
         this.passwordEncoder = passwordEncoder;
+        this.sincronizarCatalogoNaInicializacao = sincronizarCatalogoNaInicializacao;
         this.adminLogin = adminLogin;
         this.adminEmail = adminEmail;
         this.adminSenha = adminSenha;
@@ -71,9 +78,16 @@ public class CargaInicialRunner implements ApplicationRunner {
         obterOuCriarPerfil("USER", "Usuário",
             "Usuário comum. É o perfil do auto-cadastro.", true);
 
-        for (PermissaoCatalogo entrada : PermissaoCatalogo.values()) {
-            Permissao permissao = obterOuCriarPermissao(entrada);
-            vincular(admin, permissao);
+        if (sincronizarCatalogoNaInicializacao) {
+            permissaoCatalogoService.sincronizar();
+        } else {
+            log.info("Sincronização do catálogo de permissões na inicialização desativada (rbac.sync-catalogo-na-inicializacao=false).");
+        }
+
+        for (Permissao permissao : permissaoRepository.findAll()) {
+            if (!permissao.isOrfa()) {
+                vincular(admin, permissao);
+            }
         }
 
         criarAdminInicialSeNecessario(admin);
@@ -83,14 +97,6 @@ public class CargaInicialRunner implements ApplicationRunner {
         return perfilRepository.findByCodigo(codigo).orElseGet(() -> {
             log.info("Carga inicial: criando perfil {}", codigo);
             return perfilRepository.save(new Perfil(codigo, nome, descricao, sistema));
-        });
-    }
-
-    private Permissao obterOuCriarPermissao(PermissaoCatalogo entrada) {
-        return permissaoRepository.findByCodigo(entrada.getCodigo()).orElseGet(() -> {
-            log.info("Carga inicial: criando permissão {}", entrada.getCodigo());
-            return permissaoRepository.save(new Permissao(
-                entrada.getCodigo(), entrada.getNome(), entrada.getDescricao(), entrada.getModulo()));
         });
     }
 

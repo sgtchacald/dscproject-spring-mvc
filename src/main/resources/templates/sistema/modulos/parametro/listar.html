@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{sistema/template-admin/layout}">
+<head>
+    <title th:text="#{parametro.lista.titulo}">Parâmetros Globais</title>
+</head>
+<body>
+
+<div layout:fragment="cabecalho">
+    <div class="row g-2 align-items-center">
+        <div class="col">
+            <h2 class="page-title" th:text="#{parametro.lista.cabecalho}">Parâmetros Globais</h2>
+            <br><br>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" aria-hidden="true" focusable="false" class="icon">
+                                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item" th:text="#{parametro.lista.breadcrumb.pai}">Administração</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{parametro.lista.titulo}">Parâmetros Globais</li>
+                </ol>
+            </nav>
+            <br>
+            <div class="text-secondary mt-1" th:text="#{parametro.lista.descricao}">Ajuste os valores de configuração.</div>
+        </div>
+        <div class="col-auto ms-auto">
+            <button class="btn" id="btnFiltrar" data-bs-toggle="modal" data-bs-target="#modalFiltro">
+                <span th:text="#{parametro.lista.botao.filtrar}">Filtrar</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<section layout:fragment="corpo">
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table" id="tabelaParametros">
+                <thead>
+                <tr>
+                    <th data-col="modulo" class="sortable" role="button" th:text="#{parametro.col.modulo}">Módulo</th>
+                    <th data-col="codigo" class="sortable" role="button" th:text="#{parametro.col.codigo}">Código</th>
+                    <th data-col="nome" class="sortable" role="button" th:text="#{parametro.col.nome}">Nome</th>
+                    <th data-col="tipoDado" class="sortable" role="button" th:text="#{parametro.col.tipo}">Tipo</th>
+                    <th th:text="#{parametro.col.valor}">Valor</th>
+                    <th data-col="orfa" class="sortable" role="button" th:text="#{parametro.col.situacao}">Situação</th>
+                    <th data-col="dataAlteracao" class="sortable" role="button" th:text="#{parametro.col.ultimaAlteracao}">Última alteração</th>
+                    <th class="w-1" th:text="#{parametro.col.acoes}">Ações</th>
+                </tr>
+                </thead>
+                <tbody id="corpoTabelaParametros"></tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-secondary" id="rodapeContagemParametros"></p>
+        </div>
+    </div>
+
+    <div th:replace="~{sistema/modulos/parametro/fragments/modal-filtro :: modal}"></div>
+    <div th:replace="~{sistema/modulos/parametro/fragments/modal-confirmar :: modal}"></div>
+    <div th:replace="~{sistema/modulos/parametro/fragments/modal-historico :: modal}"></div>
+
+    <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
+
+    <span sec:authorize="hasAuthority('PERM_PARAMETROS_EDITAR')" data-perm="editar" hidden></span>
+
+    <div id="dadosTela"
+         th:data-url-dados="@{/parametros/listar-dados}"
+         th:data-url-buscar="@{/parametros/buscar}"
+         th:data-url-editar="@{/parametros/editar}"
+         th:data-url-restaurar="@{/parametros/restaurar-padrao}"
+         th:data-url-historico="@{/parametros/historico}"
+         th:data-msg-filtro-vazio="#{msg.parametro.filtro.vazio}"
+         th:data-msg-atualizado="#{msg.parametro.atualizado}"
+         th:data-msg-restaurado="#{msg.parametro.restaurado}"
+         th:data-msg-confirma-restaurar="#{msg.parametro.confirma.restaurar}"
+         th:data-erro-comunicacao="#{erro.comunicacao}"
+         th:data-label-ativo="#{parametro.situacao.ativo}"
+         th:data-label-orfao="#{parametro.situacao.orfao}"
+         th:data-label-sim="#{parametro.valor.sim}"
+         th:data-label-nao="#{parametro.valor.nao}"
+         th:data-label-editar="#{parametro.acao.editar}"
+         th:data-label-restaurar="#{parametro.acao.restaurar}"
+         th:data-label-historico="#{parametro.acao.historico}"
+         th:data-label-clique-editar="#{parametro.celula.cliqueEditar}"
+         th:data-erro-inteiro="#{parametro.valor.inteiro.invalido}"
+         th:data-erro-decimal="#{parametro.valor.decimal.invalido}"
+         th:data-erro-booleano="#{parametro.valor.booleano.invalido}"
+         th:data-erro-json="#{parametro.valor.json.invalido}"
+         th:data-hist-vazio="#{parametro.historico.vazio}"
+         hidden></div>
+</section>
+
+<th:block layout:fragment="js">
+    <script type="module" th:src="@{/js/parametro/listar.js}"></script>
+</th:block>
+</body>
+</html>
