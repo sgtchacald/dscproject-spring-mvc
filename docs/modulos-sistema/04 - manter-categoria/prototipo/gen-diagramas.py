@@ -136,8 +136,8 @@ for idx, r in enumerate(rows):
 p1.txt(CX + 12, gy + 380, 520, 16, "Mostrando 1–5 de 5", f"fontColor={MUT};fontSize=11;")
 p1.txt(CX + gw - 120, gy + 380, 108, 16, "‹  1  ›", f"fontColor={MUT};fontSize=11;align=right;")
 p1.txt(CX, gy + 414, gw, 16,
-       "Grid client-side (DataTables). Filtro por modal (RT01/RT02). "
-       "Botão e ícones de ação só com PERM_CATEGORIAS_MANTER.",
+       "Grid renderizado no servidor; DataTables client-side por cima. Modal Filtrar submete GET (RT01/RT02). "
+       "Nova categoria = PERM_CATEGORIAS_INSERIR; Editar = PERM_CATEGORIAS_EDITAR; Excluir = PERM_CATEGORIAS_EXCLUIR.",
        f"fontColor={MUT};fontSize=10;")
 # marcadores (por ultimo)
 p1.mk(200, 70 + 6 * 34 - 2, 0)                # LINK -> item de menu "Categorias"
@@ -243,7 +243,8 @@ for idx, r in enumerate(rows4):
         p4.txt(x, ry + 20, wd, 24, v, "fontSize=11;")
     p4.txt(COLS4[3][1], ry + 20, COLS4[3][2], 16, "✎   🗑", f"fontSize=13;fontColor={MUT};")
 p4.txt(CX, gy4 + 414, gw, 16,
-       "Ordenação padrão: Provedor, depois Rótulo externo. Filtro de provedor aplicado em memória (RT02).",
+       "Grid renderizado no servidor; filtro de provedor submete GET (RT02). "
+       "Novo vínculo = PERM_CATEGORIAS_PROVEDOR_INSERIR; Editar/Excluir = ..._EDITAR / ..._EXCLUIR.",
        f"fontColor={MUT};fontSize=10;")
 p4.mk(200, 70 + 7 * 34 - 2, 0)                # LINK -> item de menu
 p4.mk(CX - 24, 70, 1)
@@ -410,7 +411,7 @@ for cid in [ids[0], ids[1], ids[2], ids[3], ids[4], ids[6], ids[7], ids[8]]:
 u.link(usr, ids[5])
 u.link(sis, ids[9])
 u.rect(330, 866, 520, 24,
-       "CAUS06 exige só autenticação (EDP07). CAUS10 é contexto — regra no documento 15.",
+       "CAUS06 exige só autenticação (EDP05). CAUS10 é contexto — regra no documento 15.",
        f"text;html=1;align=center;fontFamily=Helvetica;fontSize=10;fontColor={MUT};")
 xml3 = '<mxfile host="app.diagrams.net">' + u.page() + '</mxfile>'
 M.parseString(xml3)
