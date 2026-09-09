@@ -75,6 +75,18 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/parametros/editar/**", "/parametros/restaurar-padrao/**")
                     .hasAuthority("PERM_PARAMETROS_EDITAR")
 
+                // Categorias — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/categorias/opcoes")
+                    .authenticated()
+                .requestMatchers(HttpMethod.GET, "/categorias/listar")
+                    .hasAuthority("PERM_CATEGORIAS_LISTAR")
+                .requestMatchers(HttpMethod.POST, "/categorias/inserir")
+                    .hasAuthority("PERM_CATEGORIAS_INSERIR")
+                .requestMatchers(HttpMethod.PUT, "/categorias/editar/**")
+                    .hasAuthority("PERM_CATEGORIAS_EDITAR")
+                .requestMatchers(HttpMethod.DELETE, "/categorias/excluir/**")
+                    .hasAuthority("PERM_CATEGORIAS_EXCLUIR")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

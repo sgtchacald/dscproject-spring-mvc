@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="modal" class="modal modal-blur fade" id="modalCategoriaForm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <form th:action="@{/categorias/inserir}" method="post" class="modal-content" id="formCategoria" th:object="${categoriaForm}">
+            <input type="hidden" name="_method" id="categoriaHttpMethod" value="POST" />
+            <input type="hidden" th:field="*{id}" id="categoriaId" />
+            <input type="hidden" th:field="*{sistema}" id="categoriaSistema" />
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCategoriaTitulo" th:text="#{categoria.form.titulo.novo}">Nova categoria</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger mb-3" role="alert">
+                    <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required" for="categoriaCodigo" th:text="#{categoria.form.campo.codigo.label}">Código</label>
+                    <input type="text" class="form-control" th:field="*{codigo}" id="categoriaCodigo"
+                           maxlength="40" th:placeholder="#{categoria.form.campo.codigo.placeholder}"
+                           th:classappend="${#fields.hasErrors('codigo')} ? 'is-invalid' : ''" />
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('codigo')}" th:errors="*{codigo}"></div>
+                    <small class="form-hint" id="hintCodigoSistema" style="display:none;" th:text="#{categoria.sistema.codigo-imutavel}">Categorias de sistema não podem ter o código alterado.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required" for="categoriaNome" th:text="#{categoria.form.campo.nome.label}">Nome</label>
+                    <div class="input-group">
+                        <span class="input-group-text" id="previewIconeCor" style="display: none;">
+                            <span id="previewIcone" class="icon"></span>
+                        </span>
+                        <input type="text" class="form-control" th:field="*{nome}" id="categoriaNome"
+                               maxlength="100" th:placeholder="#{categoria.form.campo.nome.placeholder}"
+                               th:classappend="${#fields.hasErrors('nome')} ? 'is-invalid' : ''" />
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required" for="categoriaAplicaA" th:text="#{categoria.form.campo.aplicaA.label}">Aplica-se a</label>
+                    <select class="form-select" th:field="*{aplicaA}" id="categoriaAplicaA"
+                            th:classappend="${#fields.hasErrors('aplicaA')} ? 'is-invalid' : ''">
+                        <option value="" th:text="#{cadastro.campo.selecione}">Selecione</option>
+                        <option th:each="opt : ${aplicaAOpcoes}"
+                                th:value="${opt}"
+                                th:text="${opt.descricao}"></option>
+                    </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('aplicaA')}" th:errors="*{aplicaA}"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="categoriaCor" th:text="#{categoria.form.campo.cor.label}">Cor</label>
+                        <input type="color" class="form-control form-control-color w-100" th:field="*{cor}" id="categoriaCor"
+                               value="#206bc4" title="Escolha uma cor" />
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('cor')}" th:errors="*{cor}"></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="categoriaIcone" th:text="#{categoria.form.campo.icone.label}">Ícone</label>
+                        <input type="text" class="form-control" th:field="*{icone}" id="categoriaIcone"
+                               maxlength="40" th:placeholder="#{categoria.form.campo.icone.placeholder}"
+                               th:classappend="${#fields.hasErrors('icone')} ? 'is-invalid' : ''" />
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('icone')}" th:errors="*{icone}"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3" id="blocoAtivo" style="display:none;">
+                    <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" th:field="*{ativo}" id="categoriaAtivo" />
+                        <span class="form-check-label" th:text="#{categoria.form.campo.ativa.label}">Ativa</span>
+                    </label>
+                </div>
+
+                <div class="alert alert-info mt-3" id="avisoCategoriaEmUso" style="display:none;" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round" class="icon alert-icon">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span id="textoAvisoCategoriaEmUso">Esta categoria é usada por lançamentos. Ela não pode ser excluída; você pode desativá-la.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{categoria.form.botao.cancelar}">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="btnSalvarCategoria" th:text="#{categoria.form.botao.salvar}">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

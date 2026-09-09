@@ -16,7 +16,8 @@ public final class CatalogoParametros {
     /** Todos os parâmetros do código, de todos os módulos. */
     public static List<ParametroDefinido> todos() {
         return Stream.of(
-                Stream.of(ParametrosGlobaisCatalogo.values()))
+                Stream.of(ParametrosGlobaisCatalogo.values()),
+                Stream.of(ParametrosCategoriaCatalogo.values()))
             .flatMap(s -> s)
             .map(ParametroDefinido.class::cast)
             .toList();

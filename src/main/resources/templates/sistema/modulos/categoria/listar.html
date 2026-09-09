@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{sistema/template-admin/layout}">
+<head>
+    <title th:text="#{categoria.lista.titulo}">Categorias</title>
+</head>
+<body>
+
+<div layout:fragment="cabecalho">
+    <div class="row g-2 align-items-center">
+        <div class="col">
+            <h2 class="page-title" th:text="#{categoria.lista.cabecalho}">Categorias</h2>
+            <br><br>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" aria-hidden="true" focusable="false" class="icon">
+                                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item" th:text="#{usuario.lista.breadcrumb.pai}">Administração</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{categoria.lista.titulo}">Categorias</li>
+                </ol>
+            </nav>
+            <br>
+            <div class="text-secondary mt-1" th:text="#{categoria.lista.descricao}">Gerencie as categorias de receitas e despesas do sistema.</div>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+            <div class="btn-list">
+                <button class="btn" id="btnFiltrar" data-bs-toggle="modal" data-bs-target="#modalFiltro">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round" class="icon">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                    </svg>
+                    <span th:text="#{categoria.lista.botao.filtrar}">Filtrar</span>
+                </button>
+                <button class="btn btn-primary" id="btnNovaCategoria"
+                        sec:authorize="hasAuthority('PERM_CATEGORIAS_INSERIR')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round" class="icon">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    <span th:text="#{categoria.lista.botao.novo}">Nova categoria</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section layout:fragment="corpo">
+
+    <!-- Mensagens Flash -->
+    <div th:if="${sucessoMensagem}" class="alert alert-success alert-dismissible" role="alert">
+        <div class="d-flex">
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon alert-icon"><path d="M5 12l5 5l10 -10"></path></svg>
+            </div>
+            <div th:text="${sucessoMensagem}">Operação realizada com sucesso.</div>
+        </div>
+        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+    </div>
+
+    <div th:if="${erroMensagem}" class="alert alert-danger alert-dismissible" role="alert">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon alert-icon me-2"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span th:text="${erroMensagem}">Erro ao realizar operação.</span>
+            </div>
+            <div th:if="${oferecerDesativarId}">
+                <form th:action="@{/categorias/desativar/{id}(id=${oferecerDesativarId})}" method="post" class="d-inline">
+                    <input type="hidden" name="_method" value="PUT" />
+                    <button type="submit" class="btn btn-warning btn-sm" th:text="#{categoria.acao.desativar}">Desativar categoria</button>
+                </form>
+            </div>
+        </div>
+        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table table-striped" id="tabelaCategorias">
+                <thead>
+                <tr>
+                    <th th:text="#{categoria.col.codigo}">Código</th>
+                    <th th:text="#{categoria.col.nome}">Nome</th>
+                    <th th:text="#{categoria.col.aplicaA}">Aplica-se a</th>
+                    <th th:text="#{categoria.col.qtdLancamentos}">Nº de lançamentos</th>
+                    <th th:text="#{categoria.col.tipo}">Tipo</th>
+                    <th th:text="#{categoria.col.situacao}">Situação</th>
+                    <th class="w-1 text-center" th:text="#{categoria.col.acoes}">Ações</th>
+                </tr>
+                </thead>
+                <tbody id="corpoTabelaCategorias">
+                <tr th:if="${#lists.isEmpty(categorias)}">
+                    <td colspan="7" class="text-center text-secondary py-4" th:text="#{msg.categoria.filtro.vazio}">Nenhuma categoria encontrada com os filtros informados.</td>
+                </tr>
+                <tr th:each="cat : ${categorias}"
+                    th:attr="data-id=${cat.id},
+                             data-codigo=${cat.codigo},
+                             data-nome=${cat.nome},
+                             data-aplica-a=${cat.aplicaA},
+                             data-cor=${cat.cor},
+                             data-icone=${cat.icone},
+                             data-sistema=${cat.sistema},
+                             data-ativo=${cat.ativo},
+                             data-qtd-uso=${cat.qtdUso}">
+                    <td class="text-secondary font-monospace" th:text="${cat.codigo}">SALARIO</td>
+                    <td>
+                        <span th:if="${cat.cor != null and !#strings.isEmpty(cat.cor)}"
+                              class="badge me-1"
+                              th:style="'background-color: ' + ${cat.cor} + '; width: 12px; height: 12px; border-radius: 50%; display: inline-block;'"></span>
+                        <span class="text-reset fw-bold" th:text="${cat.nome}">Salário</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-blue-lt" th:text="${cat.aplicaA.descricao}">Receita</span>
+                    </td>
+                    <td th:text="${cat.qtdUso}">0</td>
+                    <td>
+                        <span th:if="${cat.sistema}" class="badge bg-purple-lt" th:text="#{categoria.tipo.sistema}">Sistema</span>
+                        <span th:unless="${cat.sistema}" class="badge bg-secondary-lt" th:text="#{categoria.tipo.comum}">Comum</span>
+                    </td>
+                    <td>
+                        <span th:if="${cat.excluido}" class="badge bg-danger-lt" th:text="#{categoria.situacao.excluida}">Excluída</span>
+                        <span th:if="${!cat.excluido and cat.ativo}" class="badge bg-success-lt" th:text="#{categoria.situacao.ativa}">Ativa</span>
+                        <span th:if="${!cat.excluido and !cat.ativo}" class="badge bg-secondary-lt" th:text="#{categoria.situacao.inativa}">Inativa</span>
+                    </td>
+                    <td class="text-center text-nowrap">
+                        <button type="button" class="btn btn-action btnEditarCategoria"
+                                sec:authorize="hasAuthority('PERM_CATEGORIAS_EDITAR')"
+                                th:title="#{categoria.acao.editar}" aria-label="Editar categoria">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="icon text-primary">
+                                <path d="M12 20h9"/>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                            </svg>
+                        </button>
+                        <form th:unless="${cat.excluido}" th:action="@{/categorias/excluir/{id}(id=${cat.id})}" method="post" class="d-inline formExcluirCategoria"
+                              sec:authorize="hasAuthority('PERM_CATEGORIAS_EXCLUIR')">
+                            <input type="hidden" name="_method" value="DELETE" />
+                            <button type="submit" class="btn btn-action text-danger"
+                                    th:title="#{categoria.acao.excluir}" aria-label="Excluir categoria"
+                                    th:attr="data-nome=${cat.nome}, data-sistema=${cat.sistema}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round" class="icon">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modais -->
+    <th:block th:replace="~{sistema/modulos/categoria/fragments/modal-filtro :: modal}"></th:block>
+    <th:block th:replace="~{sistema/modulos/categoria/fragments/modal-form :: modal}"></th:block>
+
+</section>
+
+<th:block layout:fragment="js">
+    <script type="module" th:src="@{/js/categoria/listar.js}"></script>
+</th:block>
+
+</body>
+</html>

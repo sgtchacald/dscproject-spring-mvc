@@ -17,7 +17,8 @@ public final class CatalogoPermissoes {
         return Stream.of(
                 Stream.of(PermissaoUsuarioCatalogo.values()),
                 Stream.of(PermissaoPerfilCatalogo.values()),
-                Stream.of(PermissaoParametroCatalogo.values()))
+                Stream.of(PermissaoParametroCatalogo.values()),
+                Stream.of(PermissaoCategoriaCatalogo.values()))
             .flatMap(s -> s)
             .map(PermissaoDefinida.class::cast)
             .toList();
