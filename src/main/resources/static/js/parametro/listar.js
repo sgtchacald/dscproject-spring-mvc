@@ -14,13 +14,11 @@ let editorAberto = null;   // { cancelar }
 const corpo = document.getElementById('corpoTabelaParametros');
 const rodape = document.getElementById('rodapeContagemParametros');
 
-// Ícones do Tabler (tabler.io/icons).
+// Ícones do Lucide (lucide.dev) — traço/tamanho padronizados.
 const ICONES = {
-    editar: '<path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />'
-        + '<path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />'
-        + '<path d="M16 5l3 3" />',
-    restaurar: '<path d="M19.95 11a8 8 0 1 0 -.5 4m.5 5v-5h-5" />',
-    historico: '<path d="M12 8l0 4l2 2" /><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />'
+    editar: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+    restaurar: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+    historico: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>'
 };
 
 async function carregar() {
