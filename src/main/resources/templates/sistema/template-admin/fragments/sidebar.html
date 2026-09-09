@@ -48,13 +48,41 @@
                     </a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" th:href="@{/usuarios/listar}"
-                           sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR')">Usuários</a>
+                           sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="icon dropdown-item-icon">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <span th:text="#{menu.usuarios}">Usuários</span>
+                        </a>
                         <a class="dropdown-item" th:href="@{/perfis/listar}"
-                           sec:authorize="hasAuthority('PERM_PERFIS_LISTAR')"
-                           th:text="#{menu.perfis-permissoes}">Perfis e Permissões</a>
+                           sec:authorize="hasAuthority('PERM_PERFIS_LISTAR')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="icon dropdown-item-icon">
+                                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+                            </svg>
+                            <span th:text="#{menu.perfis-permissoes}">Perfis e Permissões</span>
+                        </a>
                         <a class="dropdown-item" th:href="@{/parametros/listar}"
-                           sec:authorize="hasAuthority('PERM_PARAMETROS_LISTAR')"
-                           th:text="#{menu.parametros-globais}">Parâmetros Globais</a>
+                           sec:authorize="hasAuthority('PERM_PARAMETROS_LISTAR')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="icon dropdown-item-icon">
+                                <line x1="4" x2="4" y1="21" y2="14"/>
+                                <line x1="4" x2="4" y1="10" y2="3"/>
+                                <line x1="12" x2="12" y1="21" y2="12"/>
+                                <line x1="12" x2="12" y1="8" y2="3"/>
+                                <line x1="20" x2="20" y1="21" y2="16"/>
+                                <line x1="20" x2="20" y1="12" y2="3"/>
+                                <line x1="2" x2="6" y1="14" y2="14"/>
+                                <line x1="10" x2="14" y1="8" y2="8"/>
+                                <line x1="18" x2="22" y1="16" y2="16"/>
+                            </svg>
+                            <span th:text="#{menu.parametros-globais}">Parâmetros Globais</span>
+                        </a>
                     </div>
                 </li>
 
