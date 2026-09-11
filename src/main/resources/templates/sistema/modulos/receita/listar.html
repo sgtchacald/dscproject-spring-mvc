@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{sistema/template-admin/layout}">
+<head>
+    <title th:text="#{receita.lista.titulo}">Receitas</title>
+</head>
+<body>
+
+<div layout:fragment="cabecalho">
+    <div class="row g-2 align-items-center">
+        <div class="col">
+            <h2 class="page-title" th:text="#{receita.lista.cabecalho}">Receitas</h2>
+            <br><br>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/}">
+                            <i class="ph ph-house" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item" th:text="#{receita.lista.breadcrumb.pai}">Finanças</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{receita.lista.titulo}">Receitas</li>
+                </ol>
+            </nav>
+            <br>
+            <div class="text-secondary mt-1" th:text="#{receita.lista.descricao}">
+                Cadastre e acompanhe as suas receitas previstas e recebidas.
+            </div>
+        </div>
+        <div class="col-auto ms-auto">
+            <button class="btn" id="btnFiltrar" data-bs-toggle="modal" data-bs-target="#modalFiltroReceita">
+                <i class="ph ph-funnel" aria-hidden="true"></i>
+                <span th:text="#{receita.lista.botao.filtrar}">Filtrar</span>
+            </button>
+            <button class="btn btn-primary" id="btnNovaReceita" sec:authorize="hasAuthority('PERM_RECEITAS_MANTER')"
+                    data-bs-toggle="modal" data-bs-target="#modalReceita">
+                <i class="ph ph-plus" aria-hidden="true"></i>
+                <span th:text="#{receita.lista.botao.novo}">Nova receita</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<section layout:fragment="corpo">
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table" id="tabelaReceitas">
+                <thead>
+                <tr>
+                    <th data-col="competencia" class="sortable" role="button" th:text="#{receita.col.competencia}">Competência</th>
+                    <th data-col="nome" class="sortable" role="button" th:text="#{receita.col.nome}">Nome</th>
+                    <th data-col="categoria" class="sortable" role="button" th:text="#{receita.col.categoria}">Categoria</th>
+                    <th data-col="conta" class="sortable" role="button" th:text="#{receita.col.conta}">Conta</th>
+                    <th data-col="valor" class="sortable text-end" role="button" th:text="#{receita.col.valor}">Valor</th>
+                    <th data-col="dataLancamento" class="sortable" role="button" th:text="#{receita.col.dataLancamento}">Data de lançamento</th>
+                    <th data-col="situacao" class="sortable" role="button" th:text="#{receita.col.situacao}">Situação</th>
+                    <th data-col="dataRecebimento" class="sortable" role="button" th:text="#{receita.col.dataRecebimento}">Data de recebimento</th>
+                    <th data-col="origem" class="sortable" role="button" th:text="#{receita.col.origem}">Origem</th>
+                    <th class="w-1" th:text="#{receita.col.acoes}">Ações</th>
+                </tr>
+                </thead>
+                <tbody id="corpoTabelaReceitas"></tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-secondary" id="rodapeContagemReceitas"></p>
+        </div>
+    </div>
+
+    <div th:replace="~{sistema/modulos/receita/fragments/modal-filtro :: modal}"></div>
+    <div th:replace="~{sistema/modulos/receita/fragments/modal-receita :: modal}"></div>
+    <div th:replace="~{sistema/modulos/receita/fragments/modal-recebimento :: modal}"></div>
+
+    <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
+
+    <span sec:authorize="hasAuthority('PERM_RECEITAS_MANTER')" data-perm="manter" hidden></span>
+
+    <div id="dadosTelaReceita"
+         th:data-url-dados="@{/receitas/listar-dados}"
+         th:data-url-buscar="@{/receitas/buscar}"
+         th:data-url-inserir="@{/receitas/inserir}"
+         th:data-url-editar="@{/receitas/editar}"
+         th:data-url-marcar-recebida="@{/receitas/marcar-recebida}"
+         th:data-url-excluir="@{/receitas/excluir}"
+         th:data-url-contas-opcoes="@{/contas/opcoes}"
+         th:data-url-categorias-opcoes="@{/categorias/opcoes(aplicaA='RECEITA')}"
+         th:data-msg-filtro-vazio="#{msg.receita.filtro.vazio}"
+         th:data-msg-confirma-exclusao="#{msg.receita.confirma.exclusao}"
+         th:data-label-recebida="#{receita.badge.recebida}"
+         th:data-label-prevista="#{receita.badge.prevista}"
+         th:data-label-excluida="#{receita.badge.excluida}"
+         th:data-label-origem-manual="#{receita.origem.manual}"
+         th:data-label-origem-open-finance="#{receita.origem.openFinance}"
+         th:data-label-origem-importacao="#{receita.origem.importacao}"
+         th:data-label-novo="#{receita.form.titulo.novo}"
+         th:data-label-editar="#{receita.form.titulo.editar}"
+         hidden></div>
+</section>
+
+<th:block layout:fragment="js">
+    <script type="module" th:src="@{/js/receita/listar.js}"></script>
+</th:block>
+</body>
+</html>

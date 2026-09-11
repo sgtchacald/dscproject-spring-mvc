@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="modal modal-blur fade" id="modalRecebimento" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="formRecebimento" novalidate>
+                <input type="hidden" id="recebimentoReceitaId">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloModalRecebimento" th:text="#{receita.recebimento.titulo}">Registrar recebimento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alertaFormRecebimento" class="alert alert-danger" style="display:none;" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label" th:text="#{receita.recebimento.valor.label}">Valor da receita</label>
+                        <div class="form-control-plaintext fw-bold" id="recebimentoValor"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required" for="recebimentoDataRecebimento" th:text="#{receita.recebimento.dataRecebimento.label}">Data de recebimento</label>
+                        <input type="date" class="form-control" id="recebimentoDataRecebimento" name="dataRecebimento" required>
+                        <div class="invalid-feedback" id="erroRecebimentoDataRecebimento"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" th:text="#{receita.recebimento.botao.cancelar}">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnRegistrarRecebimento" th:text="#{receita.recebimento.botao.registrar}">Registrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

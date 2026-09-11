@@ -3,7 +3,7 @@
 
 **Gerado em:** 08/09/2026
 **Versão:** 1.0
-**Status:** Analisado
+**Status:** Desenvolvido
 **Projeto:** `dscproject-spring-mvc` (geração 2)
 
 ---
@@ -256,18 +256,18 @@ Protótipo navegável e wireframes: `prototipo/manter-receita-prototipo.html` e 
 
 [Inserir `images/mr-tela-3.png` quando gerado.]
 
-> OBSERVAÇÕES: Modal único de cadastro e edição, restrito a [PERM02](#perm02). A Data de recebimento ([ID10](#qdd3-10)) só aparece e só é obrigatória quando Recebido ([ID9](#qdd3-9)) está em "Sim" ([RT12](#rt12)). Ao editar uma receita importada do Open Finance, os campos Conta ([ID7](#qdd3-7)) e Origem ficam desabilitados e o aviso ([ID11](#qdd3-11)) é exibido ([RN08](#rn08)).
+> OBSERVAÇÕES: Modal único de cadastro e edição, restrito a [PERM02](#perm02). No formulário, os campos Competência ([ID6](#qdd3-6)), Conta ([ID7](#qdd3-7)) e Categoria ([ID8](#qdd3-8)) são apresentados no topo como os primeiros a serem preenchidos. A Data de recebimento ([ID10](#qdd3-10)) só aparece e só é obrigatória quando Recebido ([ID9](#qdd3-9)) está em "Sim" ([RT12](#rt12)). Ao editar uma receita importada do Open Finance, os campos Conta ([ID7](#qdd3-7)) e Origem ficam desabilitados e o aviso ([ID11](#qdd3-11)) é exibido ([RN08](#rn08)).
 
 | ID | NOME | PROPRIEDADES | OBSERVAÇÕES |
 |---|---|---|---|
 | <a id="qdd3-1"></a>1 | TÍTULO DO MODAL | Tipo: Texto<br>Texto: Nova receita / Editar receita | Varia conforme o modo. |
+| <a id="qdd3-6"></a>6 | CAMPO – COMPETÊNCIA | Tipo: Seletor mês/ano<br>Obrigatório: Sim<br>Valor default: mês da data de lançamento | Grava `RECE_COMPETENCIA` (`yyyy-MM`). Ver [SB04](#sb04) e [RN04](#rn04). |
+| <a id="qdd3-7"></a>7 | CAMPO – CONTA | Tipo: Combobox<br>Obrigatório: Sim<br>Domínio: contas ativas do usuário | Grava `CTA_ID`. Ver [SB01](#sb01) e [RN03](#rn03). **Desabilitado** ao editar receita com origem ≠ MANUAL ([RN08](#rn08)). |
+| <a id="qdd3-8"></a>8 | CAMPO – CATEGORIA | Tipo: Combobox<br>Obrigatório: Não<br>Domínio: categorias de receita ativas | Grava `CATE_ID`. Ver [SB02](#sb02). |
 | <a id="qdd3-2"></a>2 | CAMPO – NOME | Tipo: Input Text<br>Tamanho: 100<br>Obrigatório: Sim | Grava `RECE_NOME`. Ex.: "SALÁRIO", "FREELA SITE". |
 | <a id="qdd3-3"></a>3 | CAMPO – DESCRIÇÃO | Tipo: Textarea<br>Tamanho: 512<br>Obrigatório: Não | Grava `RECE_DESCRICAO`. |
 | <a id="qdd3-4"></a>4 | CAMPO – VALOR | Tipo: Input monetário<br>Obrigatório: Sim | Grava `RECE_VALOR`. Deve ser maior que zero ([RN05](#rn05)). |
 | <a id="qdd3-5"></a>5 | CAMPO – DATA DE LANÇAMENTO | Tipo: Input Date<br>Obrigatório: Sim<br>Valor default: hoje | Grava `RECE_DT_LANCAMENTO`. Ao mudar, pode reajustar a Competência ([RT11](#rt11)). |
-| <a id="qdd3-6"></a>6 | CAMPO – COMPETÊNCIA | Tipo: Seletor mês/ano<br>Obrigatório: Sim<br>Valor default: mês da data de lançamento | Grava `RECE_COMPETENCIA` (`yyyy-MM`). Ver [SB04](#sb04) e [RN04](#rn04). |
-| <a id="qdd3-7"></a>7 | CAMPO – CONTA | Tipo: Combobox<br>Obrigatório: Sim<br>Domínio: contas ativas do usuário | Grava `CTA_ID`. Ver [SB01](#sb01) e [RN03](#rn03). **Desabilitado** ao editar receita com origem ≠ MANUAL ([RN08](#rn08)). |
-| <a id="qdd3-8"></a>8 | CAMPO – CATEGORIA | Tipo: Combobox<br>Obrigatório: Não<br>Domínio: categorias de receita ativas | Grava `CATE_ID`. Ver [SB02](#sb02). |
 | <a id="qdd3-9"></a>9 | CAMPO – RECEBIDO | Tipo: Toggle (Sim/Não)<br>Valor default: Não | Grava `RECE_FL_RECEBIDO`. Ao alterar, executar [RT12](#rt12). |
 | <a id="qdd3-10"></a>10 | CAMPO – DATA DE RECEBIMENTO | Tipo: Input Date<br>Obrigatório: Sim quando Recebido = Sim<br>Valor default: hoje<br>Exibição: só quando Recebido = Sim | Grava `RECE_DT_RECEBIMENTO`. Ver [RN06](#rn06). |
 | <a id="qdd3-11"></a>11 | AVISO – RECEITA IMPORTADA | Tipo: Texto informativo | Exibido no modo edição quando [C1](#c1).origem ≠ "MANUAL": "Esta receita foi importada do Open Finance. A conta e a origem não podem ser alteradas, e ela não pode ser excluída por esta tela." |
@@ -327,9 +327,9 @@ Protótipo navegável e wireframes: `prototipo/manter-receita-prototipo.html` e 
 | <a id="edp03"></a>EDP03 | GET | [PERM02](#perm02) | /receitas/buscar/{id} | N |
 | Retorna uma receita do usuário autenticado para edição. Executa [RN02](#rn02) (via [C2](#c2)) — se a receita não for do usuário, responde 404 ([MSG05](#msg05)). Campos: id, competencia, nome, descricao, valor, dataLancamento, dataRecebimento, recebido, origem, contaId, categoriaId. | | | | |
 | <a id="edp04"></a>EDP04 | POST | [PERM02](#perm02) | /receitas/inserir | N |
-| Cria uma receita para o usuário autenticado. Executa, nesta ordem: [RN03](#rn03) (via [C3](#c3) — conta obrigatória, ativa e do usuário), [RN04](#rn04) (competência), [RN05](#rn05) (valor > 0), [RN06](#rn06) (coerência recebido × data), [C4](#c4) (categoria, quando informada), [RN07](#rn07) (fixa `RECE_ORIGEM = MANUAL`) e persiste. Dados: competencia, nome, descricao, valor, dataLancamento, contaId, categoriaId, recebido, dataRecebimento. Retorno: 200 ([MSG01](#msg01)) ou 422 ([MSG02](#msg02) / [MSG03](#msg03) / [MSG09](#msg09) / [MSG11](#msg11) / [MSG13](#msg13)). | | | | |
+| Cria uma receita para o usuário autenticado. Executa, nesta ordem: [RN03](#rn03) (via [C3](#c3) — conta obrigatória, ativa e do usuário), [RN04](#rn04) (competência), [RN05](#rn05) (valor > 0), [RN06](#rn06) (coerência recebido × data), [C4](#c4) (categoria, quando informada), [RN07](#rn07) (fixa `RECE_ORIGEM = MANUAL`) e persiste. Dados: competencia, nome, descricao, valor, dataLancamento, contaId, categoriaId, recebido, dataRecebimento. Retorno: 200 ([MSG01](#msg01)) ou 422 ([MSG02](#msg02) / [MSG03](#msg03) / [MSG09](#msg09) / [MSG11](#msg11) / [MSG13](#msg13) / [MSG14](#msg14)). | | | | |
 | <a id="edp05"></a>EDP05 | PUT | [PERM02](#perm02) | /receitas/editar/{id} | N |
-| Edita uma receita do usuário autenticado. Executa, nesta ordem: [RN02](#rn02) (via [C2](#c2) — 404 se não for do usuário), [RN08](#rn08) (se `RECE_ORIGEM` ≠ `MANUAL`, ignora `contaId` e qualquer mudança de origem), [RN03](#rn03) (via [C3](#c3)), [RN04](#rn04), [RN05](#rn05), [RN06](#rn06), [C4](#c4) (categoria) e persiste. Dados: competencia, nome, descricao, valor, dataLancamento, contaId, categoriaId, recebido, dataRecebimento. Retorno: 200 ([MSG04](#msg04)) ou 422 ([MSG02](#msg02) / [MSG03](#msg03) / [MSG09](#msg09) / [MSG11](#msg11) / [MSG13](#msg13)). | | | | |
+| Edita uma receita do usuário autenticado. Executa, nesta ordem: [RN02](#rn02) (via [C2](#c2) — 404 se não for do usuário), [RN08](#rn08) (se `RECE_ORIGEM` ≠ `MANUAL`, ignora `contaId` e qualquer mudança de origem), [RN03](#rn03) (via [C3](#c3)), [RN04](#rn04), [RN05](#rn05), [RN06](#rn06), [C4](#c4) (categoria) e persiste. Dados: competencia, nome, descricao, valor, dataLancamento, contaId, categoriaId, recebido, dataRecebimento. Retorno: 200 ([MSG04](#msg04)) ou 422 ([MSG02](#msg02) / [MSG03](#msg03) / [MSG09](#msg09) / [MSG11](#msg11) / [MSG13](#msg13) / [MSG14](#msg14)). | | | | |
 | <a id="edp06"></a>EDP06 | DELETE | [PERM02](#perm02) | /receitas/excluir/{id} | N |
 | Exclusão lógica da receita do usuário autenticado. Executa [RN02](#rn02) (via [C2](#c2) — 404 se não for do usuário) e [RN08](#rn08) (recusa se `RECE_ORIGEM` ≠ `MANUAL` → [MSG12](#msg12)). Não há checagem de uso ([RN09](#rn09)). Preenche `audit_data_exclusao` / `audit_excluido_por`. Retorno: 200 ([MSG07](#msg07)) ou 422 ([MSG12](#msg12)). | | | | |
 | <a id="edp07"></a>EDP07 | PUT | [PERM02](#perm02) | /receitas/marcar-recebida/{id} | N |
@@ -375,6 +375,7 @@ Protótipo navegável e wireframes: `prototipo/manter-receita-prototipo.html` e 
 | <a id="msg11"></a>MSG11 | A competência deve estar no formato AAAA-MM. |
 | <a id="msg12"></a>MSG12 | Esta receita foi importada do Open Finance e não pode ser excluída por esta tela. |
 | <a id="msg13"></a>MSG13 | A conta selecionada não está disponível. Escolha uma conta ativa. |
+| <a id="msg14"></a>MSG14 | A categoria selecionada não está disponível. |
 
 ---
 
@@ -385,7 +386,7 @@ Protótipo navegável e wireframes: `prototipo/manter-receita-prototipo.html` e 
 | <a id="c1"></a>C1 | Listagem das receitas do usuário autenticado para o grid, com a conta e a categoria ([EDP02](#edp02)).<br>`SELECT r.RECE_ID, r.RECE_COMPETENCIA, r.RECE_NOME, r.RECE_DESCRICAO, r.RECE_VALOR,`<br>`       r.RECE_DT_LANCAMENTO, r.RECE_DT_RECEBIMENTO, r.RECE_FL_RECEBIDO, r.RECE_ORIGEM,`<br>`       c.CTA_ID, c.CTA_DESCRICAO,`<br>`       cat.CATE_ID, cat.CATE_NOME,`<br>`       (r.audit_data_exclusao IS NOT NULL) AS excluido`<br>`FROM RECEITAS r`<br>`JOIN CONTAS c        ON c.CTA_ID = r.CTA_ID`<br>`LEFT JOIN CATEGORIAS cat ON cat.CATE_ID = r.CATE_ID`<br>`WHERE c.USU_ID = :usuId`<br>`ORDER BY r.RECE_COMPETENCIA DESC, r.RECE_DT_LANCAMENTO DESC;` |
 | <a id="c2"></a>C2 | Verifica se a receita pertence ao usuário autenticado ([RN02](#rn02)) — usada antes de editar, registrar o recebimento ou excluir.<br>`SELECT COUNT(*) FROM RECEITAS r`<br>`JOIN CONTAS c ON c.CTA_ID = r.CTA_ID`<br>`WHERE r.RECE_ID = :receId`<br>`  AND c.USU_ID = :usuId`<br>`  AND r.audit_data_exclusao IS NULL;` |
 | <a id="c3"></a>C3 | Verifica se a conta informada existe, está ativa e é do usuário autenticado ([RN03](#rn03)).<br>`SELECT COUNT(*) FROM CONTAS c`<br>`WHERE c.CTA_ID = :ctaId`<br>`  AND c.USU_ID = :usuId`<br>`  AND c.CTA_FL_ATIVO = TRUE`<br>`  AND c.audit_data_exclusao IS NULL;` |
-| <a id="c4"></a>C4 | Verifica se a categoria informada está ativa e se aplica a receita ([RN04](#rn04) — validação de categoria).<br>`SELECT COUNT(*) FROM CATEGORIAS cat`<br>`WHERE cat.CATE_ID = :cateId`<br>`  AND cat.CATE_FL_ATIVO = TRUE`<br>`  AND cat.CATE_APLICA_A IN ('RECEITA', 'AMBOS')`<br>`  AND cat.audit_data_exclusao IS NULL;` |
+| <a id="c4"></a>C4 | Verifica se a categoria informada está ativa e se aplica a receita (validação de categoria → [MSG14](#msg14)).<br>`SELECT COUNT(*) FROM CATEGORIAS cat`<br>`WHERE cat.CATE_ID = :cateId`<br>`  AND cat.CATE_FL_ATIVO = TRUE`<br>`  AND cat.CATE_APLICA_A IN ('RECEITA', 'AMBOS')`<br>`  AND cat.audit_data_exclusao IS NULL;` |
 
 ---
 
@@ -647,7 +648,7 @@ Descrição: Levantamento a partir do Documento 0 ([QUADRO_DESCRITIVO_9](../00%2
 
 ## 18. Anexos
 
-- **Pendência (v1.0):** gerar o diagrama de casos de uso (`prototipo/manter-receita-casos-uso.drawio` + PNG), o DER do subconjunto (`prototipo/manter-receita-der.drawio` + `images/manter-receita-der.png`), os wireframes das quatro telas/modais (`prototipo/manter-receita-prototipo.drawio` + `images/mr-tela-*.png`) e o protótipo navegável (`prototipo/manter-receita-prototipo.html`).
+- **Protótipo e diagramas (v1.0):** gerados. Casos de uso (`prototipo/manter-receita-casos-uso.drawio` + `images/manter-receita-casos-uso.png`), DER do subconjunto (`prototipo/manter-receita-der.drawio` + `images/manter-receita-der.png`), wireframes das quatro telas/modais (`prototipo/manter-receita-prototipo.drawio` + `images/mr-tela-1..4.png`) e protótipo navegável (`prototipo/manter-receita-prototipo.html`). PNGs regeráveis por `prototipo/render-pngs.py` (Playwright); diagramas `.drawio` por `prototipo/gen-diagramas.py`.
 - Documento 0 — Fundação: `../00 - analise-geral/documento-0-fundacao.md` ([QUADRO_DESCRITIVO_2](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-2), [QUADRO_DESCRITIVO_3](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-3), [QUADRO_DESCRITIVO_5](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-5), [QUADRO_DESCRITIVO_9](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-9), [QUADRO_DESCRITIVO_20](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-20), [QUADRO_DESCRITIVO_26](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-26); Seções 7.2 e 7.4).
 - Documento `04 - manter-categoria`: `../04 - manter-categoria/documento-analise-manter-categoria.md` — fonte do endpoint de opções de categoria (`GET /categorias/opcoes?aplicaA=RECEITA`).
 - Documento `06 - manter-conta`: `../06 - manter-conta/documento-analise-manter-conta.md` — fonte do endpoint de opções de conta (`GET /contas/opcoes`), padrão de escopo *row-level* por usuário, forma e voz.
