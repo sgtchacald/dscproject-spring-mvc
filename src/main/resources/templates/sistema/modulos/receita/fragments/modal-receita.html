@@ -19,6 +19,28 @@
                         <span th:text="#{receita.form.aviso.openFinance}">Esta receita foi importada do Open Finance. A conta e a origem não podem ser alteradas, e ela não pode ser excluída por esta tela.</span>
                     </div>
 
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required" for="receitaCompetencia" th:text="#{receita.form.campo.competencia.label}">Competência</label>
+                            <input type="month" class="form-control" id="receitaCompetencia" name="competencia" required>
+                            <div class="invalid-feedback" id="erroCompetencia"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required" for="receitaContaId" th:text="#{receita.form.campo.conta.label}">Conta</label>
+                            <select class="form-select" id="receitaContaId" name="contaId" required>
+                            </select>
+                            <div class="invalid-feedback" id="erroContaId"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="receitaCategoriaId" th:text="#{receita.form.campo.categoria.label}">Categoria</label>
+                        <select class="form-select" id="receitaCategoriaId" name="categoriaId">
+                            <option value="" th:text="#{receita.form.campo.categoria.semCategoria}">Sem categoria</option>
+                        </select>
+                        <div class="invalid-feedback" id="erroCategoriaId"></div>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label required" for="receitaNome" th:text="#{receita.form.campo.nome.label}">Nome</label>
                         <input type="text" class="form-control" id="receitaNome" name="nome" maxlength="100"
@@ -44,28 +66,6 @@
                             <input type="date" class="form-control" id="receitaDataLancamento" name="dataLancamento" required>
                             <div class="invalid-feedback" id="erroDataLancamento"></div>
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label required" for="receitaCompetencia" th:text="#{receita.form.campo.competencia.label}">Competência</label>
-                            <input type="month" class="form-control" id="receitaCompetencia" name="competencia" required>
-                            <div class="invalid-feedback" id="erroCompetencia"></div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label required" for="receitaContaId" th:text="#{receita.form.campo.conta.label}">Conta</label>
-                            <select class="form-select" id="receitaContaId" name="contaId" required>
-                            </select>
-                            <div class="invalid-feedback" id="erroContaId"></div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label" for="receitaCategoriaId" th:text="#{receita.form.campo.categoria.label}">Categoria</label>
-                        <select class="form-select" id="receitaCategoriaId" name="categoriaId">
-                            <option value="" th:text="#{receita.form.campo.categoria.semCategoria}">Sem categoria</option>
-                        </select>
-                        <div class="invalid-feedback" id="erroCategoriaId"></div>
                     </div>
 
                     <div class="row align-items-center mb-3">
