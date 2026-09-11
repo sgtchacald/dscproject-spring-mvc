@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="modal modal-blur fade" id="modalCartao" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="formCartao" novalidate>
+                <input type="hidden" id="cartaoId" name="id">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloModalCartao" th:text="#{cartao.form.titulo.novo}">Novo cartão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alertaFormCartao" class="alert alert-danger" style="display:none;" role="alert"></div>
+
+                    <div class="alert alert-info align-items-center mb-3" id="avisoCartao" style="display:none;" role="alert">
+                        <i class="ph ph-info alert-icon me-2" aria-hidden="true"></i>
+                        <div id="avisoCartaoTexto"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required" for="cartaoDescricao" th:text="#{cartao.form.campo.descricao.label}">Descrição</label>
+                        <input type="text" class="form-control" id="cartaoDescricao" name="descricao" maxlength="100"
+                               th:placeholder="#{cartao.form.campo.descricao.placeholder}" required>
+                        <div class="invalid-feedback" id="erroDescricao"></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="cartaoBandeira" th:text="#{cartao.form.campo.bandeira.label}">Bandeira</label>
+                            <select class="form-select" id="cartaoBandeira" name="bandeira">
+                                <option value="" th:text="#{cartao.form.campo.bandeira.selecione}">Selecione…</option>
+                                <option th:each="b : ${bandeiras}" th:value="${b.codigo}" th:text="${b.descricao}">Visa</option>
+                            </select>
+                            <div class="invalid-feedback" id="erroBandeira"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="cartaoFinalCartao" th:text="#{cartao.form.campo.finalCartao.label}">Final do Cartão</label>
+                            <input type="text" class="form-control" id="cartaoFinalCartao" name="finalCartao" maxlength="4"
+                                   th:placeholder="#{cartao.form.campo.finalCartao.placeholder}" inputmode="numeric">
+                            <div class="invalid-feedback" id="erroFinalCartao"></div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="cartaoLimite" th:text="#{cartao.form.campo.limite.label}">Limite (R$)</label>
+                            <input type="text" class="form-control" id="cartaoLimite" name="limite"
+                                   th:placeholder="#{cartao.form.campo.limite.placeholder}">
+                            <div class="invalid-feedback" id="erroLimite"></div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="cartaoDiaFechamento" th:text="#{cartao.form.campo.diaFechamento.label}">Dia de Fechamento</label>
+                            <input type="number" class="form-control" id="cartaoDiaFechamento" name="diaFechamento" min="1" max="31">
+                            <div class="invalid-feedback" id="erroDiaFechamento"></div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="cartaoDiaVencimento" th:text="#{cartao.form.campo.diaVencimento.label}">Dia de Vencimento</label>
+                            <input type="number" class="form-control" id="cartaoDiaVencimento" name="diaVencimento" min="1" max="31">
+                            <div class="invalid-feedback" id="erroDiaVencimento"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="cartaoContaId" th:text="#{cartao.form.campo.contaDebito.label}">Conta de Débito</label>
+                        <select class="form-select" id="cartaoContaId" name="contaId">
+                            <option value="" th:text="#{cartao.form.campo.contaDebito.nenhuma}">Nenhuma</option>
+                        </select>
+                        <div class="invalid-feedback" id="erroContaId"></div>
+                    </div>
+
+                    <div class="mb-3" id="grupoAtivoCartao" style="display:none;">
+                        <label class="form-label" for="cartaoAtivo" th:text="#{cartao.form.campo.ativo.label}">Ativo</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="cartaoAtivo" name="ativo" checked>
+                            <label class="form-check-label" for="cartaoAtivo" th:text="#{cartao.badge.ativo}">Ativo</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" th:text="#{cartao.form.botao.cancelar}">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarCartao" th:text="#{cartao.form.botao.salvar}">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
