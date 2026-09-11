@@ -75,6 +75,66 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/parametros/editar/**", "/parametros/restaurar-padrao/**")
                     .hasAuthority("PERM_PARAMETROS_EDITAR")
 
+                // Categorias — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/categorias/opcoes")
+                    .authenticated()
+                .requestMatchers(HttpMethod.GET, "/categorias/listar")
+                    .hasAuthority("PERM_CATEGORIAS_LISTAR")
+                .requestMatchers(HttpMethod.POST, "/categorias/inserir")
+                    .hasAuthority("PERM_CATEGORIAS_INSERIR")
+                .requestMatchers(HttpMethod.PUT, "/categorias/editar/**", "/categorias/desativar/**")
+                    .hasAuthority("PERM_CATEGORIAS_EDITAR")
+                .requestMatchers(HttpMethod.DELETE, "/categorias/excluir/**")
+                    .hasAuthority("PERM_CATEGORIAS_EXCLUIR")
+
+                // Categorias por Provedor — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/categorias-provedor/listar")
+                    .hasAuthority("PERM_CATEGORIAS_PROVEDOR_LISTAR")
+                .requestMatchers(HttpMethod.POST, "/categorias-provedor/inserir")
+                    .hasAuthority("PERM_CATEGORIAS_PROVEDOR_INSERIR")
+                .requestMatchers(HttpMethod.PUT, "/categorias-provedor/editar/**")
+                    .hasAuthority("PERM_CATEGORIAS_PROVEDOR_EDITAR")
+                .requestMatchers(HttpMethod.DELETE, "/categorias-provedor/excluir/**")
+                    .hasAuthority("PERM_CATEGORIAS_PROVEDOR_EXCLUIR")
+
+                // Instituições Financeiras — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/instituicoes-financeiras/opcoes")
+                    .authenticated()
+                .requestMatchers(HttpMethod.GET, "/instituicoes-financeiras/listar", "/instituicoes-financeiras/listar-dados")
+                    .hasAuthority("PERM_INSTITUICOES_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/instituicoes-financeiras/buscar/**")
+                    .hasAuthority("PERM_INSTITUICOES_MANTER")
+                .requestMatchers(HttpMethod.POST, "/instituicoes-financeiras/inserir")
+                    .hasAuthority("PERM_INSTITUICOES_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/instituicoes-financeiras/editar/**", "/instituicoes-financeiras/desativar/**")
+                    .hasAuthority("PERM_INSTITUICOES_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/instituicoes-financeiras/excluir/**")
+                    .hasAuthority("PERM_INSTITUICOES_MANTER")
+
+                // Instituições por Provedor — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/instituicoes-provedor/listar", "/instituicoes-provedor/listar-dados")
+                    .hasAuthority("PERM_INSTITUICOES_PROVEDOR_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/instituicoes-provedor/buscar/**", "/instituicoes-provedor/provedores-opcoes")
+                    .hasAuthority("PERM_INSTITUICOES_PROVEDOR_MANTER")
+                .requestMatchers(HttpMethod.POST, "/instituicoes-provedor/inserir")
+                    .hasAuthority("PERM_INSTITUICOES_PROVEDOR_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/instituicoes-provedor/editar/**")
+                    .hasAuthority("PERM_INSTITUICOES_PROVEDOR_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/instituicoes-provedor/excluir/**")
+                    .hasAuthority("PERM_INSTITUICOES_PROVEDOR_MANTER")
+
+                // Contas do Usuário (Minhas Contas) — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/contas/listar", "/contas/listar-dados", "/contas/opcoes")
+                    .hasAuthority("PERM_CONTAS_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/contas/buscar/**")
+                    .hasAuthority("PERM_CONTAS_MANTER")
+                .requestMatchers(HttpMethod.POST, "/contas/inserir")
+                    .hasAuthority("PERM_CONTAS_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/contas/editar/**", "/contas/desativar/**", "/contas/ajustar-saldo/**")
+                    .hasAuthority("PERM_CONTAS_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/contas/excluir/**")
+                    .hasAuthority("PERM_CONTAS_MANTER")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

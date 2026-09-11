@@ -1,5 +1,6 @@
 package br.com.diegocordeiro.dscproject.model;
 
+import br.com.diegocordeiro.dscproject.catalogo.LinhaCatalogo;
 import br.com.diegocordeiro.dscproject.enums.TipoParametro;
 import br.com.diegocordeiro.dscproject.parametro.ParametroDefinido;
 import jakarta.persistence.Column;
@@ -27,7 +28,7 @@ import org.hibernate.envers.Audited;
 @Entity
 @Audited
 @Table(name = "PARAMETROS_GLOBAIS")
-public class ParametroGlobal extends AbstractAuditoria {
+public class ParametroGlobal extends AbstractAuditoria implements LinhaCatalogo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

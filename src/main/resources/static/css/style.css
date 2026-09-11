@@ -14,3 +14,25 @@
 td.celula-valor.cursor-pointer:hover {
     background-color: rgba(var(--tblr-primary-rgb, 32, 107, 196), 0.05);
 }
+
+/* Ícones Phosphor — dimensão padrão equivalente ao .icon (24px) do Tabler */
+.ph {
+    font-size: 1.5rem;
+    line-height: 1;
+    vertical-align: -0.175em;
+}
+
+.nav-link-icon .ph,
+.ph.dropdown-item-icon {
+    font-size: 1.25rem;
+}
+
+.btn .ph,
+.btn-action .ph,
+.alert-icon.ph {
+    font-size: 1.25rem;
+}
+
+.dropdown-item .ph.dropdown-item-icon {
+    margin-inline-end: 0.5rem;
+}

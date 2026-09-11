@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{sistema/template-admin/layout}">
+<head>
+    <title th:text="#{categoriaprovedor.lista.titulo}">Categorias por Provedor</title>
+</head>
+<body>
+
+<div layout:fragment="cabecalho">
+    <div class="row g-2 align-items-center">
+        <div class="col">
+            <h2 class="page-title" th:text="#{categoriaprovedor.lista.cabecalho}">Categorias por Provedor</h2>
+            <br><br>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/}">
+                            <i class="ph ph-house" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item" th:text="#{usuario.lista.breadcrumb.pai}">Administração</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{categoriaprovedor.lista.titulo}">Categorias por Provedor</li>
+                </ol>
+            </nav>
+            <br>
+            <div class="text-secondary mt-1" th:text="#{categoriaprovedor.lista.descricao}">Associe os rótulos de categoria de cada provedor de Open Finance a uma categoria do sistema.</div>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+            <div class="btn-list">
+                <button class="btn btn-primary" id="btnNovoVinculo"
+                        sec:authorize="hasAuthority('PERM_CATEGORIAS_PROVEDOR_INSERIR')">
+                    <i class="ph ph-plus" aria-hidden="true"></i>
+                    <span th:text="#{categoriaprovedor.lista.botao.novo}">Novo vínculo</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section layout:fragment="corpo">
+
+    <!-- Mensagens Flash -->
+    <div th:if="${sucessoMensagem}" class="alert alert-success alert-dismissible" role="alert">
+        <div class="d-flex">
+            <div>
+                <i class="ph ph-check-circle alert-icon" aria-hidden="true"></i>
+            </div>
+            <div th:text="${sucessoMensagem}">Operação realizada com sucesso.</div>
+        </div>
+        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+    </div>
+
+    <div th:if="${erroMensagem}" class="alert alert-danger alert-dismissible" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="ph ph-warning-circle alert-icon me-2" aria-hidden="true"></i>
+            <span th:text="${erroMensagem}">Erro ao realizar operação.</span>
+        </div>
+        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <form th:action="@{/categorias-provedor/listar}" method="get" class="row g-2 align-items-center" id="formFiltroProvedor">
+                <div class="col-auto">
+                    <label class="form-label mb-0" for="filtroProvedorId" th:text="#{categoriaprovedor.col.provedor}">Provedor:</label>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="filtroProvedorId" name="provedorId" onchange="this.form.submit()">
+                        <option value="" th:text="#{categoriaprovedor.filtro.provedor.placeholder}">Todos os provedores</option>
+                        <option th:each="prov : ${todosProvedores}"
+                                th:value="${prov.id}"
+                                th:text="${prov.nome}"
+                                th:selected="${provedorIdFiltro == prov.id}"></option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="dadosTela" style="display:none;"
+         th:attr="data-abrir-modal-form=${abrirModalForm}, data-modo-modal=${modoModal}"></div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-secondary" style="font-size: 13px;">Itens por página:</span>
+                <select id="itensPorPagina" class="form-select form-select-sm" style="width: 75px;">
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+            <div class="w-auto">
+                <input type="text" id="tabelaBuscaRapida" class="form-control form-control-sm" placeholder="Buscar no grid..." style="max-width: 200px;" />
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table table-striped" id="tabelaVinculos">
+                <thead>
+                <tr>
+                    <th class="sortable" role="button" data-col="provedor" th:text="#{categoriaprovedor.col.provedor}">Provedor</th>
+                    <th class="sortable" role="button" data-col="rotulo" th:text="#{categoriaprovedor.col.rotulo}">Rótulo externo</th>
+                    <th class="sortable" role="button" data-col="categoria" th:text="#{categoriaprovedor.col.categoria}">Categoria do sistema</th>
+                    <th class="w-1 text-center" th:text="#{categoriaprovedor.col.acoes}">Ações</th>
+                </tr>
+                </thead>
+                <tbody id="corpoTabelaVinculos">
+                <tr th:if="${#lists.isEmpty(vinculos)}">
+                    <td colspan="4" class="text-center text-secondary py-4" th:text="#{msg.categoriaprovedor.filtro.vazio}">Nenhum vínculo encontrado com os filtros informados.</td>
+                </tr>
+                <tr th:each="v : ${vinculos}"
+                    th:attr="data-id=${v.id},
+                             data-provedor-id=${v.provedorId},
+                             data-provedor-nome=${v.provedorNome},
+                             data-rotulo-externo=${v.rotuloExterno},
+                             data-categoria-id=${v.categoriaId},
+                             data-categoria-nome=${v.categoriaNome}">
+                    <td class="fw-bold" th:text="${v.provedorNome}">Pluggy</td>
+                    <td class="font-monospace" th:text="${v.rotuloExterno}">Food and drinks</td>
+                    <td>
+                        <span class="badge bg-blue-lt" th:text="${v.categoriaNome}">Alimentação</span>
+                    </td>
+                    <td class="text-center text-nowrap">
+                        <button type="button" class="btn btn-action btnEditarVinculo"
+                                sec:authorize="hasAuthority('PERM_CATEGORIAS_PROVEDOR_EDITAR')"
+                                th:title="#{categoriaprovedor.acao.editar}" aria-label="Editar vínculo">
+                            <i class="ph ph-pencil-simple text-primary" aria-hidden="true"></i>
+                        </button>
+                        <form th:action="@{/categorias-provedor/excluir/{id}(id=${v.id})}" method="post" class="d-inline formExcluirVinculo"
+                              sec:authorize="hasAuthority('PERM_CATEGORIAS_PROVEDOR_EXCLUIR')">
+                            <input type="hidden" name="_method" value="DELETE" />
+                            <button type="submit" class="btn btn-action text-danger"
+                                    th:title="#{categoriaprovedor.acao.excluir}" aria-label="Excluir vínculo"
+                                    th:attr="data-rotulo=${v.rotuloExterno}, data-categoria=${v.categoriaNome}">
+                                <i class="ph ph-trash" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex align-items-center justify-content-between" id="rodapeTabelaVinculos">
+            <p class="m-0 text-secondary" id="infoPaginacao">Mostrando 0 de 0 vínculos</p>
+            <ul class="pagination m-0 ms-auto" id="paginacaoControles"></ul>
+        </div>
+    </div>
+
+    <!-- Modais -->
+    <th:block th:replace="~{sistema/modulos/categoria-provedor/fragments/modal-form :: modal}"></th:block>
+
+</section>
+
+<th:block layout:fragment="js">
+    <script type="module" th:src="@{/js/categoria-provedor/listar.js}"></script>
+</th:block>
+
+</body>
+</html>

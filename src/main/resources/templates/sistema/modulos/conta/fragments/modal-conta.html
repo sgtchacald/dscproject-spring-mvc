@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="modal modal-blur fade" id="modalConta" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="formConta" novalidate>
+                <input type="hidden" id="contaId" name="id">
+                <input type="hidden" id="contaMoeda" name="moeda" value="BRL">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloModalConta" th:text="#{conta.form.titulo.novo}">Nova conta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alertaFormConta" class="alert alert-danger" style="display:none;" role="alert"></div>
+
+                    <div class="alert alert-info d-flex align-items-center mb-3" id="avisoConta" style="display:none;" role="alert">
+                        <i class="ph ph-info alert-icon me-2" aria-hidden="true"></i>
+                        <div id="avisoContaTexto"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required" for="contaDescricao" th:text="#{conta.form.campo.descricao.label}">Descrição</label>
+                        <input type="text" class="form-control" id="contaDescricao" name="descricao" maxlength="100"
+                               th:placeholder="#{conta.form.campo.descricao.placeholder}" required>
+                        <div class="invalid-feedback" id="erroDescricao"></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required" for="contaInstituicaoId" th:text="#{conta.form.campo.instituicao.label}">Instituição Financeira</label>
+                            <select class="form-select" id="contaInstituicaoId" name="instituicaoId" required>
+                                <option value="" th:text="#{conta.form.campo.instituicao.selecione}">Selecione…</option>
+                            </select>
+                            <small class="form-hint" id="hintInstituicao" th:text="#{conta.form.campo.instituicao.hint}">A instituição não poderá ser alterada após a criação da conta.</small>
+                            <div class="invalid-feedback" id="erroInstituicaoId"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required" for="contaTipo" th:text="#{conta.form.campo.tipo.label}">Tipo de Conta</label>
+                            <select class="form-select" id="contaTipo" name="tipo" required>
+                                <option value="" th:text="#{conta.form.campo.tipo.selecione}">Selecione…</option>
+                                <option value="CORRENTE" th:text="#{conta.tipo.corrente}">Conta Corrente</option>
+                                <option value="POUPANCA" th:text="#{conta.tipo.poupanca}">Poupança</option>
+                                <option value="INVESTIMENTO" th:text="#{conta.tipo.investimento}">Investimento</option>
+                                <option value="CARTEIRA" th:text="#{conta.tipo.carteira}">Carteira (Dinheiro Físico)</option>
+                            </select>
+                            <div class="invalid-feedback" id="erroTipo"></div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="contaAgencia" th:text="#{conta.form.campo.agencia.label}">Agência</label>
+                            <input type="text" class="form-control" id="contaAgencia" name="agencia" maxlength="20"
+                                   th:placeholder="#{conta.form.campo.agencia.placeholder}">
+                            <div class="invalid-feedback" id="erroAgencia"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="contaNumero" th:text="#{conta.form.campo.numero.label}">Número da Conta</label>
+                            <input type="text" class="form-control" id="contaNumero" name="numero" maxlength="30"
+                                   th:placeholder="#{conta.form.campo.numero.placeholder}">
+                            <div class="invalid-feedback" id="erroNumero"></div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="contaNomeGerente">Nome do Gerente</label>
+                            <input type="text" class="form-control" id="contaNomeGerente" name="nomeGerente" maxlength="100"
+                                   placeholder="Nome do gerente">
+                            <div class="invalid-feedback" id="erroNomeGerente"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="contaTelGerente">Telefone do Gerente</label>
+                            <input type="text" class="form-control" id="contaTelGerente" name="telGerente" maxlength="20"
+                                   placeholder="(00) 00000-0000">
+                            <div class="invalid-feedback" id="erroTelGerente"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="grupoSaldoInicial">
+                        <label class="form-label" for="contaSaldoInicial" th:text="#{conta.form.campo.saldoInicial.label}">Saldo Inicial (R$)</label>
+                        <input type="text" class="form-control" id="contaSaldoInicial" name="saldoInicial"
+                               th:placeholder="#{conta.form.campo.saldoInicial.placeholder}" value="0,00">
+                        <small class="form-hint" th:text="#{conta.form.campo.saldoInicial.hint}">Definido apenas na criação da conta. Para correções posteriores, use o Ajuste de Saldo.</small>
+                        <div class="invalid-feedback" id="erroSaldoInicial"></div>
+                    </div>
+
+                    <div class="row align-items-center mb-3">
+                        <div class="col-auto">
+                            <label class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="contaConsideraSaldo" name="consideraSaldo" checked>
+                                <span class="form-check-label" th:text="#{conta.form.campo.consideraSaldo.label}">Incluir no saldo geral / patrimônio</span>
+                            </label>
+                            <small class="form-hint d-block" th:text="#{conta.form.campo.consideraSaldo.hint}">Quando desmarcado, o saldo desta conta não compõe os totais de patrimônio líquido.</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="grupoAtivaConta" style="display:none;">
+                        <label class="form-label" for="contaAtiva" th:text="#{conta.form.campo.ativa.label}">Ativa</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="contaAtiva" name="ativo" checked>
+                            <label class="form-check-label" for="contaAtiva" th:text="#{conta.badge.ativo}">Ativa</label>
+                        </div>
+                        <small class="form-hint" th:text="#{conta.form.campo.ativa.hint}">Contas inativas não aparecem para novos lançamentos.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal" th:text="#{conta.form.botao.cancelar}">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarConta" th:text="#{conta.form.botao.salvar}">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

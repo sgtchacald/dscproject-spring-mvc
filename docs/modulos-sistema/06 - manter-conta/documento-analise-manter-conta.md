@@ -3,7 +3,7 @@
 
 **Gerado em:** 08/09/2026
 **Versão:** 1.0
-**Status:** Analisado
+**Status:** Desenvolvido
 **Projeto:** `dscproject-spring-mvc` (geração 2)
 
 ---
@@ -37,6 +37,7 @@
 | D02 | O termo `endpoint` é aceito na Seção 8. Fora dela, "chamada ao serviço". |
 | D03 | A estrutura de dados é a do Documento 0 (`00 - analise-geral`). Este documento **referencia** os QUADRO_DESCRITIVO do Documento 0 e **não introduz tabela nova**. |
 | D04 | `CONTAS` é dado do próprio usuário (tem `USU_ID`). O escopo por usuário (*row-level*) é sempre resolvido **no serviço**, a partir do contexto de segurança — nunca de um parâmetro da requisição. |
+| D05 | Todo item de menu introduzido por um módulo (nav-link ou dropdown-item da sidebar) carrega um ícone SVG do icon set do projeto, no tamanho padrão (`viewBox="0 0 24 24"`). Nenhum item de menu fica sem ícone. |
 
 ---
 
@@ -127,7 +128,9 @@ Este documento cobre:
 
 ## 4. Casos de Uso
 
-[Inserir o diagrama de casos de uso — `prototipo/manter-conta-casos-uso.drawio` + `images/manter-conta-casos-uso.png` — quando gerado.]
+![Casos de Uso - Manter Conta](images/manter-conta-casos-uso.png)
+
+Fonte: `prototipo/manter-conta-casos-uso.drawio` (editável) e `prototipo/_diagrama-casos-uso.html` (render). `ADMIN` ([PERF01](#perf01)) e `USER` ([PERF02](#perf02)) têm o mesmo acesso; cada um opera só sobre as próprias contas ([RN02](#rn02)).
 
 | CÓDIGO | NOME | ATOR PRINCIPAL | DESCRIÇÃO |
 |---|---|---|---|
@@ -145,6 +148,7 @@ Este documento cobre:
 
 **Caminho de Navegação:**
 - Menu principal > Finanças > Minhas Contas
+- O item de menu **"Finanças > Minhas Contas"** entra na sidebar **com um ícone SVG do icon set** (Lucide/Tabler) no tamanho padrão (`viewBox="0 0 24 24"`) — sugestão: `wallet` ou `building-bank`. Nenhum item de menu fica sem ícone (diretriz D05).
 
 **Critérios de Aceitação:**
 - O menu 'Minhas Contas' é visível apenas para quem tem [PERM01](#perm01).
@@ -178,7 +182,9 @@ Toda a estrutura está no **Documento 0** (`00 - analise-geral`). Este documento
 
 ### 6.1 Diagrama ER
 
-[Inserir `images/manter-conta-der.png` quando gerado — subconjunto do DER do Documento 0: `CONTAS`, `INSTITUICOES_FINANCEIRAS`, `USUARIOS` e as FKs `CTA_ID` em `TRANSACOES_BANCARIAS`, `RECEITAS`, `DESPESAS`, `INVESTIMENTOS` e `CARTOES_CREDITO`. Fonte: `prototipo/manter-conta-der.drawio`.]
+![DER - Manter Conta](images/manter-conta-der.png)
+
+Subconjunto do DER do Documento 0: `CONTAS` ([QUADRO_DESCRITIVO_5](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-5)), `INSTITUICOES_FINANCEIRAS` ([QUADRO_DESCRITIVO_4](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-4)), `USUARIOS` ([QUADRO_DESCRITIVO_2](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-2)) e as FKs `CTA_ID` em `TRANSACOES_BANCARIAS` (NOT NULL), `RECEITAS`, `DESPESAS`, `INVESTIMENTOS` e `CARTOES_CREDITO` (nullable). Este documento não cria tabela nova nem faz `ALTER TABLE`. Fonte: `prototipo/manter-conta-der.drawio` (editável) e `prototipo/_diagrama-der.html` (render).
 
 ### 6.2 Auditoria de Tabelas
 
@@ -198,11 +204,11 @@ Nenhuma. `CONTAS` nasce vazia (Documento 0, Seção 6.4 — grupo 3, sem *seed*)
 
 ## 7. Protótipos de Interface
 
-Protótipo navegável e wireframes: `prototipo/manter-conta-prototipo.html` e `prototipo/manter-conta-prototipo.drawio` (a gerar). Os números em destaque nas telas correspondem aos IDs dos itens do respectivo QUADRO_DESCRITIVO.
+Protótipo navegável: `prototipo/manter-conta-prototipo.html`. Wireframes editáveis: `prototipo/manter-conta-prototipo.drawio` (4 páginas, 7.1 a 7.4). PNGs regeráveis por `prototipo/render-pngs.py` (Playwright). Os números em destaque nas telas correspondem aos IDs dos itens do respectivo QUADRO_DESCRITIVO.
 
 ### <a id="quadro-descritivo-1"></a>7.1 Tela: Minhas Contas (Listagem) — QUADRO_DESCRITIVO_1
 
-[Inserir `images/mc-tela-1.png` quando gerado.]
+![Minhas Contas - Listagem](images/mc-tela-1.png)
 
 > OBSERVAÇÕES: Tela acessada via 'Finanças > Minhas Contas'. Restrita a quem tem [PERM01](#perm01). Grid client-side, carregado apenas com as contas do usuário autenticado ([EDP02](#edp02) → [C1](#c1)). O filtro é acionado por um modal (botão "Filtrar").
 
@@ -228,7 +234,7 @@ Protótipo navegável e wireframes: `prototipo/manter-conta-prototipo.html` e `p
 
 ### <a id="quadro-descritivo-2"></a>7.2 Modal: Filtrar Contas — QUADRO_DESCRITIVO_2
 
-[Inserir `images/mc-tela-2.png` quando gerado.]
+![Modal Filtrar Contas](images/mc-tela-2.png)
 
 > OBSERVAÇÕES: Todos os campos são opcionais. O filtro é aplicado em memória sobre a lista já carregada ([RT02](#rt02)).
 
@@ -244,7 +250,9 @@ Protótipo navegável e wireframes: `prototipo/manter-conta-prototipo.html` e `p
 
 ### <a id="quadro-descritivo-3"></a>7.3 Modal: Cadastro / Edição de Conta — QUADRO_DESCRITIVO_3
 
-[Inserir `images/mc-tela-3.png` quando gerado.]
+![Modal Cadastro / Edição de Conta](images/mc-tela-3.png)
+
+A imagem mostra o **modo edição** de uma conta em uso — com o toggle Ativa ([ID12](#qdd3-12)) e o aviso de conta em uso ([ID13](#qdd3-13)) visíveis. No modo criação, o campo Saldo inicial ([ID8](#qdd3-8)) aparece no lugar desses dois.
 
 > OBSERVAÇÕES: Modal único de cadastro e edição, restrito a [PERM02](#perm02). No modo edição, os campos Instituição ([RN06](#rn06)) e Saldo inicial ([RN10](#rn10)) ficam desabilitados, e aparecem os campos Ativa ([ID12](#qdd3-12)) e o aviso de conta em uso ([ID13](#qdd3-13)). O saldo só é alterado pela ação "Ajustar saldo" ([QUADRO_DESCRITIVO_4](#quadro-descritivo-4)).
 
@@ -268,7 +276,7 @@ Protótipo navegável e wireframes: `prototipo/manter-conta-prototipo.html` e `p
 
 ### <a id="quadro-descritivo-4"></a>7.4 Modal: Ajustar Saldo — QUADRO_DESCRITIVO_4
 
-[Inserir `images/mc-tela-4.png` quando gerado.]
+![Modal Ajustar Saldo](images/mc-tela-4.png)
 
 > OBSERVAÇÕES: Acionado pelo ícone "Ajustar saldo" do grid ([ID16](#qdd1-16)), restrito a [PERM02](#perm02). Substitui o `CTA_SALDO` da conta pelo valor informado; o Hibernate Envers registra o antes e o depois. Não altera `CTA_SALDO_SINCRONIZADO_EM` (o saldo permanece manual).
 
@@ -608,7 +616,7 @@ Descrição: Levantamento a partir do Documento 0 (Observação 11; [QUADRO_DESC
 
 ## 18. Anexos
 
-- **Pendência (v1.0):** gerar o diagrama de casos de uso (`prototipo/manter-conta-casos-uso.drawio` + PNG), o DER do subconjunto (`prototipo/manter-conta-der.drawio` + `images/manter-conta-der.png`), os wireframes das quatro telas/modais (`prototipo/manter-conta-prototipo.drawio` + `images/mc-tela-*.png`) e o protótipo navegável (`prototipo/manter-conta-prototipo.html`).
+- **Protótipo e diagramas (v1.0):** gerados. Casos de uso (`prototipo/manter-conta-casos-uso.drawio` + `images/manter-conta-casos-uso.png`), DER do subconjunto (`prototipo/manter-conta-der.drawio` + `images/manter-conta-der.png`), wireframes das quatro telas/modais (`prototipo/manter-conta-prototipo.drawio` + `images/mc-tela-1..4.png`) e protótipo navegável (`prototipo/manter-conta-prototipo.html`). PNGs regeráveis por `prototipo/render-pngs.py` (Playwright); diagramas `.drawio` por `prototipo/gen-diagramas.py`.
 - Documento 0 — Fundação: `../00 - analise-geral/documento-0-fundacao.md` ([QUADRO_DESCRITIVO_4](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-4), [QUADRO_DESCRITIVO_5](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-5), [QUADRO_DESCRITIVO_6](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-6), [QUADRO_DESCRITIVO_7](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-7), [QUADRO_DESCRITIVO_9](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-9), [QUADRO_DESCRITIVO_10](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-10), [QUADRO_DESCRITIVO_12](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-12)).
 - Documento `04 - manter-categoria`: `../04 - manter-categoria/documento-analise-manter-categoria.md` (padrão de tela, trava "em uso" espelhada aqui na conta, forma e voz).
 - Documento `05 - manter-instituicao-financeira`: `../05 - manter-instituicao-financeira/` (a escrever) — fonte do endpoint de opções de instituição.

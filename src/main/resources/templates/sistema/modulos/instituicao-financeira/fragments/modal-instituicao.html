@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="modal modal-blur fade" id="modalInstituicao" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="formInstituicao" novalidate>
+                <input type="hidden" id="instituicaoId" name="id">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloModalInstituicao" th:text="#{instituicao.form.titulo.novo}">Nova instituição</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alertaFormInstituicao" class="alert alert-danger" style="display:none;" role="alert"></div>
+
+                    <div class="alert alert-info d-flex align-items-center mb-3" id="avisoInstituicao" style="display:none;" role="alert">
+                        <i class="ph ph-info alert-icon me-2" aria-hidden="true"></i>
+                        <div id="avisoInstituicaoTexto"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required" for="instituicaoNome" th:text="#{instituicao.form.campo.nome.label}">Nome</label>
+                        <input type="text" class="form-control" id="instituicaoNome" name="nome" maxlength="100"
+                               th:placeholder="#{instituicao.form.campo.nome.placeholder}" required>
+                        <small class="form-hint" th:text="#{instituicao.form.campo.nome.hint}">Nome de exibição. Único (RN02).</small>
+                        <div class="invalid-feedback" id="erroNome"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="instituicaoCodigo" th:text="#{instituicao.form.campo.codigo.label}">Código</label>
+                        <input type="text" class="form-control" id="instituicaoCodigo" name="codigo" maxlength="100"
+                               th:placeholder="#{instituicao.form.campo.codigo.placeholder}">
+                        <small class="form-hint" th:text="#{instituicao.form.campo.codigo.hint}">Código do banco no Bacen. Opcional. Só dígitos (RT08). Único quando informado (RN03).</small>
+                        <div class="invalid-feedback" id="erroCodigo"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required" for="instituicaoTipo" th:text="#{instituicao.form.campo.tipo.label}">Tipo</label>
+                        <select class="form-select" id="instituicaoTipo" name="tipo" required>
+                            <option value="" th:text="#{instituicao.form.campo.tipo.selecione}">Selecione…</option>
+                            <option value="BANCO" th:text="#{instituicao.tipo.banco}">Banco</option>
+                            <option value="CORRETORA" th:text="#{instituicao.tipo.corretora}">Corretora</option>
+                        </select>
+                        <div class="invalid-feedback" id="erroTipo"></div>
+                    </div>
+
+                    <div class="mb-3" id="grupoAtiva" style="display:none;">
+                        <label class="form-label" for="instituicaoAtiva" th:text="#{instituicao.form.campo.ativa.label}">Ativa</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="instituicaoAtiva" name="ativo" checked>
+                            <label class="form-check-label" for="instituicaoAtiva" th:text="#{instituicao.badge.ativo}">Ativa</label>
+                        </div>
+                        <small class="form-hint" th:text="#{instituicao.form.campo.ativa.hint}">Instituição inativa some dos comboboxes de novos cadastros (RN10).</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal" th:text="#{instituicao.form.botao.cancelar}">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarInstituicao" th:text="#{instituicao.form.botao.salvar}">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

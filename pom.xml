@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>br.com.diegocordeiro.dscproject</groupId>
 	<artifactId>dscproject</artifactId>
-	<version>1.4.0</version>
+	<version>1.5.0</version>
 	<name/>
 	<description/>
 	<url/>
@@ -123,6 +123,11 @@
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>tabler__core</artifactId>
 			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>phosphor-icons__web</artifactId>
+			<version>2.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>

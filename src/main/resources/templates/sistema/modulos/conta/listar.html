@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{sistema/template-admin/layout}">
+<head>
+    <title th:text="#{conta.lista.titulo}">Minhas Contas</title>
+</head>
+<body>
+
+<div layout:fragment="cabecalho">
+    <div class="row g-2 align-items-center">
+        <div class="col">
+            <h2 class="page-title" th:text="#{conta.lista.cabecalho}">Minhas Contas</h2>
+            <br><br>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/}">
+                            <i class="ph ph-house" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item" th:text="#{conta.lista.breadcrumb.pai}">Finanças</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{conta.lista.titulo}">Minhas Contas</li>
+                </ol>
+            </nav>
+            <br>
+            <div class="text-secondary mt-1" th:text="#{conta.lista.descricao}">
+                Gerencie suas contas bancárias, poupanças, investimentos e carteira de dinheiro.
+            </div>
+        </div>
+        <div class="col-auto ms-auto">
+            <button class="btn" id="btnFiltrar" data-bs-toggle="modal" data-bs-target="#modalFiltroConta">
+                <i class="ph ph-funnel" aria-hidden="true"></i>
+                <span th:text="#{conta.lista.botao.filtrar}">Filtrar</span>
+            </button>
+            <button class="btn btn-primary" id="btnNovaConta" sec:authorize="hasAuthority('PERM_CONTAS_MANTER')"
+                    data-bs-toggle="modal" data-bs-target="#modalConta">
+                <i class="ph ph-plus" aria-hidden="true"></i>
+                <span th:text="#{conta.lista.botao.novo}">Nova conta</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<section layout:fragment="corpo">
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table" id="tabelaContas">
+                <thead>
+                <tr>
+                    <th data-col="descricao" class="sortable" role="button" th:text="#{conta.col.descricao}">Descrição</th>
+                    <th data-col="instituicao" class="sortable" role="button" th:text="#{conta.col.instituicao}">Instituição</th>
+                    <th data-col="tipo" class="sortable" role="button" th:text="#{conta.col.tipo}">Tipo</th>
+                    <th data-col="agenciaConta" class="sortable" role="button" th:text="#{conta.col.agenciaConta}">Agência / Conta</th>
+                    <th data-col="saldo" class="sortable text-end" role="button" th:text="#{conta.col.saldoAtual}">Saldo atual</th>
+                    <th data-col="consideraSaldo" class="sortable text-center" role="button" th:text="#{conta.col.consideraSaldo}">Inclui no patrimônio</th>
+                    <th data-col="qtdUso" class="sortable text-end" role="button" th:text="#{conta.col.qtdLancamentos}">Nº de lançamentos</th>
+                    <th data-col="situacao" class="sortable" role="button" th:text="#{conta.col.situacao}">Situação</th>
+                    <th class="w-1" th:text="#{conta.col.acoes}">Ações</th>
+                </tr>
+                </thead>
+                <tbody id="corpoTabelaContas"></tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-secondary" id="rodapeContagemContas"></p>
+        </div>
+    </div>
+
+    <div th:replace="~{sistema/modulos/conta/fragments/modal-filtro :: modal}"></div>
+    <div th:replace="~{sistema/modulos/conta/fragments/modal-conta :: modal}"></div>
+    <div th:replace="~{sistema/modulos/conta/fragments/modal-ajuste-saldo :: modal}"></div>
+
+    <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
+
+    <span sec:authorize="hasAuthority('PERM_CONTAS_MANTER')" data-perm="manter" hidden></span>
+
+    <div id="dadosTelaConta"
+         th:data-url-dados="@{/contas/listar-dados}"
+         th:data-url-buscar="@{/contas/buscar}"
+         th:data-url-inserir="@{/contas/inserir}"
+         th:data-url-editar="@{/contas/editar}"
+         th:data-url-ajustar-saldo="@{/contas/ajustar-saldo}"
+         th:data-url-desativar="@{/contas/desativar}"
+         th:data-url-excluir="@{/contas/excluir}"
+         th:data-url-instituicoes-opcoes="@{/instituicoes-financeiras/opcoes}"
+         th:data-msg-confirma-exclusao="#{msg.conta.confirma.exclusao}"
+         th:data-msg-filtro-vazio="#{msg.conta.filtro.vazio}"
+         th:data-msg-desativar-oferta="#{conta.desativar.oferta}"
+         th:data-label-ativa="#{conta.badge.ativo}"
+         th:data-label-inativa="#{conta.badge.inativo}"
+         th:data-label-excluida="#{conta.badge.excluido}"
+         th:data-label-sim="#{conta.sim}"
+         th:data-label-nao="#{conta.nao}"
+         th:data-label-novo="#{conta.form.titulo.novo}"
+         th:data-label-editar="#{conta.form.titulo.editar}"
+         th:data-label-aviso-em-uso="#{conta.form.aviso.emUso}"
+         hidden></div>
+</section>
+
+<th:block layout:fragment="js">
+    <script type="module" th:src="@{/js/conta/listar.js}"></script>
+</th:block>
+</body>
+</html>

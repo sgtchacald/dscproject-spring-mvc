@@ -28,6 +28,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
         return factory;
     }
 
+    @Bean
+    public org.springframework.web.filter.HiddenHttpMethodFilter hiddenHttpMethodFilter() {
+        return new org.springframework.web.filter.HiddenHttpMethodFilter();
+    }
+
     @Override
     public Validator getValidator() {
         return validator();
@@ -36,5 +41,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new StringToGeneroConverter());
+        registry.addConverter(new br.com.diegocordeiro.dscproject.web.sistema.converter.StringToAplicaAConverter());
+        registry.addConverter(new br.com.diegocordeiro.dscproject.web.sistema.converter.StringToTipoInstituicaoFinanceiraConverter());
+        registry.addConverter(new br.com.diegocordeiro.dscproject.web.sistema.converter.StringToTipoContaConverter());
     }
 }

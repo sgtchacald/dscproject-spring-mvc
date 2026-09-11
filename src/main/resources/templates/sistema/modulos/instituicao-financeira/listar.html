@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{sistema/template-admin/layout}">
+<head>
+    <title th:text="#{instituicao.lista.titulo}">Instituições Financeiras</title>
+</head>
+<body>
+
+<div layout:fragment="cabecalho">
+    <div class="row g-2 align-items-center">
+        <div class="col">
+            <h2 class="page-title" th:text="#{instituicao.lista.cabecalho}">Instituições Financeiras</h2>
+            <br><br>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/}">
+                            <i class="ph ph-house" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item" th:text="#{instituicao.lista.breadcrumb.pai}">Administração</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{instituicao.lista.titulo}">Instituições Financeiras</li>
+                </ol>
+            </nav>
+            <br>
+            <div class="text-secondary mt-1" th:text="#{instituicao.lista.descricao}">
+                Gerencie o catálogo de bancos e corretoras usado em contas, cartões e investimentos.
+            </div>
+        </div>
+        <div class="col-auto ms-auto">
+            <button class="btn" id="btnFiltrar" data-bs-toggle="modal" data-bs-target="#modalFiltroInstituicao">
+                <i class="ph ph-funnel" aria-hidden="true"></i>
+                <span th:text="#{instituicao.lista.botao.filtrar}">Filtrar</span>
+            </button>
+            <button class="btn btn-primary" id="btnNovaInstituicao" sec:authorize="hasAuthority('PERM_INSTITUICOES_MANTER')"
+                    data-bs-toggle="modal" data-bs-target="#modalInstituicao">
+                <i class="ph ph-plus" aria-hidden="true"></i>
+                <span th:text="#{instituicao.lista.botao.novo}">Nova instituição</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<section layout:fragment="corpo">
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table" id="tabelaInstituicoes">
+                <thead>
+                <tr>
+                    <th data-col="nome" class="sortable" role="button" th:text="#{instituicao.col.nome}">Nome</th>
+                    <th data-col="codigo" class="sortable" role="button" th:text="#{instituicao.col.codigo}">Código</th>
+                    <th data-col="tipo" class="sortable" role="button" th:text="#{instituicao.col.tipo}">Tipo</th>
+                    <th data-col="qtdUso" class="sortable text-end" role="button" th:text="#{instituicao.col.qtdUso}">Nº de usos</th>
+                    <th data-col="qtdProvedores" class="sortable text-end" role="button" th:text="#{instituicao.col.qtdProvedores}">Provedores mapeados</th>
+                    <th data-col="situacao" class="sortable" role="button" th:text="#{instituicao.col.situacao}">Situação</th>
+                    <th class="w-1" th:text="#{instituicao.col.acoes}">Ações</th>
+                </tr>
+                </thead>
+                <tbody id="corpoTabelaInstituicoes"></tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-secondary" id="rodapeContagemInstituicoes"></p>
+        </div>
+    </div>
+
+    <div th:replace="~{sistema/modulos/instituicao-financeira/fragments/modal-filtro :: modal}"></div>
+    <div th:replace="~{sistema/modulos/instituicao-financeira/fragments/modal-instituicao :: modal}"></div>
+
+    <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
+
+    <span sec:authorize="hasAuthority('PERM_INSTITUICOES_MANTER')" data-perm="manter" hidden></span>
+
+    <div id="dadosTelaInstituicao"
+         th:data-url-dados="@{/instituicoes-financeiras/listar-dados}"
+         th:data-url-buscar="@{/instituicoes-financeiras/buscar}"
+         th:data-url-inserir="@{/instituicoes-financeiras/inserir}"
+         th:data-url-editar="@{/instituicoes-financeiras/editar}"
+         th:data-url-desativar="@{/instituicoes-financeiras/desativar}"
+         th:data-url-excluir="@{/instituicoes-financeiras/excluir}"
+         th:data-msg-confirma-exclusao="#{msg.instituicao.confirma.exclusao}"
+         th:data-msg-filtro-vazio="#{msg.instituicao.filtro.vazio}"
+         th:data-msg-desativar-oferta="#{instituicao.desativar.oferta}"
+         th:data-label-sistema="#{instituicao.badge.sistema}"
+         th:data-label-ativa="#{instituicao.badge.ativo}"
+         th:data-label-inativa="#{instituicao.badge.inativo}"
+         th:data-label-excluida="#{instituicao.badge.excluido}"
+         th:data-label-novo="#{instituicao.form.titulo.novo}"
+         th:data-label-editar="#{instituicao.form.titulo.editar}"
+         th:data-label-aviso-sistema="#{instituicao.form.aviso.sistema}"
+         th:data-label-aviso-em-uso="#{instituicao.form.aviso.emUso}"
+         hidden></div>
+</section>
+
+<th:block layout:fragment="js">
+    <script type="module" th:src="@{/js/instituicao-financeira/listar.js}"></script>
+</th:block>
+</body>
+</html>

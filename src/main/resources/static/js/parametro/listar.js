@@ -14,11 +14,11 @@ let editorAberto = null;   // { cancelar }
 const corpo = document.getElementById('corpoTabelaParametros');
 const rodape = document.getElementById('rodapeContagemParametros');
 
-// Ícones do Lucide (lucide.dev) — traço/tamanho padronizados.
+// Ícones Phosphor (phosphoricons.com) — classe do webfont.
 const ICONES = {
-    editar: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
-    restaurar: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
-    historico: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>'
+    editar: 'ph-pencil-simple',
+    restaurar: 'ph-arrow-counter-clockwise',
+    historico: 'ph-clock-counter-clockwise'
 };
 
 async function carregar() {
@@ -82,9 +82,7 @@ function botaoAcao(acao, rotulo, id, desabilitado) {
     return '<button type="button" class="btn btn-action" data-acao="' + acao + '" data-id="' + id + '"'
         + (desabilitado ? ' disabled' : '')
         + ' title="' + rotulo + '" aria-label="' + rotulo + '">'
-        + '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"'
-        + ' stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'
-        + ' class="icon" aria-hidden="true">' + ICONES[acao] + '</svg></button> ';
+        + '<i class="ph ' + ICONES[acao] + '" aria-hidden="true"></i></button> ';
 }
 
 function acoes(p) {
