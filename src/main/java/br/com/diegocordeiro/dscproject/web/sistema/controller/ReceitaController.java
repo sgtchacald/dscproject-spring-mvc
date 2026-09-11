@@ -3,6 +3,7 @@ package br.com.diegocordeiro.dscproject.web.sistema.controller;
 import br.com.diegocordeiro.dscproject.dto.receita.ReceitaEdicaoDTO;
 import br.com.diegocordeiro.dscproject.dto.receita.ReceitaFormDTO;
 import br.com.diegocordeiro.dscproject.dto.receita.ReceitaGridDTO;
+import br.com.diegocordeiro.dscproject.dto.receita.ReceitaRecebimentoDTO;
 import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.repository.CategoriaRepository;
 import br.com.diegocordeiro.dscproject.repository.ContaRepository;
@@ -116,6 +117,21 @@ public class ReceitaController {
 
         receitaService.editar(id, dto, usuario.getId(), usuario.getLogin());
         return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.receita.atualizada", locale)));
+    }
+
+    @PutMapping("/receitas/marcar-recebida/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> marcarRecebida(@PathVariable Long id, @ModelAttribute ReceitaRecebimentoDTO dto, Principal principal, Locale locale) {
+        Usuario usuario = obterUsuarioAutenticado(principal);
+
+        BindingResult resultado = new BeanPropertyBindingResult(dto, "receitaRecebimentoDTO");
+        smartValidator.validate(dto, resultado);
+        if (resultado.hasErrors()) {
+            return respostaErros(resultado);
+        }
+
+        receitaService.marcarRecebida(id, dto.getDataRecebimento(), usuario.getId(), usuario.getLogin());
+        return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.receita.recebimento.registrado", locale)));
     }
 
     private Usuario obterUsuarioAutenticado(Principal principal) {

@@ -2,6 +2,7 @@ import { getJson } from '../comum/http.js';
 import { semAcento, dataBr } from '../comum/ui.js';
 import { inicializarFiltro, obterFiltroAtual, abrirModalFiltro } from './modal-filtro.js';
 import { inicializarForm, abrirEdicao, EVENTO_ALTERADO } from './modal-form.js';
+import { inicializarRecebimento, abrirRecebimento, EVENTO_RECEBIMENTO_REGISTRADO } from './modal-recebimento.js';
 
 const cfg = () => document.getElementById('dadosTelaReceita').dataset;
 
@@ -133,6 +134,11 @@ function render() {
                 acaoHtml += `<button type="button" class="btn btn-action" data-acao="editar" data-id="${r.id}" title="Editar receita" aria-label="Editar receita">
                     <i class="ph ph-pencil-simple" aria-hidden="true"></i>
                 </button> `;
+                if (!r.recebido) {
+                    acaoHtml += `<button type="button" class="btn btn-action text-success" data-acao="registrar-recebimento" data-id="${r.id}" data-valor="${r.valor}" title="Registrar recebimento" aria-label="Registrar recebimento">
+                        <i class="ph ph-money" aria-hidden="true"></i>
+                    </button> `;
+                }
             }
 
             tr.innerHTML = `
@@ -161,9 +167,12 @@ function inicializarAcoes() {
         if (!btn) return;
         const acao = btn.dataset.acao;
         const id = btn.dataset.id;
+        const valor = btn.dataset.valor;
 
         if (acao === 'editar') {
             abrirEdicao(id);
+        } else if (acao === 'registrar-recebimento') {
+            abrirRecebimento(id, valor);
         }
     });
 }
@@ -185,6 +194,7 @@ function inicializarOrdenacao() {
 
 document.addEventListener('DOMContentLoaded', function () {
     inicializarForm();
+    inicializarRecebimento();
     inicializarFiltro(() => render());
     inicializarOrdenacao();
     inicializarAcoes();
@@ -198,6 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.addEventListener(EVENTO_ALTERADO, carregar);
+    document.addEventListener(EVENTO_RECEBIMENTO_REGISTRADO, carregar);
 
     carregar();
 });

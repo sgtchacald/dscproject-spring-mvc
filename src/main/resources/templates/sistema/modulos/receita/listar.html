@@ -71,6 +71,7 @@
 
     <div th:replace="~{sistema/modulos/receita/fragments/modal-filtro :: modal}"></div>
     <div th:replace="~{sistema/modulos/receita/fragments/modal-receita :: modal}"></div>
+    <div th:replace="~{sistema/modulos/receita/fragments/modal-recebimento :: modal}"></div>
 
     <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
 
@@ -81,6 +82,7 @@
          th:data-url-buscar="@{/receitas/buscar}"
          th:data-url-inserir="@{/receitas/inserir}"
          th:data-url-editar="@{/receitas/editar}"
+         th:data-url-marcar-recebida="@{/receitas/marcar-recebida}"
          th:data-url-contas-opcoes="@{/contas/opcoes}"
          th:data-url-categorias-opcoes="@{/categorias/opcoes(aplicaA='RECEITA')}"
          th:data-msg-filtro-vazio="#{msg.receita.filtro.vazio}"

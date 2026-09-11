@@ -99,6 +99,14 @@ public class ReceitaService {
         return receitaRepository.save(receita);
     }
 
+    @Transactional
+    public Receita marcarRecebida(Long id, LocalDate dataRecebimento, Long usuarioId, String usuarioAuditoria) {
+        Receita receita = buscarPorIdEUsuario(id, usuarioId);
+        receita.setRecebido(true);
+        receita.setDataRecebimento(dataRecebimento);
+        return receitaRepository.save(receita);
+    }
+
     private void aplicarRecebimento(Receita receita, boolean recebido, LocalDate dataRecebimento) {
         receita.setRecebido(recebido);
         receita.setDataRecebimento(recebido ? dataRecebimento : null);

@@ -304,4 +304,43 @@ class ReceitaControllerTest {
 
         verify(receitaService).editar(eq(10L), any(), eq(1L), eq("user_teste"));
     }
+
+    @Test
+    @DisplayName("BDD 16.4 - Registrar recebimento de receita de outro usuário retorna 404")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void marcarRecebida_quandoReceitaDeOutroUsuario_deveRetornar404() throws Exception {
+        when(receitaService.marcarRecebida(eq(70L), any(), eq(1L), eq("user_teste")))
+                .thenThrow(new br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException("msg.receita.nao-encontrada"));
+
+        mockMvc.perform(put("/receitas/marcar-recebida/70")
+                        .with(csrf())
+                        .param("dataRecebimento", "2026-10-05"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("BDD 16.10 - Registrar recebimento com sucesso")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void marcarRecebida_comDataValida_deveRetornarOk() throws Exception {
+        when(receitaService.marcarRecebida(eq(10L), eq(LocalDate.of(2026, 10, 5)), eq(1L), eq("user_teste")))
+                .thenReturn(new Receita());
+
+        mockMvc.perform(put("/receitas/marcar-recebida/10")
+                        .with(csrf())
+                        .param("dataRecebimento", "2026-10-05"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true));
+    }
+
+    @Test
+    @DisplayName("RT09 / MSG02 - Registrar recebimento sem data retorna 422")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void marcarRecebida_semData_deveRetornar422() throws Exception {
+        mockMvc.perform(put("/receitas/marcar-recebida/10")
+                        .with(csrf()))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errosCampos.dataRecebimento").exists());
+
+        verify(receitaService, never()).marcarRecebida(any(), any(), any(), any());
+    }
 }

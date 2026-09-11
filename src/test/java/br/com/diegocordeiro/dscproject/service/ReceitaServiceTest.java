@@ -360,4 +360,28 @@ class ReceitaServiceTest {
         assertFalse(editada.isRecebido());
         assertNull(editada.getDataRecebimento());
     }
+
+    @Test
+    @DisplayName("BDD 16.4 - Registrar recebimento de receita de outro usuário lança RegistroNaoEncontradoException (404)")
+    void marcarRecebida_quandoReceitaDeOutroUsuario_deveLancarExcecao() {
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(70L, 1L)).thenReturn(Optional.empty());
+
+        assertThrows(br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException.class,
+            () -> receitaService.marcarRecebida(70L, LocalDate.of(2026, 10, 5), 1L, "user1"));
+        verify(receitaRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("BDD 16.10 - Registrar recebimento grava a data e marca como recebida")
+    void marcarRecebida_deveGravarDataEMarcarRecebida() {
+        Receita receita = criarReceita(8L, 1L, false, false);
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(8L, 1L)).thenReturn(Optional.of(receita));
+        when(receitaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Receita marcada = receitaService.marcarRecebida(8L, LocalDate.of(2026, 10, 5), 1L, "user1");
+
+        assertTrue(marcada.isRecebido());
+        assertEquals(LocalDate.of(2026, 10, 5), marcada.getDataRecebimento());
+        verify(receitaRepository).save(receita);
+    }
 }
