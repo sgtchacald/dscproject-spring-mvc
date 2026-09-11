@@ -152,14 +152,14 @@ function render() {
 
             let acaoHtml = '';
             if (podeManter()) {
-                acaoHtml += `<button type="button" class="btn btn-action" data-acao="editar" data-id="${c.id}" title="Editar conta">
+                acaoHtml += `<button type="button" class="btn btn-action" data-acao="editar" data-id="${c.id}" title="Editar conta" aria-label="Editar conta">
                     <i class="ph ph-pencil-simple" aria-hidden="true"></i>
                 </button> `;
                 if (!c.excluido) {
-                    acaoHtml += `<button type="button" class="btn btn-action text-warning" data-acao="ajustar-saldo" data-id="${c.id}" data-saldo="${c.saldo}" data-moeda="${c.moeda}" title="Ajustar saldo">
+                    acaoHtml += `<button type="button" class="btn btn-action text-warning" data-acao="ajustar-saldo" data-id="${c.id}" data-saldo="${c.saldo}" data-moeda="${c.moeda}" title="Ajustar saldo" aria-label="Ajustar saldo">
                         <i class="ph ph-currency-dollar" aria-hidden="true"></i>
                     </button> `;
-                    acaoHtml += `<button type="button" class="btn btn-action text-danger" data-acao="excluir" data-id="${c.id}" data-descricao="${c.descricao}" title="Excluir conta">
+                    acaoHtml += `<button type="button" class="btn btn-action text-danger" data-acao="excluir" data-id="${c.id}" data-descricao="${c.descricao}" title="Excluir conta" aria-label="Excluir conta">
                         <i class="ph ph-trash" aria-hidden="true"></i>
                     </button>`;
                 }
