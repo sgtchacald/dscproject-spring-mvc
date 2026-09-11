@@ -1,5 +1,6 @@
 package br.com.diegocordeiro.dscproject.service;
 
+import br.com.diegocordeiro.dscproject.dto.receita.ReceitaEdicaoDTO;
 import br.com.diegocordeiro.dscproject.dto.receita.ReceitaFormDTO;
 import br.com.diegocordeiro.dscproject.dto.receita.ReceitaGridDTO;
 import br.com.diegocordeiro.dscproject.enums.AplicaA;
@@ -10,6 +11,7 @@ import br.com.diegocordeiro.dscproject.model.Receita;
 import br.com.diegocordeiro.dscproject.repository.CategoriaRepository;
 import br.com.diegocordeiro.dscproject.repository.ContaRepository;
 import br.com.diegocordeiro.dscproject.repository.ReceitaRepository;
+import br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException;
 import br.com.diegocordeiro.dscproject.service.exceptions.RegraNegocioException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,52 @@ public class ReceitaService {
         receita.setConta(conta);
         receita.setCategoria(categoria);
         receita.setOrigem(OrigemLancamento.MANUAL);
+
+        aplicarRecebimento(receita, dto.isRecebido(), dto.getDataRecebimento());
+
+        return receitaRepository.save(receita);
+    }
+
+    /** RN02/C2 — a receita de outro usuário (ou já excluída) responde como "não encontrada". */
+    @Transactional(readOnly = true)
+    public Receita buscarPorIdEUsuario(Long id, Long usuarioId) {
+        return receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(id, usuarioId)
+            .orElseThrow(() -> new RegistroNaoEncontradoException("msg.receita.nao-encontrada"));
+    }
+
+    @Transactional(readOnly = true)
+    public ReceitaEdicaoDTO buscarParaEdicao(Long id, Long usuarioId) {
+        Receita r = buscarPorIdEUsuario(id, usuarioId);
+        return ReceitaEdicaoDTO.builder()
+            .id(r.getId())
+            .competencia(r.getCompetencia())
+            .nome(r.getNome())
+            .descricao(r.getDescricao())
+            .valor(r.getValor())
+            .dataLancamento(r.getDataLancamento())
+            .dataRecebimento(r.getDataRecebimento())
+            .recebido(r.isRecebido())
+            .origem(r.getOrigem())
+            .contaId(r.getConta() != null ? r.getConta().getId() : null)
+            .categoriaId(r.getCategoria() != null ? r.getCategoria().getId() : null)
+            .build();
+    }
+
+    @Transactional
+    public Receita editar(Long id, ReceitaFormDTO dto, Long usuarioId, String usuarioAuditoria) {
+        Receita receita = buscarPorIdEUsuario(id, usuarioId);
+
+        // RN08 - conta e origem de receita importada não são alteráveis; o contaId do DTO é ignorado.
+        if (receita.getOrigem() == OrigemLancamento.MANUAL) {
+            receita.setConta(validarConta(dto.getContaId(), usuarioId));
+        }
+
+        receita.setNome(normalizarTexto(dto.getNome()));
+        receita.setDescricao(normalizarTexto(dto.getDescricao()));
+        receita.setValor(dto.getValor());
+        receita.setDataLancamento(dto.getDataLancamento());
+        receita.setCompetencia(YearMonth.parse(dto.getCompetencia()));
+        receita.setCategoria(validarCategoriaSeInformada(dto.getCategoriaId()));
 
         aplicarRecebimento(receita, dto.isRecebido(), dto.getDataRecebimento());
 

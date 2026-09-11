@@ -232,4 +232,76 @@ class ReceitaControllerTest {
 
         verify(receitaService, never()).inserir(any(), any(), any());
     }
+
+    @Test
+    @DisplayName("BDD 16.3 - Buscar receita de outro usuário retorna 404")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void buscar_quandoReceitaDeOutroUsuario_deveRetornar404() throws Exception {
+        when(receitaService.buscarParaEdicao(70L, 1L))
+                .thenThrow(new br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException("msg.receita.nao-encontrada"));
+
+        mockMvc.perform(get("/receitas/buscar/70"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("EDP03 - Buscar receita do próprio usuário retorna os dados para edição")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void buscar_quandoReceitaDoUsuario_deveRetornarDadosDeEdicao() throws Exception {
+        when(receitaService.buscarParaEdicao(10L, 1L)).thenReturn(
+                br.com.diegocordeiro.dscproject.dto.receita.ReceitaEdicaoDTO.builder()
+                        .id(10L)
+                        .nome("Salário")
+                        .competencia(YearMonth.of(2026, 9))
+                        .valor(new BigDecimal("5000.00"))
+                        .dataLancamento(LocalDate.of(2026, 9, 5))
+                        .origem(OrigemLancamento.MANUAL)
+                        .contaId(1L)
+                        .build()
+        );
+
+        mockMvc.perform(get("/receitas/buscar/10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(10))
+                .andExpect(jsonPath("$.nome").value("Salário"))
+                .andExpect(jsonPath("$.origem").value("MANUAL"));
+    }
+
+    @Test
+    @DisplayName("BDD 16.4 - Editar receita de outro usuário retorna 404")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void editar_quandoReceitaDeOutroUsuario_deveRetornar404() throws Exception {
+        when(receitaService.buscarPorIdEUsuario(70L, 1L))
+                .thenThrow(new br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException("msg.receita.nao-encontrada"));
+
+        mockMvc.perform(put("/receitas/editar/70")
+                        .with(csrf())
+                        .param("nome", "Salário")
+                        .param("valor", "5000.00")
+                        .param("dataLancamento", "2026-09-05")
+                        .param("competencia", "2026-09")
+                        .param("contaId", "10"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("BDD 16.15 - Editar receita com sucesso")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void editar_comDadosValidos_deveRetornarOk() throws Exception {
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.empty());
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L)));
+        when(receitaService.editar(eq(10L), any(), eq(1L), eq("user_teste"))).thenReturn(new Receita());
+
+        mockMvc.perform(put("/receitas/editar/10")
+                        .with(csrf())
+                        .param("nome", "Salário Atualizado")
+                        .param("valor", "5200.00")
+                        .param("dataLancamento", "2026-09-05")
+                        .param("competencia", "2026-09")
+                        .param("contaId", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true));
+
+        verify(receitaService).editar(eq(10L), any(), eq(1L), eq("user_teste"));
+    }
 }

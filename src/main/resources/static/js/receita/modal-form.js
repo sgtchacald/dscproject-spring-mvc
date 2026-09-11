@@ -100,6 +100,50 @@ export async function abrirNovo() {
     abrirModal('modalReceita');
 }
 
+export async function abrirEdicao(id) {
+    limparErros();
+    await carregarOpcoesForm();
+
+    try {
+        const dados = await getJson(`${cfg().urlBuscar}/${id}`);
+
+        document.getElementById('receitaId').value = dados.id;
+        document.getElementById('tituloModalReceita').textContent = cfg().labelEditar || 'Editar receita';
+        document.getElementById('receitaNome').value = dados.nome || '';
+        document.getElementById('receitaDescricao').value = dados.descricao || '';
+        document.getElementById('receitaValor').value = dados.valor != null ? Number(dados.valor).toFixed(2).replace('.', ',') : '';
+        document.getElementById('receitaDataLancamento').value = dados.dataLancamento || '';
+        document.getElementById('receitaCompetencia').value = dados.competencia || '';
+        competenciaEditadaManualmente = true; // não reajustar a competência já gravada ao reabrir em edição
+
+        const selectConta = document.getElementById('receitaContaId');
+        if (dados.contaId && !Array.from(selectConta.options).some(o => o.value == dados.contaId)) {
+            const opt = document.createElement('option');
+            opt.value = dados.contaId;
+            opt.textContent = 'Conta vinculada';
+            selectConta.appendChild(opt);
+        }
+        selectConta.value = dados.contaId || '';
+
+        document.getElementById('receitaCategoriaId').value = dados.categoriaId || '';
+
+        const ehImportada = dados.origem && dados.origem !== 'MANUAL';
+        selectConta.disabled = ehImportada;
+        document.getElementById('avisoReceitaImportada').style.display = ehImportada ? 'flex' : 'none';
+
+        document.getElementById('receitaRecebido').checked = !!dados.recebido;
+        document.getElementById('receitaDataRecebimento').value = dados.dataRecebimento || '';
+        aplicarVisibilidadeDataRecebimento();
+        if (dados.dataRecebimento) {
+            document.getElementById('receitaDataRecebimento').value = dados.dataRecebimento;
+        }
+
+        abrirModal('modalReceita');
+    } catch (err) {
+        toast('Erro ao carregar dados da receita.', true);
+    }
+}
+
 function corpoFormulario() {
     const body = new URLSearchParams();
     const id = document.getElementById('receitaId').value;

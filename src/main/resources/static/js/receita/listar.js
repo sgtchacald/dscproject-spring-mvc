@@ -1,7 +1,7 @@
 import { getJson } from '../comum/http.js';
 import { semAcento, dataBr } from '../comum/ui.js';
 import { inicializarFiltro, obterFiltroAtual, abrirModalFiltro } from './modal-filtro.js';
-import { inicializarForm, EVENTO_ALTERADO } from './modal-form.js';
+import { inicializarForm, abrirEdicao, EVENTO_ALTERADO } from './modal-form.js';
 
 const cfg = () => document.getElementById('dadosTelaReceita').dataset;
 
@@ -10,6 +10,8 @@ let ordenacao = { col: 'competencia', asc: false };
 
 const corpo = document.getElementById('corpoTabelaReceitas');
 const rodape = document.getElementById('rodapeContagemReceitas');
+
+const podeManter = () => !!document.querySelector('[data-perm="manter"]');
 
 async function carregar() {
     try {
@@ -126,6 +128,13 @@ function render() {
 
             const valorHtml = `<span class="fw-bold">${formatarMoeda(r.valor)}</span>`;
 
+            let acaoHtml = '';
+            if (podeManter() && !r.excluido) {
+                acaoHtml += `<button type="button" class="btn btn-action" data-acao="editar" data-id="${r.id}" title="Editar receita" aria-label="Editar receita">
+                    <i class="ph ph-pencil-simple" aria-hidden="true"></i>
+                </button> `;
+            }
+
             tr.innerHTML = `
                 <td>${formatarCompetencia(r.competencia)}</td>
                 <td><strong>${r.nome}</strong></td>
@@ -136,7 +145,7 @@ function render() {
                 <td>${badgeSituacao(r)}</td>
                 <td>${r.dataRecebimento ? dataBr(r.dataRecebimento) : '<span class="text-muted">—</span>'}</td>
                 <td>${labelOrigem(r.origem)}</td>
-                <td></td>
+                <td><div class="d-flex gap-1">${acaoHtml}</div></td>
             `;
 
             corpo.appendChild(tr);
@@ -144,6 +153,19 @@ function render() {
     }
 
     rodape.textContent = `Mostrando ${lista.length} de ${todas.length} receitas`;
+}
+
+function inicializarAcoes() {
+    corpo.addEventListener('click', function (e) {
+        const btn = e.target.closest('button[data-acao]');
+        if (!btn) return;
+        const acao = btn.dataset.acao;
+        const id = btn.dataset.id;
+
+        if (acao === 'editar') {
+            abrirEdicao(id);
+        }
+    });
 }
 
 function inicializarOrdenacao() {
@@ -165,6 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
     inicializarForm();
     inicializarFiltro(() => render());
     inicializarOrdenacao();
+    inicializarAcoes();
 
     const btnFiltrar = document.getElementById('btnFiltrar');
     if (btnFiltrar) {

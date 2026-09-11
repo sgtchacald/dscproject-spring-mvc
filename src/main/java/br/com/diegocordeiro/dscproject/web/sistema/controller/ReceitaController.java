@@ -1,5 +1,6 @@
 package br.com.diegocordeiro.dscproject.web.sistema.controller;
 
+import br.com.diegocordeiro.dscproject.dto.receita.ReceitaEdicaoDTO;
 import br.com.diegocordeiro.dscproject.dto.receita.ReceitaFormDTO;
 import br.com.diegocordeiro.dscproject.dto.receita.ReceitaGridDTO;
 import br.com.diegocordeiro.dscproject.model.Usuario;
@@ -23,7 +24,9 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.security.Principal;
@@ -89,6 +92,30 @@ public class ReceitaController {
 
         receitaService.inserir(dto, usuario.getId(), usuario.getLogin());
         return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.receita.cadastrada", locale)));
+    }
+
+    @GetMapping("/receitas/buscar/{id}")
+    @ResponseBody
+    public ReceitaEdicaoDTO buscar(@PathVariable Long id, Principal principal) {
+        Usuario usuario = obterUsuarioAutenticado(principal);
+        return receitaService.buscarParaEdicao(id, usuario.getId());
+    }
+
+    @PutMapping("/receitas/editar/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> editar(@PathVariable Long id, @ModelAttribute ReceitaFormDTO dto, Principal principal, Locale locale) {
+        Usuario usuario = obterUsuarioAutenticado(principal);
+        // RN02 - resolve a posse antes de qualquer outra validação: id de receita de outro usuário é sempre 404.
+        receitaService.buscarPorIdEUsuario(id, usuario.getId());
+        dto.setId(id);
+
+        BindingResult resultado = validar(dto, usuario.getId(), locale);
+        if (resultado.hasErrors()) {
+            return respostaErros(resultado);
+        }
+
+        receitaService.editar(id, dto, usuario.getId(), usuario.getLogin());
+        return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.receita.atualizada", locale)));
     }
 
     private Usuario obterUsuarioAutenticado(Principal principal) {

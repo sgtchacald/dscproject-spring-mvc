@@ -261,4 +261,103 @@ class ReceitaServiceTest {
         assertEquals("categoriaId", ex.getCampo());
         verify(receitaRepository, never()).save(any());
     }
+
+    @Test
+    @DisplayName("BDD 16.3 - Buscar receita de outro usuário lança RegistroNaoEncontradoException (404)")
+    void buscarParaEdicao_quandoReceitaDeOutroUsuario_deveLancarRegistroNaoEncontradoException() {
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(70L, 1L)).thenReturn(Optional.empty());
+
+        assertThrows(br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException.class,
+            () -> receitaService.buscarParaEdicao(70L, 1L));
+    }
+
+    @Test
+    @DisplayName("EDP03 - Buscar receita do próprio usuário mapeia todos os campos de edição")
+    void buscarParaEdicao_quandoReceitaDoUsuario_deveMapearCampos() {
+        Receita receita = criarReceita(5L, 1L, true, false);
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(5L, 1L)).thenReturn(Optional.of(receita));
+
+        var dto = receitaService.buscarParaEdicao(5L, 1L);
+
+        assertEquals(5L, dto.getId());
+        assertEquals(YearMonth.of(2026, 9), dto.getCompetencia());
+        assertEquals("Salário", dto.getNome());
+        assertTrue(dto.isRecebido());
+        assertEquals(10L, dto.getContaId());
+        assertEquals(20L, dto.getCategoriaId());
+        assertEquals(OrigemLancamento.MANUAL, dto.getOrigem());
+    }
+
+    @Test
+    @DisplayName("BDD 16.4 - Editar receita de outro usuário lança RegistroNaoEncontradoException (404) e não altera nada")
+    void editar_quandoReceitaDeOutroUsuario_deveLancarExcecaoENaoSalvar() {
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(70L, 1L)).thenReturn(Optional.empty());
+
+        ReceitaFormDTO dto = dtoValido();
+        assertThrows(br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException.class,
+            () -> receitaService.editar(70L, dto, 1L, "user1"));
+        verify(receitaRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("RN02/RN10 - Editar receita MANUAL do próprio usuário atualiza os campos e revalida a conta")
+    void editar_receitaManualComDadosValidos_deveAtualizarCampos() {
+        Receita existente = criarReceita(5L, 1L, false, false);
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(5L, 1L)).thenReturn(Optional.of(existente));
+
+        Conta novaConta = contaAtiva(11L, 1L);
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(11L, 1L)).thenReturn(Optional.of(novaConta));
+        when(receitaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        ReceitaFormDTO dto = dtoValido();
+        dto.setId(5L);
+        dto.setContaId(11L);
+        dto.setNome("Salário Atualizado");
+
+        Receita editada = receitaService.editar(5L, dto, 1L, "user1");
+
+        assertEquals("Salário Atualizado", editada.getNome());
+        assertEquals(11L, editada.getConta().getId());
+        verify(receitaRepository).save(existente);
+    }
+
+    @Test
+    @DisplayName("RN08 - Editar receita do Open Finance ignora a conta enviada e preserva a original")
+    void editar_receitaOpenFinance_devePreservarContaEOrigemOriginais() {
+        Receita existente = criarReceita(6L, 1L, false, false);
+        existente.setOrigem(OrigemLancamento.OPEN_FINANCE);
+        Long contaOriginalId = existente.getConta().getId();
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(6L, 1L)).thenReturn(Optional.of(existente));
+        when(receitaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        ReceitaFormDTO dto = dtoValido();
+        dto.setId(6L);
+        dto.setContaId(999L); // deve ser ignorado
+        dto.setNome("PIX recebido - categorizado");
+
+        Receita editada = receitaService.editar(6L, dto, 1L, "user1");
+
+        assertEquals(contaOriginalId, editada.getConta().getId());
+        assertEquals(OrigemLancamento.OPEN_FINANCE, editada.getOrigem());
+        assertEquals("PIX recebido - categorizado", editada.getNome());
+        verify(contaRepository, never()).findByIdAndUsuarioIdAndDataExclusaoIsNull(999L, 1L);
+    }
+
+    @Test
+    @DisplayName("RN06 - Editar desmarcando recebido limpa a data de recebimento")
+    void editar_desmarcandoRecebido_deveLimparDataRecebimento() {
+        Receita existente = criarReceita(7L, 1L, true, false);
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(7L, 1L)).thenReturn(Optional.of(existente));
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L)));
+        when(receitaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        ReceitaFormDTO dto = dtoValido();
+        dto.setId(7L);
+        dto.setRecebido(false);
+
+        Receita editada = receitaService.editar(7L, dto, 1L, "user1");
+
+        assertFalse(editada.isRecebido());
+        assertNull(editada.getDataRecebimento());
+    }
 }
