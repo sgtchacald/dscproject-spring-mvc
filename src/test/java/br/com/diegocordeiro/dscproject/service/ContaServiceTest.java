@@ -145,6 +145,30 @@ class ContaServiceTest {
     }
 
     @Test
+    @DisplayName("RN05 - Moeda informada deve ser normalizada para maiúsculas")
+    void inserir_comMoedaEmMinusculas_deveSalvarEmMaiusculas() {
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(criarUsuario(1L, "user1")));
+        when(contaRepository.contarPorUsuarioEDescricao(1L, "Conta em Dólar", null)).thenReturn(0L);
+
+        InstituicaoFinanceira inst = new InstituicaoFinanceira();
+        inst.setId(5L);
+        inst.setNome("XP Investimentos");
+        inst.setAtivo(true);
+
+        when(instituicaoFinanceiraRepository.findByIdAndDataExclusaoIsNull(5L)).thenReturn(Optional.of(inst));
+        when(contaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        ContaFormDTO dto = new ContaFormDTO();
+        dto.setDescricao("Conta em Dólar");
+        dto.setInstituicaoId(5L);
+        dto.setTipo(TipoConta.INVESTIMENTO);
+        dto.setMoeda("usd");
+
+        Conta salva = contaService.inserir(dto, 1L, "user1");
+        assertEquals("USD", salva.getMoeda());
+    }
+
+    @Test
     @DisplayName("RN02 - Buscar conta de outro usuário deve lançar RegistroNaoEncontradoException (404)")
     void buscarParaEdicao_quandoContaDeOutroUsuario_deveLancarRegistroNaoEncontradoException() {
         when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(99L, 1L)).thenReturn(Optional.empty());

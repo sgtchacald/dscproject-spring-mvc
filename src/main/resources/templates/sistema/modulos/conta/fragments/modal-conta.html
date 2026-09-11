@@ -6,7 +6,6 @@
         <div class="modal-content">
             <form id="formConta" novalidate>
                 <input type="hidden" id="contaId" name="id">
-                <input type="hidden" id="contaMoeda" name="moeda" value="BRL">
 
                 <div class="modal-header">
                     <h5 class="modal-title" id="tituloModalConta" th:text="#{conta.form.titulo.novo}">Nova conta</h5>
@@ -15,7 +14,7 @@
                 <div class="modal-body">
                     <div id="alertaFormConta" class="alert alert-danger" style="display:none;" role="alert"></div>
 
-                    <div class="alert alert-info d-flex align-items-center mb-3" id="avisoConta" style="display:none;" role="alert">
+                    <div class="alert alert-info align-items-center mb-3" id="avisoConta" style="display:none;" role="alert">
                         <i class="ph ph-info alert-icon me-2" aria-hidden="true"></i>
                         <div id="avisoContaTexto"></div>
                     </div>
@@ -40,10 +39,7 @@
                             <label class="form-label required" for="contaTipo" th:text="#{conta.form.campo.tipo.label}">Tipo de Conta</label>
                             <select class="form-select" id="contaTipo" name="tipo" required>
                                 <option value="" th:text="#{conta.form.campo.tipo.selecione}">Selecione…</option>
-                                <option value="CORRENTE" th:text="#{conta.tipo.corrente}">Conta Corrente</option>
-                                <option value="POUPANCA" th:text="#{conta.tipo.poupanca}">Poupança</option>
-                                <option value="INVESTIMENTO" th:text="#{conta.tipo.investimento}">Investimento</option>
-                                <option value="CARTEIRA" th:text="#{conta.tipo.carteira}">Carteira (Dinheiro Físico)</option>
+                                <option th:each="t : ${tipos}" th:value="${t.codigo}" th:text="${t.descricao}">Corrente</option>
                             </select>
                             <div class="invalid-feedback" id="erroTipo"></div>
                         </div>
@@ -79,12 +75,21 @@
                         </div>
                     </div>
 
-                    <div class="mb-3" id="grupoSaldoInicial">
-                        <label class="form-label" for="contaSaldoInicial" th:text="#{conta.form.campo.saldoInicial.label}">Saldo Inicial (R$)</label>
-                        <input type="text" class="form-control" id="contaSaldoInicial" name="saldoInicial"
-                               th:placeholder="#{conta.form.campo.saldoInicial.placeholder}" value="0,00">
-                        <small class="form-hint" th:text="#{conta.form.campo.saldoInicial.hint}">Definido apenas na criação da conta. Para correções posteriores, use o Ajuste de Saldo.</small>
-                        <div class="invalid-feedback" id="erroSaldoInicial"></div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required" for="contaMoeda" th:text="#{conta.form.campo.moeda.label}">Moeda</label>
+                            <select class="form-select" id="contaMoeda" name="moeda" required>
+                                <option th:each="m : ${moedas}" th:value="${m}" th:text="${m}" th:selected="${m == 'BRL'}">BRL</option>
+                            </select>
+                            <div class="invalid-feedback" id="erroMoeda"></div>
+                        </div>
+                        <div class="col-md-6 mb-3" id="grupoSaldoInicial">
+                            <label class="form-label" for="contaSaldoInicial" th:text="#{conta.form.campo.saldoInicial.label}">Saldo Inicial (R$)</label>
+                            <input type="text" class="form-control" id="contaSaldoInicial" name="saldoInicial"
+                                   th:placeholder="#{conta.form.campo.saldoInicial.placeholder}" value="0,00">
+                            <small class="form-hint" th:text="#{conta.form.campo.saldoInicial.hint}">Definido apenas na criação da conta. Para correções posteriores, use o Ajuste de Saldo.</small>
+                            <div class="invalid-feedback" id="erroSaldoInicial"></div>
+                        </div>
                     </div>
 
                     <div class="row align-items-center mb-3">
@@ -107,7 +112,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal" th:text="#{conta.form.botao.cancelar}">Cancelar</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" th:text="#{conta.form.botao.cancelar}">Cancelar</button>
                     <button type="submit" class="btn btn-primary" id="btnSalvarConta" th:text="#{conta.form.botao.salvar}">Salvar</button>
                 </div>
             </form>

@@ -52,6 +52,7 @@ export async function abrirNovo() {
     document.getElementById('contaId').value = '';
     document.getElementById('tituloModalConta').textContent = cfg().labelNovo || 'Nova conta';
     document.getElementById('contaConsideraSaldo').checked = true;
+    document.getElementById('contaMoeda').value = 'BRL';
 
     // Campos de criação
     document.getElementById('contaInstituicaoId').disabled = false;
@@ -90,6 +91,7 @@ export async function abrirEdicao(id) {
         document.getElementById('hintInstituicao').style.display = 'block';
 
         document.getElementById('contaTipo').value = dados.tipo || '';
+        document.getElementById('contaMoeda').value = dados.moeda || 'BRL';
         document.getElementById('contaAgencia').value = dados.agencia || '';
         document.getElementById('contaNumero').value = dados.numero || '';
         document.getElementById('contaNomeGerente').value = dados.nomeGerente || '';
@@ -191,6 +193,7 @@ export function inicializarForm() {
         body.append('descricao', document.getElementById('contaDescricao').value || '');
         body.append('instituicaoId', document.getElementById('contaInstituicaoId').value || '');
         body.append('tipo', document.getElementById('contaTipo').value || '');
+        body.append('moeda', document.getElementById('contaMoeda').value || 'BRL');
         body.append('agencia', document.getElementById('contaAgencia').value || '');
         body.append('numero', document.getElementById('contaNumero').value || '');
         body.append('nomeGerente', document.getElementById('contaNomeGerente').value || '');

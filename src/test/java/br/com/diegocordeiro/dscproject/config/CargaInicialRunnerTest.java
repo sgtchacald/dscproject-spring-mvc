@@ -1,5 +1,6 @@
 package br.com.diegocordeiro.dscproject.config;
 
+import br.com.diegocordeiro.dscproject.config.runner.CargaInicialRunner;
 import br.com.diegocordeiro.dscproject.model.Perfil;
 import br.com.diegocordeiro.dscproject.model.Permissao;
 import br.com.diegocordeiro.dscproject.model.Usuario;

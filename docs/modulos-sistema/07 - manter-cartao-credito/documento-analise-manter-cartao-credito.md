@@ -127,7 +127,7 @@ Este documento cobre **apenas o cadastro do cartão**:
 
 ## 4. Casos de Uso
 
-[Inserir o diagrama de casos de uso — `prototipo/manter-cartao-credito-casos-uso.drawio` + `images/manter-cartao-credito-casos-uso.png` — quando gerado.]
+![Casos de Uso - Manter Cartão de Crédito](images/manter-cartao-credito-casos-uso.png)
 
 | CÓDIGO | NOME | ATOR PRINCIPAL | DESCRIÇÃO |
 |---|---|---|---|
@@ -176,7 +176,7 @@ Toda a estrutura está no **Documento 0** (`00 - analise-geral`). Este documento
 
 ### 6.1 Diagrama ER
 
-[Inserir `images/manter-cartao-credito-der.png` quando gerado — subconjunto do DER do Documento 0: `CARTOES_CREDITO`, a FK `CTA_ID` para `CONTAS`, a FK `USU_ID` para `USUARIOS` e as FKs `CACR_ID` em `DESPESAS` e `FATURAS_CARTAO`. Fonte: `prototipo/manter-cartao-credito-der.drawio`.]
+![DER - Manter Cartão de Crédito](images/manter-cartao-credito-der.png)
 
 ### 6.2 Auditoria de Tabelas
 
@@ -192,11 +192,11 @@ Nenhuma. O escopo por usuário, a contagem de vínculos e as validações de cam
 
 ## 7. Protótipos de Interface
 
-Protótipo navegável e wireframes: `prototipo/manter-cartao-credito-prototipo.html` e `prototipo/manter-cartao-credito-prototipo.drawio` (a gerar). Os números em destaque nas telas correspondem aos IDs dos itens do respectivo QUADRO_DESCRITIVO.
+Protótipo navegável e wireframes: `prototipo/manter-cartao-credito-prototipo.html` e `prototipo/manter-cartao-credito-prototipo.drawio`. Os números em destaque nas telas correspondem aos IDs dos itens do respectivo QUADRO_DESCRITIVO.
 
 ### <a id="quadro-descritivo-1"></a>7.1 Tela: Meus Cartões (Listagem) — QUADRO_DESCRITIVO_1
 
-[Inserir `images/mcc-tela-1.png` quando gerado.]
+![Meus Cartões - Listagem](images/mcc-tela-1.png)
 
 > OBSERVAÇÕES: Tela acessada via 'Finanças > Cartões'. Restrita a quem tem [PERM01](#perm01). Grid client-side. Lista **somente os cartões do usuário autenticado** ([RN02](#rn02)). O filtro é acionado por um modal (botão "Filtrar").
 
@@ -220,7 +220,7 @@ Protótipo navegável e wireframes: `prototipo/manter-cartao-credito-prototipo.h
 
 ### <a id="quadro-descritivo-2"></a>7.2 Modal: Filtrar Cartões — QUADRO_DESCRITIVO_2
 
-[Inserir `images/mcc-tela-2.png` quando gerado.]
+![Modal Filtrar Cartões](images/mcc-tela-2.png)
 
 > OBSERVAÇÕES: Todos os campos são opcionais. O filtro é aplicado em memória sobre a lista já carregada ([RT02](#rt02)).
 
@@ -235,7 +235,7 @@ Protótipo navegável e wireframes: `prototipo/manter-cartao-credito-prototipo.h
 
 ### <a id="quadro-descritivo-3"></a>7.3 Modal: Cadastro / Edição de Cartão — QUADRO_DESCRITIVO_3
 
-[Inserir `images/mcc-tela-3.png` quando gerado.]
+![Modal Cadastro / Edição de Cartão](images/mcc-tela-3.png)
 
 > OBSERVAÇÕES: Modal único de cadastro e edição, restrito a [PERM02](#perm02). Ao editar, o cartão precisa pertencer ao usuário autenticado ([RN02](#rn02)). O campo Situação (ativo) só aparece na edição. A conta de débito é opcional.
 
@@ -560,7 +560,7 @@ Descrição: Levantamento a partir do Documento 0 (Observação 15; [QUADRO_DESC
 
 ## 18. Anexos
 
-- **Pendência (v1.0):** gerar o diagrama de casos de uso (`prototipo/manter-cartao-credito-casos-uso.drawio` + PNG), o DER do subconjunto (`prototipo/manter-cartao-credito-der.drawio` + `images/manter-cartao-credito-der.png`), os wireframes das três telas/modais (`prototipo/manter-cartao-credito-prototipo.drawio` + `images/mcc-tela-*.png`) e o protótipo navegável (`prototipo/manter-cartao-credito-prototipo.html`).
+- **Protótipo e diagramas (v1.0):** gerados. Casos de uso (`prototipo/manter-cartao-credito-casos-uso.drawio` + `images/manter-cartao-credito-casos-uso.png`), DER do subconjunto (`prototipo/manter-cartao-credito-der.drawio` + `images/manter-cartao-credito-der.png`), wireframes das três telas/modais (`prototipo/manter-cartao-credito-prototipo.drawio` + `images/mcc-tela-1..3.png`) e protótipo navegável (`prototipo/manter-cartao-credito-prototipo.html`, espelhando o Tabler/Bootstrap real de `conta/listar.html` e `conta/fragments/modal-*.html`). PNGs regeráveis por `prototipo/render-pngs.py` (Playwright); diagramas `.drawio` por `prototipo/gen-diagramas.py`.
 - Documento 0 — Fundação: `../00 - analise-geral/documento-0-fundacao.md` ([QUADRO_DESCRITIVO_6](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-6), [QUADRO_DESCRITIVO_5](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-5), [QUADRO_DESCRITIVO_8](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-8), [QUADRO_DESCRITIVO_10](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-10)).
 - Documento `04 - manter-categoria`: `../04 - manter-categoria/documento-analise-manter-categoria.md` (trava de exclusão com oferta de desativar espelhada aqui — RN06 → [RN08](#rn08)).
 - Documento `06 - manter-conta`: `../06 - manter-conta/documento-analise-manter-conta.md` (modelo de dado-do-usuário e endpoint de opções de contas consumido por [SB02](#sb02)) — em elaboração em paralelo.
