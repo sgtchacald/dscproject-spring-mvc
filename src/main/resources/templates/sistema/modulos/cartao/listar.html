@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{sistema/template-admin/layout}">
+<head>
+    <title th:text="#{cartao.lista.titulo}">Meus Cartões</title>
+</head>
+<body>
+
+<div layout:fragment="cabecalho">
+    <div class="row g-2 align-items-center">
+        <div class="col">
+            <h2 class="page-title" th:text="#{cartao.lista.cabecalho}">Meus Cartões</h2>
+            <br><br>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/}">
+                            <i class="ph ph-house" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item" th:text="#{cartao.lista.breadcrumb.pai}">Finanças</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{cartao.lista.titulo}">Meus Cartões</li>
+                </ol>
+            </nav>
+            <br>
+            <div class="text-secondary mt-1" th:text="#{cartao.lista.descricao}">
+                Cadastre os seus cartões de crédito e defina os dias de fechamento e vencimento da fatura.
+            </div>
+        </div>
+        <div class="col-auto ms-auto">
+            <button class="btn" id="btnFiltrar" data-bs-toggle="modal" data-bs-target="#modalFiltroCartao">
+                <i class="ph ph-funnel" aria-hidden="true"></i>
+                <span th:text="#{cartao.lista.botao.filtrar}">Filtrar</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<section layout:fragment="corpo">
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table" id="tabelaCartoes">
+                <thead>
+                <tr>
+                    <th data-col="descricao" class="sortable" role="button" th:text="#{cartao.col.descricao}">Descrição</th>
+                    <th data-col="bandeira" class="sortable" role="button" th:text="#{cartao.col.bandeira}">Bandeira</th>
+                    <th data-col="finalCartao" th:text="#{cartao.col.final}">Final</th>
+                    <th data-col="limite" class="sortable text-end" role="button" th:text="#{cartao.col.limite}">Limite</th>
+                    <th data-col="fechamentoVencimento" th:text="#{cartao.col.fechamentoVencimento}">Fechamento / Vencimento</th>
+                    <th data-col="contaDebito" class="sortable" role="button" th:text="#{cartao.col.contaDebito}">Conta de Débito</th>
+                    <th data-col="situacao" class="sortable" role="button" th:text="#{cartao.col.situacao}">Situação</th>
+                    <th class="w-1" th:text="#{cartao.col.acoes}">Ações</th>
+                </tr>
+                </thead>
+                <tbody id="corpoTabelaCartoes"></tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-secondary" id="rodapeContagemCartoes"></p>
+        </div>
+    </div>
+
+    <div th:replace="~{sistema/modulos/cartao/fragments/modal-filtro :: modal}"></div>
+
+    <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
+
+    <span sec:authorize="hasAuthority('PERM_CARTOES_MANTER')" data-perm="manter" hidden></span>
+
+    <div id="dadosTelaCartao"
+         th:data-url-dados="@{/cartoes/listar-dados}"
+         th:data-msg-filtro-vazio="#{msg.cartao.filtro.vazio}"
+         th:data-label-ativo="#{cartao.badge.ativo}"
+         th:data-label-inativo="#{cartao.badge.inativo}"
+         th:data-label-excluido="#{cartao.badge.excluido}"
+         th:data-label-conta-nao-definida="#{cartao.conta.naoDefinida}"
+         hidden></div>
+</section>
+
+<th:block layout:fragment="js">
+    <script type="module" th:src="@{/js/cartao/listar.js}"></script>
+</th:block>
+</body>
+</html>

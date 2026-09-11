@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="modal modal-blur fade" id="modalFiltroCartao" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{cartao.filtro.titulo}">Filtrar Cartões</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="filtroBusca" th:text="#{cartao.filtro.busca.label}">Busca</label>
+                    <input type="text" class="form-control" id="filtroBusca"
+                           th:placeholder="#{cartao.filtro.busca.placeholder}">
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="filtroBandeira" th:text="#{cartao.filtro.bandeira.label}">Bandeira</label>
+                        <select class="form-select" id="filtroBandeira">
+                            <option value="" th:text="#{cartao.filtro.todas}">Todas</option>
+                            <option th:each="b : ${bandeiras}" th:value="${b.codigo}" th:text="${b.descricao}">Visa</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="filtroSituacao" th:text="#{cartao.filtro.situacao.label}">Situação</label>
+                        <select class="form-select" id="filtroSituacao">
+                            <option value="ATIVO" selected th:text="#{cartao.badge.ativo}">Ativo</option>
+                            <option value="INATIVO" th:text="#{cartao.badge.inativo}">Inativo</option>
+                            <option value="EXCLUIDO" th:text="#{cartao.badge.excluido}">Excluído</option>
+                            <option value="TODAS" th:text="#{cartao.filtro.todas}">Todas</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link link-secondary me-auto" id="btnLimparFiltro" th:text="#{cartao.filtro.limpar}">Limpar</button>
+                <button type="button" class="btn btn-primary" id="btnAplicarFiltro" th:text="#{cartao.filtro.aplicar}">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
