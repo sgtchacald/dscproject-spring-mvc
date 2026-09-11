@@ -43,5 +43,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addConverter(new StringToGeneroConverter());
         registry.addConverter(new br.com.diegocordeiro.dscproject.web.sistema.converter.StringToAplicaAConverter());
         registry.addConverter(new br.com.diegocordeiro.dscproject.web.sistema.converter.StringToTipoInstituicaoFinanceiraConverter());
+        registry.addConverter(new br.com.diegocordeiro.dscproject.web.sistema.converter.StringToTipoContaConverter());
     }
 }

@@ -123,6 +123,18 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/instituicoes-provedor/excluir/**")
                     .hasAuthority("PERM_INSTITUICOES_PROVEDOR_MANTER")
 
+                // Contas do Usuário (Minhas Contas) — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/contas/listar", "/contas/listar-dados", "/contas/opcoes")
+                    .hasAuthority("PERM_CONTAS_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/contas/buscar/**")
+                    .hasAuthority("PERM_CONTAS_MANTER")
+                .requestMatchers(HttpMethod.POST, "/contas/inserir")
+                    .hasAuthority("PERM_CONTAS_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/contas/editar/**", "/contas/desativar/**", "/contas/ajustar-saldo/**")
+                    .hasAuthority("PERM_CONTAS_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/contas/excluir/**")
+                    .hasAuthority("PERM_CONTAS_MANTER")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

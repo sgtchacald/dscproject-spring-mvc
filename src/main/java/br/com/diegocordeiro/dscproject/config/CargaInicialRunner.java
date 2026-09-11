@@ -75,7 +75,7 @@ public class CargaInicialRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         Perfil admin = obterOuCriarPerfil("ADMIN", "Administrador",
             "Administrador do sistema. Recebe todas as permissões.", true);
-        obterOuCriarPerfil("USER", "Usuário",
+        Perfil user = obterOuCriarPerfil("USER", "Usuário",
             "Usuário comum. É o perfil do auto-cadastro.", true);
 
         if (sincronizarCatalogoNaInicializacao) {
@@ -87,6 +87,9 @@ public class CargaInicialRunner implements ApplicationRunner {
         for (Permissao permissao : permissaoRepository.findAll()) {
             if (!permissao.isOrfa()) {
                 vincular(admin, permissao);
+                if ("CONTAS_LISTAR".equals(permissao.getCodigo()) || "CONTAS_MANTER".equals(permissao.getCodigo())) {
+                    vincular(user, permissao);
+                }
             }
         }
 

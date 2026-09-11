@@ -18,6 +18,9 @@ public interface UsuarioRepository
     /** Autenticação por login OU e-mail (AutorizacaoService). */
     Usuario findByLoginOrEmail(String login, String email);
 
+    /** Busca usuário pelo login. */
+    Optional<Usuario> findByLogin(String login);
+
     /** Trava de exclusão de perfil: existe algum usuário (ativo ou excluído) apontando para ele. */
     boolean existsByPerfil(Perfil perfil);
 
