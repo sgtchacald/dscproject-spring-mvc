@@ -88,6 +88,19 @@ class ContaControllerTest {
     }
 
     @Test
+    @DisplayName("SB01 - O combobox de tipo de conta vem do enum TipoConta, não de <option> fixa no HTML")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_LISTAR")
+    void listar_deveRenderizarOsQuatroTiposDeContaDoEnum() throws Exception {
+        mockMvc.perform(get("/contas/listar"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.allOf(
+                        org.hamcrest.Matchers.containsString("value=\"CORRENTE\""),
+                        org.hamcrest.Matchers.containsString("value=\"POUPANCA\""),
+                        org.hamcrest.Matchers.containsString("value=\"INVESTIMENTO\""),
+                        org.hamcrest.Matchers.containsString("value=\"CARTEIRA\""))));
+    }
+
+    @Test
     @DisplayName("Bloquear acesso de usuário sem permissão à listagem de contas")
     @WithMockUser(username = "user_teste", authorities = "ROLE_USER")
     void listar_semPermissao_deveRetornar403() throws Exception {
