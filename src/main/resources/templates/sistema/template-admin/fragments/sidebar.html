@@ -16,106 +16,68 @@
         </div>
 
         <!-- BEGIN MENU -->
-        <div class="collapse navbar-collapse" id="sidebar-menu">
+        <div class="collapse navbar-collapse" id="sidebar-menu"
+             th:with="uri=${uriAtual != null ? uriAtual : ''}">
             <ul class="navbar-nav pt-lg-3">
-                <li class="nav-item">
+                <li class="nav-item" th:classappend="${uri == '/' or uri == ''} ? 'active'">
                     <a class="nav-link" href="./">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                                <polyline points="9 22 9 12 15 12 15 22"/>
-                            </svg>
+                            <i class="ph ph-house" aria-hidden="true"></i>
                         </span>
                         <span class="nav-link-title"> Home </span>
                     </a>
                 </li>
 
                 <li class="nav-item dropdown"
-                    sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR') or hasAuthority('PERM_PERFIS_LISTAR') or hasAuthority('PERM_PARAMETROS_LISTAR')">
+                    sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR') or hasAuthority('PERM_PERFIS_LISTAR') or hasAuthority('PERM_PARAMETROS_LISTAR') or hasAuthority('PERM_CATEGORIAS_LISTAR') or hasAuthority('PERM_CATEGORIAS_PROVEDOR_LISTAR')"
+                    th:with="grupoAtivo=${#strings.startsWith(uri, '/usuarios/') or #strings.startsWith(uri, '/perfis/') or #strings.startsWith(uri, '/parametros/') or #strings.startsWith(uri, '/categorias/') or #strings.startsWith(uri, '/categorias-provedor/')}"
+                    th:classappend="${grupoAtivo} ? 'active'">
                     <a class="nav-link dropdown-toggle" href="#navbar-admin" data-bs-toggle="dropdown"
-                       data-bs-auto-close="false" role="button" aria-expanded="false">
+                       data-bs-auto-close="false" role="button" aria-expanded="false"
+                       th:classappend="${grupoAtivo} ? 'show'" th:attr="aria-expanded=${grupoAtivo}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="icon">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                            </svg>
+                            <i class="ph ph-gear" aria-hidden="true"></i>
                         </span>
                         <span class="nav-link-title">Administração</span>
                     </a>
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu" th:classappend="${grupoAtivo} ? 'show'">
                         <a class="dropdown-item" th:href="@{/usuarios/listar}"
-                           sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="icon dropdown-item-icon">
-                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                                <circle cx="12" cy="7" r="4"/>
-                            </svg>
+                           sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/usuarios/')} ? 'active'">
+                            <i class="ph ph-users dropdown-item-icon" aria-hidden="true"></i>
                             <span th:text="#{menu.usuarios}">Usuários</span>
                         </a>
                         <a class="dropdown-item" th:href="@{/perfis/listar}"
-                           sec:authorize="hasAuthority('PERM_PERFIS_LISTAR')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="icon dropdown-item-icon">
-                                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
-                            </svg>
+                           sec:authorize="hasAuthority('PERM_PERFIS_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/perfis/')} ? 'active'">
+                            <i class="ph ph-shield-check dropdown-item-icon" aria-hidden="true"></i>
                             <span th:text="#{menu.perfis-permissoes}">Perfis e Permissões</span>
                         </a>
                         <a class="dropdown-item" th:href="@{/parametros/listar}"
-                           sec:authorize="hasAuthority('PERM_PARAMETROS_LISTAR')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="icon dropdown-item-icon">
-                                <line x1="4" x2="4" y1="21" y2="14"/>
-                                <line x1="4" x2="4" y1="10" y2="3"/>
-                                <line x1="12" x2="12" y1="21" y2="12"/>
-                                <line x1="12" x2="12" y1="8" y2="3"/>
-                                <line x1="20" x2="20" y1="21" y2="16"/>
-                                <line x1="20" x2="20" y1="12" y2="3"/>
-                                <line x1="2" x2="6" y1="14" y2="14"/>
-                                <line x1="10" x2="14" y1="8" y2="8"/>
-                                <line x1="18" x2="22" y1="16" y2="16"/>
-                            </svg>
+                           sec:authorize="hasAuthority('PERM_PARAMETROS_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/parametros/')} ? 'active'">
+                            <i class="ph ph-sliders-horizontal dropdown-item-icon" aria-hidden="true"></i>
                             <span th:text="#{menu.parametros-globais}">Parâmetros Globais</span>
                         </a>
                         <a class="dropdown-item" th:href="@{/categorias/listar}"
-                           sec:authorize="hasAuthority('PERM_CATEGORIAS_LISTAR')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="icon dropdown-item-icon">
-                                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-                                <line x1="7" y1="7" x2="7.01" y2="7"/>
-                            </svg>
+                           sec:authorize="hasAuthority('PERM_CATEGORIAS_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/categorias/')} ? 'active'">
+                            <i class="ph ph-tag dropdown-item-icon" aria-hidden="true"></i>
                             <span th:text="#{menu.categorias}">Categorias</span>
                         </a>
                         <a class="dropdown-item" th:href="@{/categorias-provedor/listar}"
-                           sec:authorize="hasAuthority('PERM_CATEGORIAS_PROVEDOR_LISTAR')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="icon dropdown-item-icon">
-                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                            </svg>
+                           sec:authorize="hasAuthority('PERM_CATEGORIAS_PROVEDOR_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/categorias-provedor/')} ? 'active'">
+                            <i class="ph ph-link dropdown-item-icon" aria-hidden="true"></i>
                             <span th:text="#{menu.categorias-provedor}">Categorias por Provedor</span>
                         </a>
                     </div>
                 </li>
 
-                <li class="nav-item mt-auto">
+                <li class="nav-item mt-auto" th:classappend="${#strings.startsWith(uri, '/minha-conta')} ? 'active'">
                     <a class="nav-link" th:href="@{/minha-conta}" th:title="#{minha-conta.pagina.titulo}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="icon">
-                                <circle cx="12" cy="12" r="10"/>
-                                <circle cx="12" cy="10" r="3"/>
-                                <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/>
-                            </svg>
+                            <i class="ph ph-user-circle" aria-hidden="true"></i>
                         </span>
                         <span class="nav-link-title" sec:authentication="name">Usuário</span>
                     </a>
@@ -123,13 +85,7 @@
                 <li class="nav-item">
                     <form th:action="@{/logout}" method="post" class="nav-link p-0">
                         <button type="submit" class="btn btn-outline-danger btn-sm w-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="icon">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                                <polyline points="16 17 21 12 16 7"/>
-                                <line x1="21" x2="9" y1="12" y2="12"/>
-                            </svg>
+                            <i class="ph ph-sign-out" aria-hidden="true"></i>
                             Sair
                         </button>
                     </form>
