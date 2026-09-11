@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="modal modal-blur fade" id="modalFiltroInstituicao" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{instituicao.filtro.titulo}">Filtrar Instituições</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="filtroBusca" th:text="#{instituicao.filtro.busca.label}">Busca</label>
+                    <input type="text" class="form-control" id="filtroBusca"
+                           th:placeholder="#{instituicao.filtro.busca.placeholder}">
+                    <small class="form-hint" th:text="#{instituicao.filtro.busca.hint}">Parte do nome ou do código — sem acento.</small>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="filtroTipo" th:text="#{instituicao.filtro.tipo.label}">Tipo</label>
+                        <select class="form-select" id="filtroTipo">
+                            <option value="" th:text="#{instituicao.filtro.todos}">Todos</option>
+                            <option value="BANCO" th:text="#{instituicao.tipo.banco}">Banco</option>
+                            <option value="CORRETORA" th:text="#{instituicao.tipo.corretora}">Corretora</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="filtroSituacao" th:text="#{instituicao.filtro.situacao.label}">Situação</label>
+                        <select class="form-select" id="filtroSituacao">
+                            <option value="ATIVA" selected th:text="#{instituicao.badge.ativo}">Ativa</option>
+                            <option value="INATIVA" th:text="#{instituicao.badge.inativo}">Inativa</option>
+                            <option value="EXCLUIDA" th:text="#{instituicao.badge.excluido}">Excluída</option>
+                            <option value="TODAS" th:text="#{instituicao.filtro.todas}">Todas</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link link-secondary me-auto" id="btnLimparFiltro" th:text="#{instituicao.filtro.limpar}">Limpar</button>
+                <button type="button" class="btn btn-primary" id="btnAplicarFiltro" th:text="#{instituicao.filtro.aplicar}">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

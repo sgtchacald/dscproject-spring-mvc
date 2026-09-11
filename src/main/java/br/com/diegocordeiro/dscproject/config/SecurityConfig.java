@@ -97,6 +97,32 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/categorias-provedor/excluir/**")
                     .hasAuthority("PERM_CATEGORIAS_PROVEDOR_EXCLUIR")
 
+                // Instituições Financeiras — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/instituicoes-financeiras/opcoes")
+                    .authenticated()
+                .requestMatchers(HttpMethod.GET, "/instituicoes-financeiras/listar", "/instituicoes-financeiras/listar-dados")
+                    .hasAuthority("PERM_INSTITUICOES_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/instituicoes-financeiras/buscar/**")
+                    .hasAuthority("PERM_INSTITUICOES_MANTER")
+                .requestMatchers(HttpMethod.POST, "/instituicoes-financeiras/inserir")
+                    .hasAuthority("PERM_INSTITUICOES_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/instituicoes-financeiras/editar/**", "/instituicoes-financeiras/desativar/**")
+                    .hasAuthority("PERM_INSTITUICOES_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/instituicoes-financeiras/excluir/**")
+                    .hasAuthority("PERM_INSTITUICOES_MANTER")
+
+                // Instituições por Provedor — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/instituicoes-provedor/listar", "/instituicoes-provedor/listar-dados")
+                    .hasAuthority("PERM_INSTITUICOES_PROVEDOR_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/instituicoes-provedor/buscar/**", "/instituicoes-provedor/provedores-opcoes")
+                    .hasAuthority("PERM_INSTITUICOES_PROVEDOR_MANTER")
+                .requestMatchers(HttpMethod.POST, "/instituicoes-provedor/inserir")
+                    .hasAuthority("PERM_INSTITUICOES_PROVEDOR_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/instituicoes-provedor/editar/**")
+                    .hasAuthority("PERM_INSTITUICOES_PROVEDOR_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/instituicoes-provedor/excluir/**")
+                    .hasAuthority("PERM_INSTITUICOES_PROVEDOR_MANTER")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
