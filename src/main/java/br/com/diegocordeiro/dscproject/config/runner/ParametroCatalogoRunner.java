@@ -1,4 +1,4 @@
-package br.com.diegocordeiro.dscproject.config;
+package br.com.diegocordeiro.dscproject.config.runner;
 
 import br.com.diegocordeiro.dscproject.dto.catalogo.SincronizacaoCatalogoDTO;
 import br.com.diegocordeiro.dscproject.parametro.ParametrosGlobaisCatalogo;

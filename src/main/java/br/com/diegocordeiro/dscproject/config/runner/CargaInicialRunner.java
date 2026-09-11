@@ -1,4 +1,4 @@
-package br.com.diegocordeiro.dscproject.config;
+package br.com.diegocordeiro.dscproject.config.runner;
 
 import br.com.diegocordeiro.dscproject.enums.Genero;
 import br.com.diegocordeiro.dscproject.model.Perfil;
