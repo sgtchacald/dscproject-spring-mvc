@@ -195,9 +195,19 @@ export function inicializarForm() {
 
     document.getElementById('receitaRecebido').addEventListener('change', aplicarVisibilidadeDataRecebimento);
 
-    document.getElementById('receitaCompetencia').addEventListener('input', function () {
+    const marcarCompetenciaEditada = () => {
         competenciaEditadaManualmente = true;
-    });
+    };
+    document.getElementById('receitaCompetencia').addEventListener('input', marcarCompetenciaEditada);
+    document.getElementById('receitaCompetencia').addEventListener('change', marcarCompetenciaEditada);
+
+    const modalEl = document.getElementById('modalReceita');
+    if (modalEl) {
+        modalEl.addEventListener('shown.bs.modal', function () {
+            const input = document.getElementById('receitaCompetencia');
+            if (input) input.focus();
+        });
+    }
 
     document.getElementById('receitaDataLancamento').addEventListener('change', function () {
         if (!competenciaEditadaManualmente) {

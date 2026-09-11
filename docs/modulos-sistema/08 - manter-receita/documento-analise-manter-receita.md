@@ -256,18 +256,18 @@ Protótipo navegável e wireframes: `prototipo/manter-receita-prototipo.html` e 
 
 [Inserir `images/mr-tela-3.png` quando gerado.]
 
-> OBSERVAÇÕES: Modal único de cadastro e edição, restrito a [PERM02](#perm02). A Data de recebimento ([ID10](#qdd3-10)) só aparece e só é obrigatória quando Recebido ([ID9](#qdd3-9)) está em "Sim" ([RT12](#rt12)). Ao editar uma receita importada do Open Finance, os campos Conta ([ID7](#qdd3-7)) e Origem ficam desabilitados e o aviso ([ID11](#qdd3-11)) é exibido ([RN08](#rn08)).
+> OBSERVAÇÕES: Modal único de cadastro e edição, restrito a [PERM02](#perm02). No formulário, os campos Competência ([ID6](#qdd3-6)), Conta ([ID7](#qdd3-7)) e Categoria ([ID8](#qdd3-8)) são apresentados no topo como os primeiros a serem preenchidos. A Data de recebimento ([ID10](#qdd3-10)) só aparece e só é obrigatória quando Recebido ([ID9](#qdd3-9)) está em "Sim" ([RT12](#rt12)). Ao editar uma receita importada do Open Finance, os campos Conta ([ID7](#qdd3-7)) e Origem ficam desabilitados e o aviso ([ID11](#qdd3-11)) é exibido ([RN08](#rn08)).
 
 | ID | NOME | PROPRIEDADES | OBSERVAÇÕES |
 |---|---|---|---|
 | <a id="qdd3-1"></a>1 | TÍTULO DO MODAL | Tipo: Texto<br>Texto: Nova receita / Editar receita | Varia conforme o modo. |
+| <a id="qdd3-6"></a>6 | CAMPO – COMPETÊNCIA | Tipo: Seletor mês/ano<br>Obrigatório: Sim<br>Valor default: mês da data de lançamento | Grava `RECE_COMPETENCIA` (`yyyy-MM`). Ver [SB04](#sb04) e [RN04](#rn04). |
+| <a id="qdd3-7"></a>7 | CAMPO – CONTA | Tipo: Combobox<br>Obrigatório: Sim<br>Domínio: contas ativas do usuário | Grava `CTA_ID`. Ver [SB01](#sb01) e [RN03](#rn03). **Desabilitado** ao editar receita com origem ≠ MANUAL ([RN08](#rn08)). |
+| <a id="qdd3-8"></a>8 | CAMPO – CATEGORIA | Tipo: Combobox<br>Obrigatório: Não<br>Domínio: categorias de receita ativas | Grava `CATE_ID`. Ver [SB02](#sb02). |
 | <a id="qdd3-2"></a>2 | CAMPO – NOME | Tipo: Input Text<br>Tamanho: 100<br>Obrigatório: Sim | Grava `RECE_NOME`. Ex.: "SALÁRIO", "FREELA SITE". |
 | <a id="qdd3-3"></a>3 | CAMPO – DESCRIÇÃO | Tipo: Textarea<br>Tamanho: 512<br>Obrigatório: Não | Grava `RECE_DESCRICAO`. |
 | <a id="qdd3-4"></a>4 | CAMPO – VALOR | Tipo: Input monetário<br>Obrigatório: Sim | Grava `RECE_VALOR`. Deve ser maior que zero ([RN05](#rn05)). |
 | <a id="qdd3-5"></a>5 | CAMPO – DATA DE LANÇAMENTO | Tipo: Input Date<br>Obrigatório: Sim<br>Valor default: hoje | Grava `RECE_DT_LANCAMENTO`. Ao mudar, pode reajustar a Competência ([RT11](#rt11)). |
-| <a id="qdd3-6"></a>6 | CAMPO – COMPETÊNCIA | Tipo: Seletor mês/ano<br>Obrigatório: Sim<br>Valor default: mês da data de lançamento | Grava `RECE_COMPETENCIA` (`yyyy-MM`). Ver [SB04](#sb04) e [RN04](#rn04). |
-| <a id="qdd3-7"></a>7 | CAMPO – CONTA | Tipo: Combobox<br>Obrigatório: Sim<br>Domínio: contas ativas do usuário | Grava `CTA_ID`. Ver [SB01](#sb01) e [RN03](#rn03). **Desabilitado** ao editar receita com origem ≠ MANUAL ([RN08](#rn08)). |
-| <a id="qdd3-8"></a>8 | CAMPO – CATEGORIA | Tipo: Combobox<br>Obrigatório: Não<br>Domínio: categorias de receita ativas | Grava `CATE_ID`. Ver [SB02](#sb02). |
 | <a id="qdd3-9"></a>9 | CAMPO – RECEBIDO | Tipo: Toggle (Sim/Não)<br>Valor default: Não | Grava `RECE_FL_RECEBIDO`. Ao alterar, executar [RT12](#rt12). |
 | <a id="qdd3-10"></a>10 | CAMPO – DATA DE RECEBIMENTO | Tipo: Input Date<br>Obrigatório: Sim quando Recebido = Sim<br>Valor default: hoje<br>Exibição: só quando Recebido = Sim | Grava `RECE_DT_RECEBIMENTO`. Ver [RN06](#rn06). |
 | <a id="qdd3-11"></a>11 | AVISO – RECEITA IMPORTADA | Tipo: Texto informativo | Exibido no modo edição quando [C1](#c1).origem ≠ "MANUAL": "Esta receita foi importada do Open Finance. A conta e a origem não podem ser alteradas, e ela não pode ser excluída por esta tela." |
