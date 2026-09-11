@@ -236,7 +236,7 @@ public class CartaoCreditoService {
         return valor.trim();
     }
 
-    /** Soma faturas e despesas não excluídas vinculadas ao cartão (C4/RN08). */
+    /** Soma faturas e despesas não excluídas vinculadas ao cartão. */
     private long contarVinculos(Long cartaoId) {
         if (cartaoId == null) {
             return 0L;
