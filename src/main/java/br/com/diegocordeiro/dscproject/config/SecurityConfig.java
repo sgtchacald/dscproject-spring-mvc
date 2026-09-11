@@ -82,7 +82,7 @@ public class SecurityConfig {
                     .hasAuthority("PERM_CATEGORIAS_LISTAR")
                 .requestMatchers(HttpMethod.POST, "/categorias/inserir")
                     .hasAuthority("PERM_CATEGORIAS_INSERIR")
-                .requestMatchers(HttpMethod.PUT, "/categorias/editar/**")
+                .requestMatchers(HttpMethod.PUT, "/categorias/editar/**", "/categorias/desativar/**")
                     .hasAuthority("PERM_CATEGORIAS_EDITAR")
                 .requestMatchers(HttpMethod.DELETE, "/categorias/excluir/**")
                     .hasAuthority("PERM_CATEGORIAS_EXCLUIR")

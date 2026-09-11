@@ -4,12 +4,14 @@
 
 <div th:fragment="modal" class="modal modal-blur fade" id="modalVinculoForm" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <form th:action="@{/categorias-provedor/inserir}" method="post" class="modal-content" id="formVinculo" th:object="${vinculoForm}">
-            <input type="hidden" name="_method" id="vinculoHttpMethod" value="POST" />
+        <form th:action="${modoModal == 'EDITAR' ? '/categorias-provedor/editar/' + vinculoForm.id : '/categorias-provedor/inserir'}"
+              method="post" class="modal-content" id="formVinculo" th:object="${vinculoForm}">
+            <input type="hidden" name="_method" id="vinculoHttpMethod" th:value="${modoModal == 'EDITAR' ? 'PUT' : 'POST'}" />
             <input type="hidden" th:field="*{id}" id="vinculoId" />
 
             <div class="modal-header">
-                <h5 class="modal-title" id="modalVinculoTitulo" th:text="#{categoriaprovedor.form.titulo.novo}">Novo vínculo</h5>
+                <h5 class="modal-title" id="modalVinculoTitulo"
+                    th:text="${modoModal == 'EDITAR' ? #messages.msg('categoriaprovedor.form.titulo.editar') : #messages.msg('categoriaprovedor.form.titulo.novo')}">Novo vínculo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

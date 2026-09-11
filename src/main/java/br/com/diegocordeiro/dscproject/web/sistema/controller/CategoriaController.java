@@ -91,6 +91,7 @@ public class CategoriaController {
                          Model model,
                          Locale locale) {
         form.setId(id);
+        categoriaRepository.findById(id).ifPresent(c -> form.setSistema(c.isSistema()));
         new CategoriaValidator(categoriaRepository, messageSource, locale).validate(form, bindingResult);
 
         if (bindingResult.hasErrors()) {

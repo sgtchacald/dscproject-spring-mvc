@@ -1,8 +1,9 @@
+import { abrirModal } from '../comum/ui.js';
+
 export function initModalForm() {
     const modalEl = document.getElementById('modalVinculoForm');
     if (!modalEl) return;
 
-    const modal = window.bootstrap ? new bootstrap.Modal(modalEl) : null;
     const form = document.getElementById('formVinculo');
     const inputHttp = document.getElementById('vinculoHttpMethod');
     const inputId = document.getElementById('vinculoId');
@@ -20,7 +21,7 @@ export function initModalForm() {
         if (inputRotulo) inputRotulo.value = '';
         if (selectCategoria) selectCategoria.value = '';
         if (tituloModal) tituloModal.textContent = 'Novo vínculo';
-        if (modal) modal.show();
+        abrirModal('modalVinculoForm');
     };
 
     window.abrirModalEditarVinculo = function(tr) {
@@ -37,6 +38,12 @@ export function initModalForm() {
         if (inputRotulo) inputRotulo.value = rotulo;
         if (selectCategoria) selectCategoria.value = categoriaId;
         if (tituloModal) tituloModal.textContent = 'Editar vínculo';
-        if (modal) modal.show();
+        abrirModal('modalVinculoForm');
     };
+
+    // Reabre o modal automaticamente se houve erro de validação no servidor
+    const dadosTela = document.getElementById('dadosTela');
+    if (dadosTela && dadosTela.dataset.abrirModalForm === 'true') {
+        abrirModal('modalVinculoForm');
+    }
 }

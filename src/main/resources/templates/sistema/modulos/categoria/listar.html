@@ -17,12 +17,7 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
                         <a th:href="@{/}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" aria-hidden="true" focusable="false" class="icon">
-                                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                                <polyline points="9 22 9 12 15 12 15 22"/>
-                            </svg>
+                            <i class="ph ph-house" aria-hidden="true"></i>
                         </a>
                     </li>
                     <li class="breadcrumb-item" th:text="#{usuario.lista.breadcrumb.pai}">Administração</li>
@@ -35,21 +30,12 @@
         <div class="col-auto ms-auto d-print-none">
             <div class="btn-list">
                 <button class="btn" id="btnFiltrar" data-bs-toggle="modal" data-bs-target="#modalFiltro">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                         stroke-linejoin="round" class="icon">
-                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-                    </svg>
+                    <i class="ph ph-funnel" aria-hidden="true"></i>
                     <span th:text="#{categoria.lista.botao.filtrar}">Filtrar</span>
                 </button>
                 <button class="btn btn-primary" id="btnNovaCategoria"
                         sec:authorize="hasAuthority('PERM_CATEGORIAS_INSERIR')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                         stroke-linejoin="round" class="icon">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
+                    <i class="ph ph-plus" aria-hidden="true"></i>
                     <span th:text="#{categoria.lista.botao.novo}">Nova categoria</span>
                 </button>
             </div>
@@ -63,7 +49,7 @@
     <div th:if="${sucessoMensagem}" class="alert alert-success alert-dismissible" role="alert">
         <div class="d-flex">
             <div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon alert-icon"><path d="M5 12l5 5l10 -10"></path></svg>
+                <i class="ph ph-check-circle alert-icon" aria-hidden="true"></i>
             </div>
             <div th:text="${sucessoMensagem}">Operação realizada com sucesso.</div>
         </div>
@@ -73,7 +59,7 @@
     <div th:if="${erroMensagem}" class="alert alert-danger alert-dismissible" role="alert">
         <div class="d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon alert-icon me-2"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <i class="ph ph-warning-circle alert-icon me-2" aria-hidden="true"></i>
                 <span th:text="${erroMensagem}">Erro ao realizar operação.</span>
             </div>
             <div th:if="${oferecerDesativarId}">
@@ -86,17 +72,33 @@
         <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
     </div>
 
+    <div id="dadosTela" style="display:none;"
+         th:attr="data-abrir-modal-form=${abrirModalForm}, data-modo-modal=${modoModal}"></div>
+
     <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-secondary" style="font-size: 13px;">Itens por página:</span>
+                <select id="itensPorPagina" class="form-select form-select-sm" style="width: 75px;">
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+            <div class="w-auto">
+                <input type="text" id="tabelaBuscaRapida" class="form-control form-control-sm" placeholder="Buscar no grid..." style="max-width: 200px;" />
+            </div>
+        </div>
         <div class="table-responsive">
             <table class="table table-vcenter card-table table-striped" id="tabelaCategorias">
                 <thead>
                 <tr>
-                    <th th:text="#{categoria.col.codigo}">Código</th>
-                    <th th:text="#{categoria.col.nome}">Nome</th>
-                    <th th:text="#{categoria.col.aplicaA}">Aplica-se a</th>
-                    <th th:text="#{categoria.col.qtdLancamentos}">Nº de lançamentos</th>
-                    <th th:text="#{categoria.col.tipo}">Tipo</th>
-                    <th th:text="#{categoria.col.situacao}">Situação</th>
+                    <th class="sortable" role="button" data-col="codigo" th:text="#{categoria.col.codigo}">Código</th>
+                    <th class="sortable" role="button" data-col="nome" th:text="#{categoria.col.nome}">Nome</th>
+                    <th class="sortable" role="button" data-col="aplicaA" th:text="#{categoria.col.aplicaA}">Aplica-se a</th>
+                    <th class="sortable text-end" role="button" data-col="qtdUso" th:text="#{categoria.col.qtdLancamentos}">Nº de lançamentos</th>
+                    <th class="sortable" role="button" data-col="sistema" th:text="#{categoria.col.tipo}">Tipo</th>
+                    <th class="sortable" role="button" data-col="situacao" th:text="#{categoria.col.situacao}">Situação</th>
                     <th class="w-1 text-center" th:text="#{categoria.col.acoes}">Ações</th>
                 </tr>
                 </thead>
@@ -119,12 +121,16 @@
                         <span th:if="${cat.cor != null and !#strings.isEmpty(cat.cor)}"
                               class="badge me-1"
                               th:style="'background-color: ' + ${cat.cor} + '; width: 12px; height: 12px; border-radius: 50%; display: inline-block;'"></span>
+                        <span th:if="${cat.icone != null and !#strings.isEmpty(cat.icone)}"
+                              class="cat-icone-display me-1"
+                              th:attr="data-icone=${cat.icone}"
+                              th:style="${cat.cor != null and !#strings.isEmpty(cat.cor)} ? 'color: ' + ${cat.cor} + ';' : ''"></span>
                         <span class="text-reset fw-bold" th:text="${cat.nome}">Salário</span>
                     </td>
                     <td>
                         <span class="badge bg-blue-lt" th:text="${cat.aplicaA.descricao}">Receita</span>
                     </td>
-                    <td th:text="${cat.qtdUso}">0</td>
+                    <td class="text-end" th:text="${cat.qtdUso}">0</td>
                     <td>
                         <span th:if="${cat.sistema}" class="badge bg-purple-lt" th:text="#{categoria.tipo.sistema}">Sistema</span>
                         <span th:unless="${cat.sistema}" class="badge bg-secondary-lt" th:text="#{categoria.tipo.comum}">Comum</span>
@@ -138,12 +144,7 @@
                         <button type="button" class="btn btn-action btnEditarCategoria"
                                 sec:authorize="hasAuthority('PERM_CATEGORIAS_EDITAR')"
                                 th:title="#{categoria.acao.editar}" aria-label="Editar categoria">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="icon text-primary">
-                                <path d="M12 20h9"/>
-                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                            </svg>
+                            <i class="ph ph-pencil-simple text-primary" aria-hidden="true"></i>
                         </button>
                         <form th:unless="${cat.excluido}" th:action="@{/categorias/excluir/{id}(id=${cat.id})}" method="post" class="d-inline formExcluirCategoria"
                               sec:authorize="hasAuthority('PERM_CATEGORIAS_EXCLUIR')">
@@ -151,18 +152,17 @@
                             <button type="submit" class="btn btn-action text-danger"
                                     th:title="#{categoria.acao.excluir}" aria-label="Excluir categoria"
                                     th:attr="data-nome=${cat.nome}, data-sistema=${cat.sistema}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round" class="icon">
-                                    <polyline points="3 6 5 6 21 6"/>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                </svg>
+                                <i class="ph ph-trash" aria-hidden="true"></i>
                             </button>
                         </form>
                     </td>
                 </tr>
                 </tbody>
             </table>
+        </div>
+        <div class="card-footer d-flex align-items-center justify-content-between" id="rodapeTabelaCategorias">
+            <p class="m-0 text-secondary" id="infoPaginacao">Mostrando 0 de 0 categorias</p>
+            <ul class="pagination m-0 ms-auto" id="paginacaoControles"></ul>
         </div>
     </div>
 

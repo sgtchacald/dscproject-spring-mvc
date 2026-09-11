@@ -1,8 +1,28 @@
+import { abrirModal } from '../comum/ui.js';
+
+// Catálogo do seletor de ícone de categoria. As chaves são o valor gravado em
+// CATE_ICONE — não renomear (dados existentes dependem delas); só o ícone Phosphor
+// associado a cada chave pode mudar.
+export const ICONES_CATEGORIA = {
+    tag: 'ph-tag',
+    home: 'ph-house',
+    cart: 'ph-shopping-cart-simple',
+    car: 'ph-car',
+    heart: 'ph-heart',
+    book: 'ph-book',
+    plane: 'ph-airplane-tilt',
+    coins: 'ph-coins'
+};
+
+export function obterIconeHtml(chave, tamanhoPx = 18) {
+    const classe = ICONES_CATEGORIA[chave] || ICONES_CATEGORIA.tag;
+    return `<i class="ph ${classe}" style="font-size:${tamanhoPx}px" aria-hidden="true"></i>`;
+}
+
 export function initModalForm() {
     const modalEl = document.getElementById('modalCategoriaForm');
     if (!modalEl) return;
 
-    const modal = window.bootstrap ? new bootstrap.Modal(modalEl) : null;
     const form = document.getElementById('formCategoria');
     const inputHttp = document.getElementById('categoriaHttpMethod');
     const inputId = document.getElementById('categoriaId');
@@ -11,7 +31,9 @@ export function initModalForm() {
     const inputNome = document.getElementById('categoriaNome');
     const selectAplicaA = document.getElementById('categoriaAplicaA');
     const inputCor = document.getElementById('categoriaCor');
+    const btnLimparCor = document.getElementById('btnLimparCor');
     const inputIcone = document.getElementById('categoriaIcone');
+    const iconPickerBox = document.getElementById('iconPickerBox');
     const checkAtivo = document.getElementById('categoriaAtivo');
     const blocoAtivo = document.getElementById('blocoAtivo');
     const tituloModal = document.getElementById('modalCategoriaTitulo');
@@ -19,10 +41,67 @@ export function initModalForm() {
     const avisoUso = document.getElementById('avisoCategoriaEmUso');
     const textoAvisoUso = document.getElementById('textoAvisoCategoriaEmUso');
     const previewBox = document.getElementById('previewIconeCor');
+    const previewIcone = document.getElementById('previewIcone');
 
-    // Normalização em tempo real do campo Código
+    // Constrói o seletor de ícones
+    function montarIconPicker() {
+        if (!iconPickerBox) return;
+        iconPickerBox.innerHTML = '';
+        Object.keys(ICONES_CATEGORIA).forEach(chave => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-icon btn-sm btn-outline-secondary';
+            btn.dataset.iconeKey = chave;
+            btn.title = chave;
+            btn.innerHTML = obterIconeHtml(chave, 18);
+            btn.addEventListener('click', () => {
+                const atual = inputIcone ? inputIcone.value : '';
+                if (inputIcone) {
+                    inputIcone.value = (atual === chave ? '' : chave);
+                }
+                sincronizarIconPicker();
+                atualizarPreview();
+            });
+            iconPickerBox.appendChild(btn);
+        });
+        sincronizarIconPicker();
+    }
+
+    function sincronizarIconPicker() {
+        if (!iconPickerBox) return;
+        const atual = inputIcone ? inputIcone.value : '';
+        iconPickerBox.querySelectorAll('button').forEach(btn => {
+            if (btn.dataset.iconeKey === atual) {
+                btn.className = 'btn btn-icon btn-sm btn-primary active';
+            } else {
+                btn.className = 'btn btn-icon btn-sm btn-outline-secondary';
+            }
+        });
+    }
+
+    function atualizarPreview() {
+        if (!previewBox) return;
+        const cor = inputCor ? inputCor.value : '';
+        const icone = inputIcone ? inputIcone.value.trim() : '';
+
+        if (icone || cor) {
+            previewBox.style.display = 'inline-flex';
+            if (previewIcone) {
+                previewIcone.innerHTML = obterIconeHtml(icone || 'tag', 16);
+                if (cor) {
+                    previewIcone.style.color = cor;
+                } else {
+                    previewIcone.style.color = '';
+                }
+            }
+        } else {
+            previewBox.style.display = 'none';
+        }
+    }
+
+    // Normalização em tempo real do campo Código (RT08)
     if (inputCodigo) {
-        inputCodigo.addEventListener('input', () => {
+        const normalizar = () => {
             const original = inputCodigo.value;
             const norm = original.normalize('NFD')
                 .replace(/[\u0300-\u036f]/g, '')
@@ -32,27 +111,21 @@ export function initModalForm() {
             if (original !== norm) {
                 inputCodigo.value = norm;
             }
+        };
+        inputCodigo.addEventListener('input', normalizar);
+        inputCodigo.addEventListener('blur', normalizar);
+    }
+
+    if (inputCor) inputCor.addEventListener('input', atualizarPreview);
+    if (btnLimparCor) {
+        btnLimparCor.addEventListener('click', () => {
+            if (inputCor) inputCor.value = '#206bc4';
             atualizarPreview();
         });
     }
 
-    function atualizarPreview() {
-        if (!previewBox) return;
-        const cor = inputCor ? inputCor.value : '';
-        const icone = inputIcone ? inputIcone.value.trim() : '';
-
-        if (cor || icone) {
-            previewBox.style.display = 'inline-flex';
-            if (cor) {
-                previewBox.style.backgroundColor = cor;
-            }
-        } else {
-            previewBox.style.display = 'none';
-        }
-    }
-
-    if (inputCor) inputCor.addEventListener('input', atualizarPreview);
-    if (inputIcone) inputIcone.addEventListener('input', atualizarPreview);
+    montarIconPicker();
+    atualizarPreview();
 
     window.abrirModalNovaCategoria = function() {
         if (!form) return;
@@ -73,8 +146,10 @@ export function initModalForm() {
         if (hintCodigoSistema) hintCodigoSistema.style.display = 'none';
         if (avisoUso) avisoUso.style.display = 'none';
         if (tituloModal) tituloModal.textContent = 'Nova categoria';
+
+        sincronizarIconPicker();
         atualizarPreview();
-        if (modal) modal.show();
+        abrirModal('modalCategoriaForm');
     };
 
     window.abrirModalEditarCategoria = function(tr) {
@@ -118,7 +193,17 @@ export function initModalForm() {
         }
 
         if (tituloModal) tituloModal.textContent = 'Editar categoria';
+        sincronizarIconPicker();
         atualizarPreview();
-        if (modal) modal.show();
+        abrirModal('modalCategoriaForm');
     };
+
+    // Reabre o modal automaticamente se houve erro de validação no servidor
+    const dadosTela = document.getElementById('dadosTela');
+    if (dadosTela && dadosTela.dataset.abrirModalForm === 'true') {
+        sincronizarIconPicker();
+        atualizarPreview();
+        abrirModal('modalCategoriaForm');
+    }
 }
+
