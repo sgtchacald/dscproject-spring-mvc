@@ -1,6 +1,6 @@
 package br.com.diegocordeiro.dscproject.config;
 
-import br.com.diegocordeiro.dscproject.dto.permissao.SincronizacaoCatalogoDTO;
+import br.com.diegocordeiro.dscproject.dto.catalogo.SincronizacaoCatalogoDTO;
 import br.com.diegocordeiro.dscproject.parametro.ParametrosGlobaisCatalogo;
 import br.com.diegocordeiro.dscproject.repository.ParametroGlobalRepository;
 import br.com.diegocordeiro.dscproject.service.ParametroCatalogoService;

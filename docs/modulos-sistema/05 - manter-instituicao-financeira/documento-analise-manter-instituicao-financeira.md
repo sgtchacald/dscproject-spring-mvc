@@ -3,7 +3,7 @@
 
 **Gerado em:** 08/09/2026
 **Versão:** 1.0
-**Status:** Analisado
+**Status:** Desenvolvido
 **Projeto:** `dscproject-spring-mvc` (geração 2)
 
 ---
@@ -128,7 +128,9 @@ Este documento cobre:
 
 ## 4. Casos de Uso
 
-[Inserir o diagrama de casos de uso — `prototipo/manter-instituicao-financeira-casos-uso.drawio` + `images/manter-instituicao-financeira-casos-uso.png` — quando gerado.]
+![Casos de Uso - Manter Instituição Financeira](images/manter-instituicao-financeira-casos-uso.png)
+
+Fonte: `prototipo/manter-instituicao-financeira-casos-uso.drawio` (editável) e `prototipo/_diagrama-casos-uso.html` (render).
 
 | CÓDIGO | NOME | ATOR PRINCIPAL | DESCRIÇÃO |
 |---|---|---|---|
@@ -182,7 +184,9 @@ Toda a estrutura está no **Documento 0** (`00 - analise-geral`). Este documento
 
 ### 6.1 Diagrama ER
 
-[Inserir `images/manter-instituicao-financeira-der.png` quando gerado — subconjunto do DER do Documento 0: `INSTITUICOES_FINANCEIRAS`, `OPFI_INSTITUICAO_PROVEDOR`, `OPFI_PROVEDORES` e as FKs `INFI_ID` em `CONTAS`, `INVESTIMENTOS` e `OPFI_CONEXOES`. Fonte: `prototipo/manter-instituicao-financeira-der.drawio`.]
+![DER - Manter Instituição Financeira](images/manter-instituicao-financeira-der.png)
+
+Subconjunto do DER do Documento 0: `INSTITUICOES_FINANCEIRAS`, `OPFI_INSTITUICAO_PROVEDOR`, `OPFI_PROVEDORES` e as FKs `INFI_ID` em `CONTAS` (NOT NULL), `INVESTIMENTOS` e `OPFI_CONEXOES` (nullable). Fonte: `prototipo/manter-instituicao-financeira-der.drawio` (editável) e `prototipo/_diagrama-der.html` (render).
 
 ### 6.2 Auditoria de Tabelas
 
@@ -205,11 +209,11 @@ Na geração 1 não há *seed* nem `DataLoader` de instituições — as linhas 
 
 ## 7. Protótipos de Interface
 
-Protótipo navegável e wireframes: `prototipo/manter-instituicao-financeira-prototipo.html` e `prototipo/manter-instituicao-financeira-prototipo.drawio` (a gerar). Os números em destaque nas telas correspondem aos IDs dos itens do respectivo QUADRO_DESCRITIVO.
+Protótipo navegável: `prototipo/manter-instituicao-financeira-prototipo.html`. Wireframes editáveis: `prototipo/manter-instituicao-financeira-prototipo.drawio` (5 páginas, 7.1 a 7.5). PNGs regeráveis por `prototipo/render-pngs.py`. Os números em destaque nas telas correspondem aos IDs dos itens do respectivo QUADRO_DESCRITIVO.
 
 ### <a id="quadro-descritivo-1"></a>7.1 Tela: Instituições Financeiras (Listagem) — QUADRO_DESCRITIVO_1
 
-[Inserir `images/mif-tela-1.png` quando gerado.]
+![Instituições Financeiras - Listagem](images/mif-tela-1.png)
 
 > OBSERVAÇÕES: Tela acessada via 'Administração > Instituições Financeiras'. Restrita a quem tem [PERM01](#perm01). Grid client-side. O filtro é acionado por um modal (botão "Filtrar").
 
@@ -232,7 +236,7 @@ Protótipo navegável e wireframes: `prototipo/manter-instituicao-financeira-pro
 
 ### <a id="quadro-descritivo-2"></a>7.2 Modal: Filtrar Instituições — QUADRO_DESCRITIVO_2
 
-[Inserir `images/mif-tela-2.png` quando gerado.]
+![Modal Filtrar Instituições](images/mif-tela-2.png)
 
 > OBSERVAÇÕES: Todos os campos são opcionais. O filtro é aplicado em memória sobre a lista já carregada ([RT02](#rt02)).
 
@@ -247,7 +251,7 @@ Protótipo navegável e wireframes: `prototipo/manter-instituicao-financeira-pro
 
 ### <a id="quadro-descritivo-3"></a>7.3 Modal: Cadastro / Edição de Instituição — QUADRO_DESCRITIVO_3
 
-[Inserir `images/mif-tela-3.png` quando gerado.]
+![Modal Cadastro / Edição de Instituição](images/mif-tela-3.png)
 
 > OBSERVAÇÕES: Modal único de cadastro e edição, restrito a [PERM02](#perm02). Ao editar uma instituição de sistema, os campos Nome e Código ficam desabilitados ([RN05](#rn05)). O campo Situação (ativa) só aparece na edição.
 
@@ -264,7 +268,7 @@ Protótipo navegável e wireframes: `prototipo/manter-instituicao-financeira-pro
 
 ### <a id="quadro-descritivo-4"></a>7.4 Tela: Instituições por Provedor (Listagem) — QUADRO_DESCRITIVO_4
 
-[Inserir `images/mif-tela-4.png` quando gerado.]
+![Instituições por Provedor - Listagem](images/mif-tela-4.png)
 
 > OBSERVAÇÕES: Tela acessada via 'Administração > Instituições por Provedor'. Restrita a quem tem [PERM03](#perm03). Grid client-side. Mantém o mapa que a importação de contas de Open Finance consulta ([Observação 9](#2-observações)).
 
@@ -284,7 +288,7 @@ Protótipo navegável e wireframes: `prototipo/manter-instituicao-financeira-pro
 
 ### <a id="quadro-descritivo-5"></a>7.5 Modal: Cadastro / Edição de Vínculo Instituição × Provedor — QUADRO_DESCRITIVO_5
 
-[Inserir `images/mif-tela-5.png` quando gerado.]
+![Modal Cadastro / Edição de Vínculo Instituição × Provedor](images/mif-tela-5.png)
 
 > OBSERVAÇÕES: Modal único de cadastro e edição, restrito a [PERM04](#perm04). O par instituição + provedor é único ([RN08](#rn08)) e o par provedor + id externo é único ([RN09](#rn09)).
 
@@ -671,7 +675,7 @@ Descrição: Levantamento a partir do Documento 0 (Observações 1a e 11; [QUADR
 
 ## 18. Anexos
 
-- **Pendência (v1.0):** gerar o diagrama de casos de uso (`prototipo/manter-instituicao-financeira-casos-uso.drawio` + PNG), o DER do subconjunto (`prototipo/manter-instituicao-financeira-der.drawio` + `images/manter-instituicao-financeira-der.png`), os wireframes das cinco telas/modais (`prototipo/manter-instituicao-financeira-prototipo.drawio` + `images/mif-tela-*.png`) e o protótipo navegável (`prototipo/manter-instituicao-financeira-prototipo.html`).
+- **Protótipo e diagramas (v1.0):** gerados. Casos de uso (`prototipo/manter-instituicao-financeira-casos-uso.drawio` + `images/manter-instituicao-financeira-casos-uso.png`), DER do subconjunto (`prototipo/manter-instituicao-financeira-der.drawio` + `images/manter-instituicao-financeira-der.png`), wireframes das cinco telas/modais (`prototipo/manter-instituicao-financeira-prototipo.drawio` + `images/mif-tela-1..5.png`) e protótipo navegável (`prototipo/manter-instituicao-financeira-prototipo.html`). PNGs regeráveis por `prototipo/render-pngs.py` (Playwright); diagramas `.drawio` por `prototipo/gen-diagramas.py`.
 - Documento 0 — Fundação: `../00 - analise-geral/documento-0-fundacao.md` ([QUADRO_DESCRITIVO_4](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-4), [QUADRO_DESCRITIVO_13](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-13), [QUADRO_DESCRITIVO_14](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-14), [QUADRO_DESCRITIVO_5](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-5), [QUADRO_DESCRITIVO_12](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-12), [QUADRO_DESCRITIVO_17](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-17)).
 - Documento `02 - manter-perfil-permissao`: `../02 - manter-perfil-permissao/documento-analise-manter-perfil-permissao.md` (padrão de permissões `LISTAR` / `MANTER`).
 - Documento `04 - manter-categoria`: `../04 - manter-categoria/documento-analise-manter-categoria.md` (documento-espelho — catálogo administrativo global + tela de mapa de provedor).

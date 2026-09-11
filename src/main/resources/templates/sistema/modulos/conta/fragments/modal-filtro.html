@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="modal modal-blur fade" id="modalFiltroConta" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{conta.filtro.titulo}">Filtrar Contas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="filtroBusca" th:text="#{conta.filtro.busca.label}">Busca</label>
+                    <input type="text" class="form-control" id="filtroBusca"
+                           th:placeholder="#{conta.filtro.busca.placeholder}">
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="filtroTipo" th:text="#{conta.filtro.tipo.label}">Tipo de Conta</label>
+                        <select class="form-select" id="filtroTipo">
+                            <option value="" th:text="#{conta.filtro.todos}">Todos</option>
+                            <option value="CORRENTE" th:text="#{conta.tipo.corrente}">Conta Corrente</option>
+                            <option value="POUPANCA" th:text="#{conta.tipo.poupanca}">Poupança</option>
+                            <option value="INVESTIMENTO" th:text="#{conta.tipo.investimento}">Investimento</option>
+                            <option value="CARTEIRA" th:text="#{conta.tipo.carteira}">Carteira (Dinheiro Físico)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="filtroInstituicao" th:text="#{conta.filtro.instituicao.label}">Instituição</label>
+                        <select class="form-select" id="filtroInstituicao">
+                            <option value="" th:text="#{conta.filtro.instituicao.todos}">Todas as instituições</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="filtroSituacao" th:text="#{conta.filtro.situacao.label}">Situação</label>
+                    <select class="form-select" id="filtroSituacao">
+                        <option value="ATIVA" selected th:text="#{conta.badge.ativo}">Ativa</option>
+                        <option value="INATIVA" th:text="#{conta.badge.inativo}">Inativa</option>
+                        <option value="EXCLUIDA" th:text="#{conta.badge.excluido}">Excluída</option>
+                        <option value="TODAS" th:text="#{conta.filtro.todas}">Todas</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link link-secondary me-auto" id="btnLimparFiltro" th:text="#{conta.filtro.limpar}">Limpar</button>
+                <button type="button" class="btn btn-primary" id="btnAplicarFiltro" th:text="#{conta.filtro.aplicar}">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="modal" class="modal modal-blur fade" id="modalVinculoForm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <form th:action="${modoModal == 'EDITAR' ? '/categorias-provedor/editar/' + vinculoForm.id : '/categorias-provedor/inserir'}"
+              method="post" class="modal-content" id="formVinculo" th:object="${vinculoForm}">
+            <input type="hidden" name="_method" id="vinculoHttpMethod" th:value="${modoModal == 'EDITAR' ? 'PUT' : 'POST'}" />
+            <input type="hidden" th:field="*{id}" id="vinculoId" />
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalVinculoTitulo"
+                    th:text="${modoModal == 'EDITAR' ? #messages.msg('categoriaprovedor.form.titulo.editar') : #messages.msg('categoriaprovedor.form.titulo.novo')}">Novo vínculo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger mb-3" role="alert">
+                    <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required" for="vinculoProvedorId" th:text="#{categoriaprovedor.form.campo.provedor.label}">Provedor</label>
+                    <select class="form-select" th:field="*{provedorId}" id="vinculoProvedorId"
+                            th:classappend="${#fields.hasErrors('provedorId')} ? 'is-invalid' : ''">
+                        <option value="" th:text="#{categoriaprovedor.form.campo.provedor.selecione}">Selecione um provedor</option>
+                        <option th:each="prov : ${provedores}"
+                                th:value="${prov.id}"
+                                th:text="${prov.nome}"></option>
+                    </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('provedorId')}" th:errors="*{provedorId}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required" for="vinculoRotuloExterno" th:text="#{categoriaprovedor.form.campo.rotulo.label}">Rótulo externo</label>
+                    <input type="text" class="form-control" th:field="*{rotuloExterno}" id="vinculoRotuloExterno"
+                           maxlength="120" th:placeholder="#{categoriaprovedor.form.campo.rotulo.placeholder}"
+                           th:classappend="${#fields.hasErrors('rotuloExterno')} ? 'is-invalid' : ''" />
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('rotuloExterno')} ? 'is-invalid' : ''" th:errors="*{rotuloExterno}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required" for="vinculoCategoriaId" th:text="#{categoriaprovedor.form.campo.categoria.label}">Categoria do sistema</label>
+                    <select class="form-select" th:field="*{categoriaId}" id="vinculoCategoriaId"
+                            th:classappend="${#fields.hasErrors('categoriaId')} ? 'is-invalid' : ''">
+                        <option value="" th:text="#{categoriaprovedor.form.campo.categoria.selecione}">Selecione uma categoria</option>
+                        <option th:each="cat : ${categorias}"
+                                th:value="${cat.id}"
+                                th:text="${cat.nome}"></option>
+                    </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('categoriaId')}" th:errors="*{categoriaId}"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{categoriaprovedor.form.botao.cancelar}">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="btnSalvarVinculo" th:text="#{categoriaprovedor.form.botao.salvar}">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

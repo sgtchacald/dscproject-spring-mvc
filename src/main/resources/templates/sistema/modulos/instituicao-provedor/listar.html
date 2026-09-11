@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{sistema/template-admin/layout}">
+<head>
+    <title th:text="#{instituicaoprovedor.lista.titulo}">Instituições por Provedor</title>
+</head>
+<body>
+
+<div layout:fragment="cabecalho">
+    <div class="row g-2 align-items-center">
+        <div class="col">
+            <h2 class="page-title" th:text="#{instituicaoprovedor.lista.cabecalho}">Instituições por Provedor</h2>
+            <br><br>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/}">
+                            <i class="ph ph-house" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item" th:text="#{instituicaoprovedor.lista.breadcrumb.pai}">Administração</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{instituicaoprovedor.lista.titulo}">Instituições por Provedor</li>
+                </ol>
+            </nav>
+            <br>
+            <div class="text-secondary mt-1" th:text="#{instituicaoprovedor.lista.descricao}">
+                Associe cada instituição ao id que os provedores de Open Finance usam para identificá-la.
+            </div>
+        </div>
+        <div class="col-auto ms-auto d-flex gap-2">
+            <div style="min-width: 220px;">
+                <select id="filtroProvedor" class="form-select">
+                    <option value="" th:text="#{instituicaoprovedor.filtro.provedor.placeholder}">Todos os provedores</option>
+                    <option th:each="p : ${provedores}" th:value="${p.id}" th:text="${p.nome}">Pluggy</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="btnNovoVinculo" sec:authorize="hasAuthority('PERM_INSTITUICOES_PROVEDOR_MANTER')"
+                    data-bs-toggle="modal" data-bs-target="#modalVinculo">
+                <i class="ph ph-plus" aria-hidden="true"></i>
+                <span th:text="#{instituicaoprovedor.lista.botao.novo}">Novo vínculo</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<section layout:fragment="corpo">
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table" id="tabelaVinculos">
+                <thead>
+                <tr>
+                    <th data-col="provedorNome" class="sortable" role="button" th:text="#{instituicaoprovedor.col.provedor}">Provedor</th>
+                    <th data-col="instituicaoNome" class="sortable" role="button" th:text="#{instituicaoprovedor.col.instituicao}">Instituição</th>
+                    <th data-col="idExterno" class="sortable" role="button" th:text="#{instituicaoprovedor.col.idExterno}">Id externo</th>
+                    <th class="w-1" th:text="#{instituicaoprovedor.col.acoes}">Ações</th>
+                </tr>
+                </thead>
+                <tbody id="corpoTabelaVinculos"></tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-secondary" id="rodapeContagemVinculos"></p>
+        </div>
+    </div>
+
+    <div th:replace="~{sistema/modulos/instituicao-provedor/fragments/modal-vinculo :: modal}"></div>
+
+    <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
+
+    <span sec:authorize="hasAuthority('PERM_INSTITUICOES_PROVEDOR_MANTER')" data-perm="manter" hidden></span>
+
+    <div id="dadosTelaVinculo"
+         th:data-url-dados="@{/instituicoes-provedor/listar-dados}"
+         th:data-url-buscar="@{/instituicoes-provedor/buscar}"
+         th:data-url-inserir="@{/instituicoes-provedor/inserir}"
+         th:data-url-editar="@{/instituicoes-provedor/editar}"
+         th:data-url-excluir="@{/instituicoes-provedor/excluir}"
+         th:data-url-provedores="@{/instituicoes-provedor/provedores-opcoes}"
+         th:data-url-instituicoes="@{/instituicoes-financeiras/opcoes}"
+         th:data-msg-confirma-exclusao="#{msg.instituicaoprovedor.confirma.exclusao}"
+         th:data-msg-filtro-vazio="#{msg.instituicaoprovedor.filtro.vazio}"
+         th:data-label-novo="#{instituicaoprovedor.form.titulo.novo}"
+         th:data-label-editar="#{instituicaoprovedor.form.titulo.editar}"
+         hidden></div>
+</section>
+
+<th:block layout:fragment="js">
+    <script type="module" th:src="@{/js/instituicao-provedor/listar.js}"></script>
+</th:block>
+</body>
+</html>

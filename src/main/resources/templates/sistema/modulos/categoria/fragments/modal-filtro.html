@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="modal" class="modal modal-blur fade" id="modalFiltro" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <form th:action="@{/categorias/listar}" method="get" class="modal-content" id="formFiltroCategorias">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{categoria.filtro.titulo}">Filtrar Categorias</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="filtroBusca" th:text="#{categoria.filtro.busca.label}">Busca</label>
+                    <input type="text" class="form-control" id="filtroBusca" name="busca"
+                           th:value="${filtro?.busca}" th:placeholder="#{categoria.filtro.busca.placeholder}" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="filtroAplicaA" th:text="#{categoria.filtro.aplicaA.label}">Aplica-se a</label>
+                    <select class="form-select" id="filtroAplicaA" name="aplicaA">
+                        <option value="" th:text="#{categoria.filtro.todos}">Todos</option>
+                        <option th:each="opt : ${aplicaAOpcoes}"
+                                th:value="${opt}"
+                                th:text="${opt.descricao}"
+                                th:selected="${filtro?.aplicaA == opt}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="filtroTipo" th:text="#{categoria.filtro.tipo.label}">Tipo</label>
+                    <select class="form-select" id="filtroTipo" name="tipo">
+                        <option value="" th:text="#{categoria.filtro.todos}">Todos</option>
+                        <option value="SISTEMA" th:selected="${filtro?.tipo == 'SISTEMA'}" th:text="#{categoria.tipo.sistema}">Sistema</option>
+                        <option value="COMUM" th:selected="${filtro?.tipo == 'COMUM'}" th:text="#{categoria.tipo.comum}">Comum</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="filtroSituacao" th:text="#{categoria.filtro.situacao.label}">Situação</label>
+                    <select class="form-select" id="filtroSituacao" name="situacao">
+                        <option value="ATIVA" th:selected="${filtro?.situacao == 'ATIVA'}" th:text="#{categoria.situacao.ativa}">Ativa</option>
+                        <option value="INATIVA" th:selected="${filtro?.situacao == 'INATIVA'}" th:text="#{categoria.situacao.inativa}">Inativa</option>
+                        <option value="EXCLUIDA" th:selected="${filtro?.situacao == 'EXCLUIDA'}" th:text="#{categoria.situacao.excluida}">Excluída</option>
+                        <option value="TODAS" th:selected="${filtro?.situacao == 'TODAS'}" th:text="#{categoria.filtro.todas}">Todas</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link link-secondary me-auto" id="btnLimparFiltro" th:text="#{categoria.filtro.limpar}">Limpar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{categoria.form.botao.cancelar}">Cancelar</button>
+                <button type="submit" class="btn btn-primary" th:text="#{categoria.filtro.aplicar}">Aplicar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

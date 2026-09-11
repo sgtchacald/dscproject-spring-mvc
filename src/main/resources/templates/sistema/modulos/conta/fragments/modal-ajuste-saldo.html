@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="modal modal-blur fade" id="modalAjusteSaldo" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="formAjusteSaldo" novalidate>
+                <input type="hidden" id="ajusteContaId" name="id">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloModalAjusteSaldo" th:text="#{conta.ajuste.titulo}">Ajustar Saldo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alertaFormAjusteSaldo" class="alert alert-danger" style="display:none;" role="alert"></div>
+
+                    <div class="alert alert-info mb-3" role="alert">
+                        <i class="ph ph-info alert-icon me-2" aria-hidden="true"></i>
+                        <span th:text="#{conta.ajuste.aviso}">O saldo da conta será recalculado e atualizado diretamente para o novo valor informado.</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="ajusteSaldoAtual" th:text="#{conta.ajuste.campo.saldoAtual.label}">Saldo Atual Registrado</label>
+                        <input type="text" class="form-control" id="ajusteSaldoAtual" readonly disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required" for="ajusteNovoSaldo" th:text="#{conta.ajuste.campo.novoSaldo.label}">Novo Saldo (R$)</label>
+                        <input type="text" class="form-control" id="ajusteNovoSaldo" name="novoSaldo"
+                               th:placeholder="#{conta.ajuste.campo.novoSaldo.placeholder}" required>
+                        <div class="invalid-feedback" id="erroAjusteNovoSaldo"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="ajusteObservacao" th:text="#{conta.ajuste.campo.motivo.label}">Observação / Motivo</label>
+                        <textarea class="form-control" id="ajusteObservacao" name="observacao" rows="3" maxlength="255"
+                                  th:placeholder="#{conta.ajuste.campo.motivo.placeholder}"></textarea>
+                        <div class="invalid-feedback" id="erroAjusteObservacao"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal" th:text="#{conta.ajuste.botao.cancelar}">Cancelar</button>
+                    <button type="submit" class="btn btn-warning" id="btnConfirmarAjusteSaldo" th:text="#{conta.ajuste.botao.confirmar}">Confirmar Ajuste</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

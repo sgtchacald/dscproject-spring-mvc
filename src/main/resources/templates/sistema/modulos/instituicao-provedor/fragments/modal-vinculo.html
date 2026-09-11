@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="modal modal-blur fade" id="modalVinculo" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="formVinculo" novalidate>
+                <input type="hidden" id="vinculoId" name="id">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloModalVinculo" th:text="#{instituicaoprovedor.form.titulo.novo}">Novo vínculo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alertaFormVinculo" class="alert alert-danger" style="display:none;" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label required" for="vinculoProvedor" th:text="#{instituicaoprovedor.form.campo.provedor.label}">Provedor</label>
+                        <select class="form-select" id="vinculoProvedor" name="provedorId" required>
+                            <option value="" th:text="#{instituicaoprovedor.form.campo.provedor.selecione}">Selecione…</option>
+                        </select>
+                        <small class="form-hint" th:text="#{instituicaoprovedor.form.campo.provedor.hint}">Provedores ativos de OPFI_PROVEDORES (EDP14).</small>
+                        <div class="invalid-feedback" id="erroProvedorId"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required" for="vinculoInstituicao" th:text="#{instituicaoprovedor.form.campo.instituicao.label}">Instituição</label>
+                        <select class="form-select" id="vinculoInstituicao" name="instituicaoId" required>
+                            <option value="" th:text="#{instituicaoprovedor.form.campo.instituicao.selecione}">Selecione…</option>
+                        </select>
+                        <small class="form-hint" th:text="#{instituicaoprovedor.form.campo.instituicao.hint}">Só instituições ativas (EDP07 / RN11).</small>
+                        <div class="invalid-feedback" id="erroInstituicaoId"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required" for="vinculoIdExterno" th:text="#{instituicaoprovedor.form.campo.idExterno.label}">Id externo</label>
+                        <input type="text" class="form-control" id="vinculoIdExterno" name="idExterno" maxlength="80"
+                               th:placeholder="#{instituicaoprovedor.form.campo.idExterno.placeholder}" required>
+                        <small class="form-hint" th:text="#{instituicaoprovedor.form.campo.idExterno.hint}">O id do conector/instituição como o provedor o devolve. Único no provedor (RN09).</small>
+                        <div class="invalid-feedback" id="erroIdExterno"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal" th:text="#{instituicaoprovedor.form.botao.cancelar}">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarVinculo" th:text="#{instituicaoprovedor.form.botao.salvar}">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

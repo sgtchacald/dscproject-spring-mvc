@@ -2,7 +2,7 @@ package br.com.diegocordeiro.dscproject.web.sistema.controller;
 
 import br.com.diegocordeiro.dscproject.config.SecurityConfig;
 import br.com.diegocordeiro.dscproject.dto.permissao.PermissaoCatalogoDTO;
-import br.com.diegocordeiro.dscproject.dto.permissao.SincronizacaoCatalogoDTO;
+import br.com.diegocordeiro.dscproject.dto.catalogo.SincronizacaoCatalogoDTO;
 import br.com.diegocordeiro.dscproject.model.Permissao;
 import br.com.diegocordeiro.dscproject.service.AutorizacaoService;
 import br.com.diegocordeiro.dscproject.service.PermissaoCatalogoService;

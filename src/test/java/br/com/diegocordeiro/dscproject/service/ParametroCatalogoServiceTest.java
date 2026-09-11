@@ -1,9 +1,9 @@
 package br.com.diegocordeiro.dscproject.service;
 
-import br.com.diegocordeiro.dscproject.dto.permissao.SincronizacaoCatalogoDTO;
+import br.com.diegocordeiro.dscproject.catalogo.DescobridorDeCatalogo;
+import br.com.diegocordeiro.dscproject.dto.catalogo.SincronizacaoCatalogoDTO;
 import br.com.diegocordeiro.dscproject.enums.TipoParametro;
 import br.com.diegocordeiro.dscproject.model.ParametroGlobal;
-import br.com.diegocordeiro.dscproject.parametro.CatalogoParametros;
 import br.com.diegocordeiro.dscproject.parametro.ParametroDefinido;
 import br.com.diegocordeiro.dscproject.repository.ParametroGlobalRepository;
 import org.junit.jupiter.api.Test;
@@ -30,6 +30,10 @@ class ParametroCatalogoServiceTest {
 
     @InjectMocks
     private ParametroCatalogoService service;
+
+    private static List<ParametroDefinido> parametrosDoCodigo() {
+        return DescobridorDeCatalogo.noPacote("br.com.diegocordeiro.dscproject.parametro", ParametroDefinido.class);
+    }
 
     private static ParametroGlobal parametro(String codigo, String valor, boolean orfa) {
         ParametroGlobal p = new ParametroGlobal();
@@ -58,7 +62,7 @@ class ParametroCatalogoServiceTest {
 
         SincronizacaoCatalogoDTO resultado = service.sincronizar();
 
-        int totalCodigo = CatalogoParametros.todos().size();
+        int totalCodigo = parametrosDoCodigo().size();
         assertThat(resultado.inseridas()).isEqualTo(totalCodigo);
         assertThat(resultado.orfas()).isZero();
         verify(parametroGlobalRepository, Mockito.times(totalCodigo)).save(any(ParametroGlobal.class));
@@ -68,7 +72,7 @@ class ParametroCatalogoServiceTest {
 
     @Test
     void sincronizar_parametroNovoNoCodigo_eInserido() {
-        List<ParametroDefinido> catalogo = CatalogoParametros.todos();
+        List<ParametroDefinido> catalogo = parametrosDoCodigo();
         List<ParametroGlobal> tabela = new ArrayList<>();
         for (int i = 1; i < catalogo.size(); i++) {
             tabela.add(doCatalogo(catalogo.get(i), catalogo.get(i).getValorDefault()));
@@ -83,7 +87,7 @@ class ParametroCatalogoServiceTest {
 
     @Test
     void sincronizar_naoSobrescreveOValorDeParametroExistente() {
-        ParametroDefinido primeiro = CatalogoParametros.todos().get(0);
+        ParametroDefinido primeiro = parametrosDoCodigo().get(0);
         ParametroGlobal existente = doCatalogo(primeiro, "valor-do-operador");
         when(parametroGlobalRepository.findAll()).thenReturn(new ArrayList<>(List.of(existente)));
 
@@ -98,7 +102,7 @@ class ParametroCatalogoServiceTest {
     @Test
     void sincronizar_parametroSoNaTabela_ficaMarcadoComoOrfao() {
         List<ParametroGlobal> tabela = new ArrayList<>();
-        CatalogoParametros.todos().forEach(d -> tabela.add(doCatalogo(d, d.getValorDefault())));
+        parametrosDoCodigo().forEach(d -> tabela.add(doCatalogo(d, d.getValorDefault())));
         ParametroGlobal antigo = parametro("RECURSO_ANTIGO", "x", false);
         tabela.add(antigo);
         when(parametroGlobalRepository.findAll()).thenReturn(tabela);
@@ -112,7 +116,7 @@ class ParametroCatalogoServiceTest {
 
     @Test
     void sincronizar_parametroOrfaoQueVoltouAoCodigo_temAFlagDesmarcada() {
-        List<ParametroDefinido> catalogo = CatalogoParametros.todos();
+        List<ParametroDefinido> catalogo = parametrosDoCodigo();
         List<ParametroGlobal> tabela = new ArrayList<>();
         ParametroGlobal voltou = doCatalogo(catalogo.get(0), catalogo.get(0).getValorDefault());
         voltou.setOrfa(true);
