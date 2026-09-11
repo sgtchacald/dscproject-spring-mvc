@@ -25,4 +25,11 @@ class MensagensContaTest {
         String mensagem = messageSource.getMessage("msg.conta.filtro.vazio", null, locale);
         assertThat(mensagem).isEqualTo("Nenhuma conta encontrada com os filtros informados.");
     }
+
+    @Test
+    @DisplayName("MSG07 - msg.conta.confirma.exclusao deve resolver (listar.html referencia essa chave)")
+    void confirmaExclusao_deveResolverParaOTextoDoDocumento() {
+        String mensagem = messageSource.getMessage("msg.conta.confirma.exclusao", new Object[]{"Carteira"}, locale);
+        assertThat(mensagem).isEqualTo("Confirma a exclusão da conta \"Carteira\"?");
+    }
 }
