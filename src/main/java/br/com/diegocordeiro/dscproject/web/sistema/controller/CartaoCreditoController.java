@@ -21,6 +21,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -112,6 +113,14 @@ public class CartaoCreditoController {
 
         cartaoCreditoService.editar(id, dto, usuario.getId(), usuario.getLogin());
         return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.cartao.atualizado", locale)));
+    }
+
+    @DeleteMapping("/cartoes/excluir/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> excluir(@PathVariable Long id, Principal principal, Locale locale) {
+        Usuario usuario = obterUsuarioAutenticado(principal);
+        cartaoCreditoService.excluir(id, usuario.getId(), usuario.getLogin());
+        return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.cartao.excluido", locale)));
     }
 
     private Usuario obterUsuarioAutenticado(Principal principal) {

@@ -7,6 +7,7 @@ import br.com.diegocordeiro.dscproject.enums.BandeiraCartao;
 import br.com.diegocordeiro.dscproject.model.CartaoCredito;
 import br.com.diegocordeiro.dscproject.model.Conta;
 import br.com.diegocordeiro.dscproject.model.Usuario;
+import br.com.diegocordeiro.dscproject.parametro.ParametrosCartaoCatalogo;
 import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
 import br.com.diegocordeiro.dscproject.repository.ContaRepository;
 import br.com.diegocordeiro.dscproject.repository.ParametroGlobalRepository;
@@ -17,6 +18,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -122,6 +124,42 @@ public class CartaoCreditoService {
         cartao.setAtivo(dto.isAtivo());
 
         return cartaoCreditoRepository.save(cartao);
+    }
+
+    @Transactional
+    public void excluir(Long id, Long usuarioId, String usuarioAuditoria) {
+        CartaoCredito cartao = buscarPorIdEUsuario(id, usuarioId);
+
+        long usoFaturas = contarEmTabela("FATURAS_CARTAO", id);
+        if (usoFaturas > 0) {
+            throw new RegraNegocioException("msg.cartao.em-uso.bloqueada");
+        }
+
+        long usoDespesas = contarEmTabela("DESPESAS", id);
+        if (usoDespesas > 0) {
+            boolean bloqueiaEmUso = parametroGlobalRepository
+                .findByCodigo(ParametrosCartaoCatalogo.CARTAO_EXCLUSAO_BLOQUEIA_EM_USO.getCodigo())
+                .map(p -> Boolean.parseBoolean(p.getValor()))
+                .orElse(true);
+
+            if (bloqueiaEmUso) {
+                throw new RegraNegocioException("msg.cartao.em-uso.bloqueada");
+            } else {
+                desvincularTabela("DESPESAS", id);
+            }
+        }
+
+        cartao.setDataExclusao(Instant.now());
+        cartao.setExcluidoPor(usuarioAuditoria);
+        cartaoCreditoRepository.save(cartao);
+    }
+
+    private void desvincularTabela(String tabela, Long cartaoId) {
+        try {
+            String sql = "UPDATE " + tabela + " SET CACR_ID = NULL WHERE CACR_ID = ?";
+            jdbcTemplate.update(sql, cartaoId);
+        } catch (Exception ignored) {
+        }
     }
 
     /** Repete no serviço as validações de campo já feitas na tela/Validator (RNF03). */

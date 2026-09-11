@@ -144,6 +144,8 @@ public class SecurityConfig {
                     .hasAuthority("PERM_CARTOES_MANTER")
                 .requestMatchers(HttpMethod.PUT, "/cartoes/editar/**")
                     .hasAuthority("PERM_CARTOES_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/cartoes/excluir/**")
+                    .hasAuthority("PERM_CARTOES_MANTER")
 
                 .anyRequest().authenticated()
             )

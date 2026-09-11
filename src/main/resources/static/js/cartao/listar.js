@@ -1,7 +1,7 @@
 import { getJson } from '../comum/http.js';
 import { semAcento } from '../comum/ui.js';
 import { inicializarFiltro, obterFiltroAtual, abrirModalFiltro } from './modal-filtro.js';
-import { inicializarForm, abrirEdicao, EVENTO_ALTERADO } from './modal-form.js';
+import { inicializarForm, abrirEdicao, excluir, EVENTO_ALTERADO } from './modal-form.js';
 
 const cfg = () => document.getElementById('dadosTelaCartao').dataset;
 
@@ -83,6 +83,11 @@ function acaoHtml(c) {
     let html = `<button type="button" class="btn btn-action" data-acao="editar" data-id="${c.id}" title="Editar cartão" aria-label="Editar cartão">
         <i class="ph ph-pencil-simple" aria-hidden="true"></i>
     </button>`;
+    if (!c.excluido) {
+        html += `<button type="button" class="btn btn-action text-danger" data-acao="excluir" data-id="${c.id}" data-descricao="${c.descricao}" title="Excluir cartão" aria-label="Excluir cartão">
+            <i class="ph ph-trash" aria-hidden="true"></i>
+        </button>`;
+    }
     return html;
 }
 
@@ -164,9 +169,12 @@ function inicializarAcoes() {
         if (!btn) return;
         const acao = btn.dataset.acao;
         const id = btn.dataset.id;
+        const descricao = btn.dataset.descricao;
 
         if (acao === 'editar') {
             abrirEdicao(id);
+        } else if (acao === 'excluir') {
+            excluir(id, descricao);
         }
     });
 }

@@ -25,4 +25,11 @@ class MensagensCartaoTest {
         String mensagem = messageSource.getMessage("msg.cartao.filtro.vazio", null, locale);
         assertThat(mensagem).isEqualTo("Nenhum cartão encontrado com os filtros informados.");
     }
+
+    @Test
+    @DisplayName("MSG06 - msg.cartao.confirma.exclusao deve resolver (listar.html referencia essa chave)")
+    void confirmaExclusao_deveResolverParaOTextoDoDocumento() {
+        String mensagem = messageSource.getMessage("msg.cartao.confirma.exclusao", new Object[]{"Nubank"}, locale);
+        assertThat(mensagem).isEqualTo("Confirma a exclusão do cartão \"Nubank\"?");
+    }
 }

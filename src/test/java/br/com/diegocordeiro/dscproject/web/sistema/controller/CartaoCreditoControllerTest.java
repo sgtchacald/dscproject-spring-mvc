@@ -11,6 +11,7 @@ import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
 import br.com.diegocordeiro.dscproject.service.AutorizacaoService;
 import br.com.diegocordeiro.dscproject.service.CartaoCreditoService;
 import br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException;
+import br.com.diegocordeiro.dscproject.service.exceptions.RegraNegocioException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -281,5 +283,30 @@ class CartaoCreditoControllerTest {
                         .param("descricao", "Qualquer")
                         .param("ativo", "true"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("BDD 16.11 - Excluir cartão sem vínculo com sucesso")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    void excluir_semVinculo_deveRetornarOk() throws Exception {
+        mockMvc.perform(delete("/cartoes/excluir/10")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true));
+
+        verify(cartaoCreditoService).excluir(10L, 1L, "user_teste");
+    }
+
+    @Test
+    @DisplayName("BDD 16.9 - Excluir cartão em uso retorna 422 com a oferta de desativar")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    void excluir_comVinculo_deveRetornar422() throws Exception {
+        org.mockito.Mockito.doThrow(new RegraNegocioException("msg.cartao.em-uso.bloqueada"))
+                .when(cartaoCreditoService).excluir(10L, 1L, "user_teste");
+
+        mockMvc.perform(delete("/cartoes/excluir/10")
+                        .with(csrf()))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false));
     }
 }

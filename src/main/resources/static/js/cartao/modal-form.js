@@ -94,6 +94,62 @@ export async function abrirEdicao(id) {
     }
 }
 
+export async function excluir(id, descricao) {
+    const template = cfg().msgConfirmaExclusao || 'Confirma a exclusão do cartão "{0}"?';
+    const msg = template.replace('{0}', descricao);
+    if (!confirm(msg)) {
+        return;
+    }
+
+    try {
+        const resp = await enviar(`${cfg().urlExcluir}/${id}`, 'DELETE');
+        if (resp.sucesso) {
+            toast(resp.mensagem || 'Cartão excluído com sucesso.', false);
+            document.dispatchEvent(new CustomEvent(EVENTO_ALTERADO));
+        } else {
+            const erro = resp.mensagem || (resp.errosNegocio && resp.errosNegocio['geral']) || 'Não foi possível excluir o cartão.';
+            const ehEmUso = erro && erro.includes('vinculad');
+            if (ehEmUso) {
+                const oferta = cfg().msgDesativarOferta || 'Deseja desativar este cartão agora?';
+                if (confirm(`${erro}\n\n${oferta}`)) {
+                    await desativar(id);
+                }
+            } else {
+                toast(erro, true);
+            }
+        }
+    } catch (e) {
+        toast('Erro de comunicação ao excluir cartão.', true);
+    }
+}
+
+export async function desativar(id) {
+    try {
+        const dados = await getJson(`${cfg().urlBuscar}/${id}`);
+
+        const body = new URLSearchParams();
+        body.append('id', dados.id);
+        body.append('descricao', dados.descricao || '');
+        body.append('bandeira', dados.bandeira || '');
+        body.append('finalCartao', dados.finalCartao || '');
+        body.append('limite', dados.limite != null ? dados.limite : '');
+        body.append('diaFechamento', dados.diaFechamento != null ? dados.diaFechamento : '');
+        body.append('diaVencimento', dados.diaVencimento != null ? dados.diaVencimento : '');
+        body.append('contaId', dados.contaId || '');
+        body.append('ativo', 'false');
+
+        const resp = await enviar(`${cfg().urlEditar}/${id}`, 'PUT', body);
+        if (resp.sucesso) {
+            toast(resp.mensagem || 'Cartão desativado com sucesso.', false);
+            document.dispatchEvent(new CustomEvent(EVENTO_ALTERADO));
+        } else {
+            toast(resp.mensagem || 'Erro ao desativar cartão.', true);
+        }
+    } catch (e) {
+        toast('Erro de comunicação ao desativar cartão.', true);
+    }
+}
+
 export function inicializarForm() {
     const f = form();
     if (!f) return;

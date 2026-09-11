@@ -11,6 +11,7 @@ import br.com.diegocordeiro.dscproject.repository.ContaRepository;
 import br.com.diegocordeiro.dscproject.repository.ParametroGlobalRepository;
 import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
 import br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException;
+import br.com.diegocordeiro.dscproject.service.exceptions.RegraNegocioException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -256,6 +257,88 @@ class CartaoCreditoServiceTest {
         dto.setDescricao("Qualquer");
 
         assertThrows(RegistroNaoEncontradoException.class, () -> service.editar(99L, dto, 1L, "user1"));
+        verify(cartaoCreditoRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("BDD 16.9 / RN08 - Não excluir cartão com fatura vinculada, mesmo com o parâmetro desligado")
+    void excluir_comFaturaVinculada_deveLancarExcecaoSempre() {
+        CartaoCredito cartao = new CartaoCredito();
+        cartao.setId(50L);
+        cartao.setUsuario(criarUsuario(1L));
+
+        when(cartaoCreditoRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(50L, 1L)).thenReturn(Optional.of(cartao));
+        when(jdbcTemplate.queryForObject(contains("FATURAS_CARTAO"), eq(Long.class), eq(50L))).thenReturn(1L);
+
+        RegraNegocioException ex = assertThrows(RegraNegocioException.class, () -> service.excluir(50L, 1L, "user1"));
+        assertEquals("msg.cartao.em-uso.bloqueada", ex.getMessage());
+        verify(cartaoCreditoRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("RN08 - Não excluir cartão com despesa vinculada quando o parâmetro bloqueia")
+    void excluir_comDespesaEParametroBloqueia_deveLancarExcecao() {
+        CartaoCredito cartao = new CartaoCredito();
+        cartao.setId(50L);
+        cartao.setUsuario(criarUsuario(1L));
+
+        when(cartaoCreditoRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(50L, 1L)).thenReturn(Optional.of(cartao));
+        when(jdbcTemplate.queryForObject(contains("FATURAS_CARTAO"), eq(Long.class), eq(50L))).thenReturn(0L);
+        when(jdbcTemplate.queryForObject(contains("DESPESAS"), eq(Long.class), eq(50L))).thenReturn(2L);
+
+        RegraNegocioException ex = assertThrows(RegraNegocioException.class, () -> service.excluir(50L, 1L, "user1"));
+        assertEquals("msg.cartao.em-uso.bloqueada", ex.getMessage());
+        verify(cartaoCreditoRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("RN08 - Excluir cartão com despesa vinculada quando o parâmetro não bloqueia desvincula a despesa")
+    void excluir_comDespesaEParametroNaoBloqueia_deveDesvincularEExcluir() {
+        CartaoCredito cartao = new CartaoCredito();
+        cartao.setId(50L);
+        cartao.setUsuario(criarUsuario(1L));
+
+        br.com.diegocordeiro.dscproject.model.ParametroGlobal parametro = new br.com.diegocordeiro.dscproject.model.ParametroGlobal();
+        parametro.setValor("false");
+
+        when(cartaoCreditoRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(50L, 1L)).thenReturn(Optional.of(cartao));
+        when(jdbcTemplate.queryForObject(contains("FATURAS_CARTAO"), eq(Long.class), eq(50L))).thenReturn(0L);
+        when(jdbcTemplate.queryForObject(contains("DESPESAS"), eq(Long.class), eq(50L))).thenReturn(2L);
+        when(parametroGlobalRepository.findByCodigo("CARTAO_EXCLUSAO_BLOQUEIA_EM_USO")).thenReturn(Optional.of(parametro));
+        when(cartaoCreditoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        service.excluir(50L, 1L, "user1");
+
+        assertTrue(cartao.isExcluido());
+        verify(jdbcTemplate).update(contains("UPDATE DESPESAS"), eq(50L));
+        verify(cartaoCreditoRepository).save(cartao);
+    }
+
+    @Test
+    @DisplayName("BDD 16.11 / RN11 - Excluir cartão sem vínculo faz a exclusão lógica")
+    void excluir_semVinculo_deveExcluirLogicamente() {
+        CartaoCredito cartao = new CartaoCredito();
+        cartao.setId(50L);
+        cartao.setUsuario(criarUsuario(1L));
+
+        when(cartaoCreditoRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(50L, 1L)).thenReturn(Optional.of(cartao));
+        when(jdbcTemplate.queryForObject(anyString(), eq(Long.class), eq(50L))).thenReturn(0L);
+        when(cartaoCreditoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        service.excluir(50L, 1L, "user1");
+
+        assertTrue(cartao.isExcluido());
+        assertNotNull(cartao.getDataExclusao());
+        assertEquals("user1", cartao.getExcluidoPor());
+        verify(cartaoCreditoRepository).save(cartao);
+    }
+
+    @Test
+    @DisplayName("Excluir cartão de outro usuário lança RegistroNaoEncontradoException")
+    void excluir_quandoCartaoDeOutroUsuario_deveLancarExcecao() {
+        when(cartaoCreditoRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(99L, 1L)).thenReturn(Optional.empty());
+
+        assertThrows(RegistroNaoEncontradoException.class, () -> service.excluir(99L, 1L, "user1"));
         verify(cartaoCreditoRepository, never()).save(any());
     }
 }
