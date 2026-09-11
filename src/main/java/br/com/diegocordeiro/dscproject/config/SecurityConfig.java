@@ -149,6 +149,18 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/cartoes/excluir/**")
                     .hasAuthority("PERM_CARTOES_MANTER")
 
+                // Receitas (Finanças > Receitas) — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/receitas/listar", "/receitas/listar-dados")
+                    .hasAuthority("PERM_RECEITAS_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/receitas/buscar/**")
+                    .hasAuthority("PERM_RECEITAS_MANTER")
+                .requestMatchers(HttpMethod.POST, "/receitas/inserir")
+                    .hasAuthority("PERM_RECEITAS_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/receitas/editar/**", "/receitas/marcar-recebida/**")
+                    .hasAuthority("PERM_RECEITAS_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/receitas/excluir/**")
+                    .hasAuthority("PERM_RECEITAS_MANTER")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
