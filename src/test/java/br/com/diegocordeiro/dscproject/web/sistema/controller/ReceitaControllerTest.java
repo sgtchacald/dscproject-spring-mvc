@@ -178,6 +178,28 @@ class ReceitaControllerTest {
     }
 
     @Test
+    @DisplayName("C4 / MSG14 - Cadastrar com categoria inválida retorna 422 como erro de campo")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void inserir_comCategoriaInvalida_deveRetornar422() throws Exception {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L)));
+        when(categoriaRepository.findByIdAndDataExclusaoIsNull(99L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/receitas/inserir")
+                        .with(csrf())
+                        .param("nome", "Salário")
+                        .param("valor", "5000.00")
+                        .param("dataLancamento", "2026-09-05")
+                        .param("competencia", "2026-09")
+                        .param("contaId", "10")
+                        .param("categoriaId", "99"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false))
+                .andExpect(jsonPath("$.errosCampos.categoriaId").exists());
+
+        verify(receitaService, never()).inserir(any(), any(), any());
+    }
+
+    @Test
     @DisplayName("BDD 16.11 / MSG02 - Cadastrar sem conta retorna 422")
     @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
     void inserir_semConta_deveRetornar422() throws Exception {
