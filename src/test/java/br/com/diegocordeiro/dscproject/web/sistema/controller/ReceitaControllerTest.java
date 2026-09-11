@@ -3,7 +3,13 @@ package br.com.diegocordeiro.dscproject.web.sistema.controller;
 import br.com.diegocordeiro.dscproject.config.SecurityConfig;
 import br.com.diegocordeiro.dscproject.dto.receita.ReceitaGridDTO;
 import br.com.diegocordeiro.dscproject.enums.OrigemLancamento;
+import br.com.diegocordeiro.dscproject.model.Categoria;
+import br.com.diegocordeiro.dscproject.model.Conta;
+import br.com.diegocordeiro.dscproject.model.Receita;
 import br.com.diegocordeiro.dscproject.model.Usuario;
+import br.com.diegocordeiro.dscproject.repository.CategoriaRepository;
+import br.com.diegocordeiro.dscproject.repository.ContaRepository;
+import br.com.diegocordeiro.dscproject.repository.ReceitaRepository;
 import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
 import br.com.diegocordeiro.dscproject.service.AutorizacaoService;
 import br.com.diegocordeiro.dscproject.service.ReceitaService;
@@ -25,9 +31,12 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ReceitaController.class)
@@ -38,6 +47,15 @@ class ReceitaControllerTest {
 
     @MockitoBean
     private ReceitaService receitaService;
+
+    @MockitoBean
+    private ReceitaRepository receitaRepository;
+
+    @MockitoBean
+    private ContaRepository contaRepository;
+
+    @MockitoBean
+    private CategoriaRepository categoriaRepository;
 
     @MockitoBean
     private UsuarioRepository usuarioRepository;
@@ -108,5 +126,110 @@ class ReceitaControllerTest {
                 .andExpect(jsonPath("$[0].origem").value("MANUAL"));
 
         verify(receitaService).listarParaGrid(1L);
+    }
+
+    private Conta contaAtiva(Long id) {
+        Conta c = new Conta();
+        c.setId(id);
+        c.setAtivo(true);
+        Usuario usuario = new Usuario();
+        usuario.setId(1L);
+        c.setUsuario(usuario);
+        return c;
+    }
+
+    @Test
+    @DisplayName("BDD 16.5 - Cadastrar receita prevista com sucesso")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void inserir_comDadosValidos_deveRetornarOk() throws Exception {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L)));
+        when(receitaService.inserir(any(), eq(1L), eq("user_teste"))).thenReturn(new Receita());
+
+        mockMvc.perform(post("/receitas/inserir")
+                        .with(csrf())
+                        .param("nome", "Salário")
+                        .param("valor", "5000.00")
+                        .param("dataLancamento", "2026-09-05")
+                        .param("competencia", "2026-09")
+                        .param("contaId", "10")
+                        .param("recebido", "false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true));
+
+        verify(receitaService).inserir(any(), eq(1L), eq("user_teste"));
+    }
+
+    @Test
+    @DisplayName("BDD 16.6 / MSG03 - Cadastrar com valor zero retorna 422 como erro de campo")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void inserir_comValorZero_deveRetornar422() throws Exception {
+        mockMvc.perform(post("/receitas/inserir")
+                        .with(csrf())
+                        .param("nome", "Salário")
+                        .param("valor", "0.00")
+                        .param("dataLancamento", "2026-09-05")
+                        .param("competencia", "2026-09")
+                        .param("contaId", "10"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false))
+                .andExpect(jsonPath("$.errosCampos.valor").exists());
+
+        verify(receitaService, never()).inserir(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("BDD 16.11 / MSG02 - Cadastrar sem conta retorna 422")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void inserir_semConta_deveRetornar422() throws Exception {
+        mockMvc.perform(post("/receitas/inserir")
+                        .with(csrf())
+                        .param("nome", "Salário")
+                        .param("valor", "5000.00")
+                        .param("dataLancamento", "2026-09-05")
+                        .param("competencia", "2026-09"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false))
+                .andExpect(jsonPath("$.errosCampos.contaId").exists());
+
+        verify(receitaService, never()).inserir(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("BDD 16.12 - Cadastrar com conta de outro usuário retorna 422 (conta inválida)")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void inserir_comContaDeOutroUsuario_deveRetornar422() throws Exception {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/receitas/inserir")
+                        .with(csrf())
+                        .param("nome", "Salário")
+                        .param("valor", "5000.00")
+                        .param("dataLancamento", "2026-09-05")
+                        .param("competencia", "2026-09")
+                        .param("contaId", "10"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false))
+                .andExpect(jsonPath("$.errosCampos.contaId").exists());
+
+        verify(receitaService, never()).inserir(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("MSG11 - Cadastrar com competência fora do formato AAAA-MM retorna 422")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void inserir_comCompetenciaForaDoFormato_deveRetornar422() throws Exception {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L)));
+
+        mockMvc.perform(post("/receitas/inserir")
+                        .with(csrf())
+                        .param("nome", "Salário")
+                        .param("valor", "5000.00")
+                        .param("dataLancamento", "2026-09-05")
+                        .param("competencia", "09/2026")
+                        .param("contaId", "10"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errosCampos.competencia").exists());
+
+        verify(receitaService, never()).inserir(any(), any(), any());
     }
 }

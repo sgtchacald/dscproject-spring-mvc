@@ -34,6 +34,11 @@
                 <i class="ph ph-funnel" aria-hidden="true"></i>
                 <span th:text="#{receita.lista.botao.filtrar}">Filtrar</span>
             </button>
+            <button class="btn btn-primary" id="btnNovaReceita" sec:authorize="hasAuthority('PERM_RECEITAS_MANTER')"
+                    data-bs-toggle="modal" data-bs-target="#modalReceita">
+                <i class="ph ph-plus" aria-hidden="true"></i>
+                <span th:text="#{receita.lista.botao.novo}">Nova receita</span>
+            </button>
         </div>
     </div>
 </div>
@@ -65,6 +70,7 @@
     </div>
 
     <div th:replace="~{sistema/modulos/receita/fragments/modal-filtro :: modal}"></div>
+    <div th:replace="~{sistema/modulos/receita/fragments/modal-receita :: modal}"></div>
 
     <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
 
@@ -72,6 +78,9 @@
 
     <div id="dadosTelaReceita"
          th:data-url-dados="@{/receitas/listar-dados}"
+         th:data-url-buscar="@{/receitas/buscar}"
+         th:data-url-inserir="@{/receitas/inserir}"
+         th:data-url-editar="@{/receitas/editar}"
          th:data-url-contas-opcoes="@{/contas/opcoes}"
          th:data-url-categorias-opcoes="@{/categorias/opcoes(aplicaA='RECEITA')}"
          th:data-msg-filtro-vazio="#{msg.receita.filtro.vazio}"
@@ -81,6 +90,8 @@
          th:data-label-origem-manual="#{receita.origem.manual}"
          th:data-label-origem-open-finance="#{receita.origem.openFinance}"
          th:data-label-origem-importacao="#{receita.origem.importacao}"
+         th:data-label-novo="#{receita.form.titulo.novo}"
+         th:data-label-editar="#{receita.form.titulo.editar}"
          hidden></div>
 </section>
 

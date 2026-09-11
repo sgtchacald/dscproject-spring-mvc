@@ -1,6 +1,7 @@
 import { getJson } from '../comum/http.js';
 import { semAcento, dataBr } from '../comum/ui.js';
 import { inicializarFiltro, obterFiltroAtual, abrirModalFiltro } from './modal-filtro.js';
+import { inicializarForm, EVENTO_ALTERADO } from './modal-form.js';
 
 const cfg = () => document.getElementById('dadosTelaReceita').dataset;
 
@@ -161,6 +162,7 @@ function inicializarOrdenacao() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    inicializarForm();
     inicializarFiltro(() => render());
     inicializarOrdenacao();
 
@@ -171,6 +173,8 @@ document.addEventListener('DOMContentLoaded', function () {
             abrirModalFiltro();
         });
     }
+
+    document.addEventListener(EVENTO_ALTERADO, carregar);
 
     carregar();
 });

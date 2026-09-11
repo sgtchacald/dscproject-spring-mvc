@@ -1,11 +1,17 @@
 package br.com.diegocordeiro.dscproject.service;
 
+import br.com.diegocordeiro.dscproject.dto.receita.ReceitaFormDTO;
 import br.com.diegocordeiro.dscproject.dto.receita.ReceitaGridDTO;
+import br.com.diegocordeiro.dscproject.enums.AplicaA;
 import br.com.diegocordeiro.dscproject.enums.OrigemLancamento;
 import br.com.diegocordeiro.dscproject.model.Categoria;
 import br.com.diegocordeiro.dscproject.model.Conta;
 import br.com.diegocordeiro.dscproject.model.Receita;
+import br.com.diegocordeiro.dscproject.repository.CategoriaRepository;
+import br.com.diegocordeiro.dscproject.repository.ContaRepository;
 import br.com.diegocordeiro.dscproject.repository.ReceitaRepository;
+import br.com.diegocordeiro.dscproject.service.exceptions.RegraNegocioException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,8 +22,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +36,40 @@ class ReceitaServiceTest {
     @Mock
     private ReceitaRepository receitaRepository;
 
+    @Mock
+    private ContaRepository contaRepository;
+
+    @Mock
+    private CategoriaRepository categoriaRepository;
+
     private ReceitaService receitaService;
+
+    @BeforeEach
+    void setUp() {
+        receitaService = new ReceitaService(receitaRepository, contaRepository, categoriaRepository);
+    }
+
+    private Conta contaAtiva(Long id, Long usuarioId) {
+        Conta c = new Conta();
+        c.setId(id);
+        c.setDescricao("Nubank Conta Corrente");
+        c.setAtivo(true);
+        var usuario = new br.com.diegocordeiro.dscproject.model.Usuario();
+        usuario.setId(usuarioId);
+        c.setUsuario(usuario);
+        return c;
+    }
+
+    private ReceitaFormDTO dtoValido() {
+        ReceitaFormDTO dto = new ReceitaFormDTO();
+        dto.setNome("Salário");
+        dto.setValor(new BigDecimal("5000.00"));
+        dto.setDataLancamento(LocalDate.of(2026, 9, 5));
+        dto.setCompetencia("2026-09");
+        dto.setContaId(10L);
+        dto.setRecebido(false);
+        return dto;
+    }
 
     private Receita criarReceita(Long id, Long contaUsuarioId, boolean recebido, boolean excluida) {
         Conta conta = new Conta();
@@ -65,7 +107,6 @@ class ReceitaServiceTest {
     @Test
     @DisplayName("RF01 / RF07 / RN02 - Lista as receitas apenas do usuário autenticado, mapeando todos os campos do grid")
     void listarParaGrid_deveConsultarPorUsuarioEMapearCampos() {
-        receitaService = new ReceitaService(receitaRepository);
         Receita receita = criarReceita(1L, 1L, false, false);
         when(receitaRepository.listarPorUsuario(1L)).thenReturn(List.of(receita));
 
@@ -93,7 +134,6 @@ class ReceitaServiceTest {
     @Test
     @DisplayName("QUADRO_DESCRITIVO_1/ID13 - Receita recebida aparece com dataRecebimento preenchida")
     void listarParaGrid_receitaRecebida_devePreencherDataRecebimento() {
-        receitaService = new ReceitaService(receitaRepository);
         Receita receita = criarReceita(2L, 1L, true, false);
         when(receitaRepository.listarPorUsuario(1L)).thenReturn(List.of(receita));
 
@@ -106,7 +146,6 @@ class ReceitaServiceTest {
     @Test
     @DisplayName("QUADRO_DESCRITIVO_1/ID13 - Receita excluída continua na listagem, sinalizada como excluída (C1 não filtra soft delete)")
     void listarParaGrid_receitaExcluida_apareceNaListaSinalizada() {
-        receitaService = new ReceitaService(receitaRepository);
         Receita receita = criarReceita(3L, 1L, false, true);
         when(receitaRepository.listarPorUsuario(1L)).thenReturn(List.of(receita));
 
@@ -118,7 +157,6 @@ class ReceitaServiceTest {
     @Test
     @DisplayName("Receita sem categoria vem com categoria nula no grid")
     void listarParaGrid_semCategoria_deveVirComCategoriaNula() {
-        receitaService = new ReceitaService(receitaRepository);
         Receita receita = criarReceita(4L, 1L, false, false);
         receita.setCategoria(null);
         when(receitaRepository.listarPorUsuario(1L)).thenReturn(List.of(receita));
@@ -127,5 +165,100 @@ class ReceitaServiceTest {
 
         assertNull(dto.getCategoriaId());
         assertNull(dto.getCategoriaNome());
+    }
+
+    @Test
+    @DisplayName("RN03/RN07 - Cadastra receita fixando origem MANUAL, mesmo sem o DTO ter esse campo")
+    void inserir_comDadosValidos_deveSalvarComOrigemManual() {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L)));
+        when(receitaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Receita salva = receitaService.inserir(dtoValido(), 1L, "user1");
+
+        assertEquals("Salário", salva.getNome());
+        assertEquals(new BigDecimal("5000.00"), salva.getValor());
+        assertEquals(YearMonth.of(2026, 9), salva.getCompetencia());
+        assertEquals(OrigemLancamento.MANUAL, salva.getOrigem());
+        assertEquals(10L, salva.getConta().getId());
+        assertFalse(salva.isRecebido());
+        assertNull(salva.getDataRecebimento());
+        verify(receitaRepository).save(any(Receita.class));
+    }
+
+    @Test
+    @DisplayName("RN03/C3 - Inserir com conta inválida lança RegraNegocioException e não persiste")
+    void inserir_comContaInvalida_deveLancarExcecaoENaoSalvar() {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.empty());
+
+        ReceitaFormDTO dto = dtoValido();
+        RegraNegocioException ex = assertThrows(RegraNegocioException.class, () -> receitaService.inserir(dto, 1L, "user1"));
+        assertEquals("contaId", ex.getCampo());
+        assertEquals("msg.receita.conta.invalida", ex.getMessage());
+        verify(receitaRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("RN06 - Cadastrar já recebida grava a data de recebimento")
+    void inserir_recebidaComData_deveGravarDataRecebimento() {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L)));
+        when(receitaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        ReceitaFormDTO dto = dtoValido();
+        dto.setRecebido(true);
+        dto.setDataRecebimento(LocalDate.of(2026, 9, 6));
+
+        Receita salva = receitaService.inserir(dto, 1L, "user1");
+
+        assertTrue(salva.isRecebido());
+        assertEquals(LocalDate.of(2026, 9, 6), salva.getDataRecebimento());
+    }
+
+    @Test
+    @DisplayName("RN06 - Cadastrar como não recebida sempre limpa a data de recebimento, mesmo se enviada")
+    void inserir_naoRecebida_deveLimparDataRecebimentoEnviada() {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L)));
+        when(receitaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        ReceitaFormDTO dto = dtoValido();
+        dto.setRecebido(false);
+        dto.setDataRecebimento(LocalDate.of(2026, 9, 6)); // não deveria sobreviver
+
+        Receita salva = receitaService.inserir(dto, 1L, "user1");
+
+        assertFalse(salva.isRecebido());
+        assertNull(salva.getDataRecebimento());
+    }
+
+    @Test
+    @DisplayName("C4 - Cadastrar com categoria válida vincula a categoria")
+    void inserir_comCategoriaValida_deveVincularCategoria() {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L)));
+        Categoria categoria = new Categoria();
+        categoria.setId(20L);
+        categoria.setAtivo(true);
+        categoria.setAplicaA(AplicaA.RECEITA);
+        when(categoriaRepository.findByIdAndDataExclusaoIsNull(20L)).thenReturn(Optional.of(categoria));
+        when(receitaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        ReceitaFormDTO dto = dtoValido();
+        dto.setCategoriaId(20L);
+
+        Receita salva = receitaService.inserir(dto, 1L, "user1");
+
+        assertEquals(20L, salva.getCategoria().getId());
+    }
+
+    @Test
+    @DisplayName("C4 - Cadastrar com categoria inválida lança RegraNegocioException e não persiste")
+    void inserir_comCategoriaInvalida_deveLancarExcecaoENaoSalvar() {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L)));
+        when(categoriaRepository.findByIdAndDataExclusaoIsNull(20L)).thenReturn(Optional.empty());
+
+        ReceitaFormDTO dto = dtoValido();
+        dto.setCategoriaId(20L);
+
+        RegraNegocioException ex = assertThrows(RegraNegocioException.class, () -> receitaService.inserir(dto, 1L, "user1"));
+        assertEquals("categoriaId", ex.getCampo());
+        verify(receitaRepository, never()).save(any());
     }
 }
