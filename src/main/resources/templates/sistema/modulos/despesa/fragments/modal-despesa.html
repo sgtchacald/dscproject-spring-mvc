@@ -78,7 +78,7 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label required" for="despesaValor" id="labelValor" th:text="#{despesa.form.campo.valor.label}">Valor</label>
-                            <input type="text" class="form-control" id="despesaValor" name="valor"
+                            <input type="text" class="form-control mascara-moeda" id="despesaValor" name="valor" data-mascara="moeda"
                                    th:placeholder="#{despesa.form.campo.valor.placeholder}" required>
                             <div class="invalid-feedback" id="erroValor"></div>
                         </div>

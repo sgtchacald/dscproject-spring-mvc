@@ -1,5 +1,6 @@
 import { getJson, enviar } from '../comum/http.js';
 import { toast, abrirModal, fecharModal } from '../comum/ui.js';
+import { definirValorMoeda } from '../comum/mascara.js';
 
 export const EVENTO_ALTERADO = 'despesa:alterada';
 
@@ -202,7 +203,7 @@ function renderizarRateios() {
                 ${infoPix}
             </td>
             <td>
-                <input type="text" class="form-control form-control-sm input-fatia-rateio"
+                <input type="text" class="form-control form-control-sm input-fatia-rateio mascara-moeda"
                        data-index="${index}" value="${formatarInputDecimal(item.valor)}">
             </td>
             <td>
@@ -284,7 +285,7 @@ export async function abrirEdicao(id) {
         document.getElementById('despesaCompetencia').value = d.competencia || '';
         document.getElementById('despesaDataLancamento').value = d.dataLancamento || '';
         document.getElementById('despesaDataVencimento').value = d.dataVencimento || '';
-        document.getElementById('despesaValor').value = formatarInputDecimal(d.valor);
+        definirValorMoeda(document.getElementById('despesaValor'), d.valor);
         document.getElementById('despesaCategoriaId').value = d.categoriaId || '';
 
         // Se importada do Open Finance
