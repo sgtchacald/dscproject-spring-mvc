@@ -135,6 +135,32 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/contas/excluir/**")
                     .hasAuthority("PERM_CONTAS_MANTER")
 
+                // Cartões de Crédito (Meus Cartões) — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/cartoes/opcoes")
+                    .authenticated()
+                .requestMatchers(HttpMethod.GET, "/cartoes/listar", "/cartoes/listar-dados")
+                    .hasAuthority("PERM_CARTOES_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/cartoes/buscar/**")
+                    .hasAuthority("PERM_CARTOES_MANTER")
+                .requestMatchers(HttpMethod.POST, "/cartoes/inserir")
+                    .hasAuthority("PERM_CARTOES_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/cartoes/editar/**")
+                    .hasAuthority("PERM_CARTOES_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/cartoes/excluir/**")
+                    .hasAuthority("PERM_CARTOES_MANTER")
+
+                // Receitas (Finanças > Receitas) — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/receitas/listar", "/receitas/listar-dados")
+                    .hasAuthority("PERM_RECEITAS_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/receitas/buscar/**")
+                    .hasAuthority("PERM_RECEITAS_MANTER")
+                .requestMatchers(HttpMethod.POST, "/receitas/inserir")
+                    .hasAuthority("PERM_RECEITAS_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/receitas/editar/**", "/receitas/marcar-recebida/**")
+                    .hasAuthority("PERM_RECEITAS_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/receitas/excluir/**")
+                    .hasAuthority("PERM_RECEITAS_MANTER")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
