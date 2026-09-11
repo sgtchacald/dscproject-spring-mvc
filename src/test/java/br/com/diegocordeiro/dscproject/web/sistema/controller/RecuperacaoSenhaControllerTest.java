@@ -3,6 +3,7 @@ package br.com.diegocordeiro.dscproject.web.sistema.controller;
 import br.com.diegocordeiro.dscproject.config.SecurityConfig;
 import br.com.diegocordeiro.dscproject.service.AutorizacaoService;
 import br.com.diegocordeiro.dscproject.service.RecuperacaoSenhaService;
+import br.com.diegocordeiro.dscproject.service.UsuarioRedeSocialService;
 import br.com.diegocordeiro.dscproject.service.UsuarioService;
 import br.com.diegocordeiro.dscproject.service.exceptions.TokenRecuperacaoException;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,8 @@ class RecuperacaoSenhaControllerTest {
     private RecuperacaoSenhaService recuperacaoSenhaService;
     @MockitoBean
     private UsuarioService usuarioService;
+    @MockitoBean
+    private UsuarioRedeSocialService usuarioRedeSocialService;
     @MockitoBean
     private AutorizacaoService autorizacaoService;
     @MockitoBean

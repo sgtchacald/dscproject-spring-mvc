@@ -2,9 +2,12 @@ package br.com.diegocordeiro.dscproject.web.sistema.controller;
 
 import br.com.diegocordeiro.dscproject.config.SecurityConfig;
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioListaDTO;
+import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioRedeSocialDTO;
+import br.com.diegocordeiro.dscproject.enums.TipoRedeSocial;
 import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.service.AutorizacaoService;
 import br.com.diegocordeiro.dscproject.service.RecuperacaoSenhaService;
+import br.com.diegocordeiro.dscproject.service.UsuarioRedeSocialService;
 import br.com.diegocordeiro.dscproject.service.UsuarioService;
 import br.com.diegocordeiro.dscproject.service.exceptions.RegraNegocioException;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +50,8 @@ class UsuarioControllerTest {
     private UsuarioService usuarioService;
     @MockitoBean
     private RecuperacaoSenhaService recuperacaoSenhaService;
+    @MockitoBean
+    private UsuarioRedeSocialService usuarioRedeSocialService;
     @MockitoBean
     private AutorizacaoService autorizacaoService;
     @MockitoBean
@@ -354,4 +359,87 @@ class UsuarioControllerTest {
                 org.hamcrest.Matchers.containsString("id=\"modalAlterarSenha\""),
                 org.hamcrest.Matchers.containsString("data-perm=\"alterar-senha\""))));
     }
+
+    // ---------- Redes Sociais do Usuário (EDP15 a EDP19) ----------
+
+    @Test
+    @WithMockUser(username = "admin")
+    void listarRedesSociais_autenticado_retornaLista() throws Exception {
+        Usuario user = usuario(1L, "admin", perfil("ADMIN"));
+        when(usuarioService.buscarPorLogin("admin")).thenReturn(user);
+        when(usuarioRedeSocialService.listarPorUsuario(1L)).thenReturn(List.of(
+            UsuarioRedeSocialDTO.builder().id(10L).tipo(TipoRedeSocial.LINKEDIN).url("https://linkedin.com").ativo(true).build()
+        ));
+
+        mockMvc.perform(get("/minha-conta/redes-sociais").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(10L))
+            .andExpect(jsonPath("$[0].tipo").value("LINKEDIN"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin")
+    void buscarRedeSocial_autenticado_retornaObjeto() throws Exception {
+        Usuario user = usuario(1L, "admin", perfil("ADMIN"));
+        when(usuarioService.buscarPorLogin("admin")).thenReturn(user);
+        when(usuarioRedeSocialService.buscarPorIdEUsuario(10L, 1L)).thenReturn(
+            UsuarioRedeSocialDTO.builder().id(10L).tipo(TipoRedeSocial.GITHUB).url("https://github.com").ativo(true).build()
+        );
+
+        mockMvc.perform(get("/minha-conta/redes-sociais/10").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(10L))
+            .andExpect(jsonPath("$.tipo").value("GITHUB"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin")
+    void inserirRedeSocial_sucesso() throws Exception {
+        Usuario user = usuario(1L, "admin", perfil("ADMIN"));
+        when(usuarioService.buscarPorLogin("admin")).thenReturn(user);
+        when(usuarioRedeSocialService.inserir(any(), eq(1L), eq("admin"))).thenReturn(
+            UsuarioRedeSocialDTO.builder().id(10L).tipo(TipoRedeSocial.LINKEDIN).url("https://linkedin.com/in/teste").ativo(true).build()
+        );
+
+        mockMvc.perform(post("/minha-conta/redes-sociais").with(csrf())
+                .param("tipo", "LINKEDIN")
+                .param("url", "https://linkedin.com/in/teste")
+                .param("ativo", "true")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sucesso").value(true))
+            .andExpect(jsonPath("$.redeSocial.id").value(10L));
+    }
+
+    @Test
+    @WithMockUser(username = "admin")
+    void editarRedeSocial_sucesso() throws Exception {
+        Usuario user = usuario(1L, "admin", perfil("ADMIN"));
+        when(usuarioService.buscarPorLogin("admin")).thenReturn(user);
+        when(usuarioRedeSocialService.editar(eq(10L), any(), eq(1L), eq("admin"))).thenReturn(
+            UsuarioRedeSocialDTO.builder().id(10L).tipo(TipoRedeSocial.LINKEDIN).url("https://linkedin.com/in/novo").ativo(true).build()
+        );
+
+        mockMvc.perform(put("/minha-conta/redes-sociais/10").with(csrf())
+                .param("tipo", "LINKEDIN")
+                .param("url", "https://linkedin.com/in/novo")
+                .param("ativo", "true")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sucesso").value(true))
+            .andExpect(jsonPath("$.redeSocial.url").value("https://linkedin.com/in/novo"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin")
+    void excluirRedeSocial_sucesso() throws Exception {
+        Usuario user = usuario(1L, "admin", perfil("ADMIN"));
+        when(usuarioService.buscarPorLogin("admin")).thenReturn(user);
+
+        mockMvc.perform(delete("/minha-conta/redes-sociais/10").with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sucesso").value(true));
+    }
 }
+

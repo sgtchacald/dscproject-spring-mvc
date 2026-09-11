@@ -8,8 +8,13 @@ import br.com.diegocordeiro.dscproject.dto.usuario.RevisaoUsuarioDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioEdicaoDTO;
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioListaDTO;
+import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioRedeSocialDTO;
+import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioRedeSocialFormDTO;
 import br.com.diegocordeiro.dscproject.enums.Genero;
+import br.com.diegocordeiro.dscproject.enums.TipoRedeSocial;
+import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.service.RecuperacaoSenhaService;
+import br.com.diegocordeiro.dscproject.service.UsuarioRedeSocialService;
 import br.com.diegocordeiro.dscproject.service.UsuarioService;
 import br.com.diegocordeiro.dscproject.util.SecurityUtils;
 import br.com.diegocordeiro.dscproject.web.sistema.validator.MinhaContaValidator;
@@ -51,12 +56,14 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final RecuperacaoSenhaService recuperacaoSenhaService;
+    private final UsuarioRedeSocialService usuarioRedeSocialService;
     private final MessageSource messageSource;
     private final SmartValidator smartValidator;
 
-    public UsuarioController(UsuarioService usuarioService, RecuperacaoSenhaService recuperacaoSenhaService, MessageSource messageSource, SmartValidator smartValidator) {
+    public UsuarioController(UsuarioService usuarioService, RecuperacaoSenhaService recuperacaoSenhaService, UsuarioRedeSocialService usuarioRedeSocialService, MessageSource messageSource, SmartValidator smartValidator) {
         this.usuarioService = usuarioService;
         this.recuperacaoSenhaService = recuperacaoSenhaService;
+        this.usuarioRedeSocialService = usuarioRedeSocialService;
         this.messageSource = messageSource;
         this.smartValidator = smartValidator;
     }
@@ -157,6 +164,7 @@ public class UsuarioController {
     public String minhaConta(Model model) {
         model.addAttribute("minhaConta", new MinhaContaDTO(usuarioService.buscarPorLogin(SecurityUtils.loginAtual())));
         model.addAttribute("generos", Genero.values());
+        model.addAttribute("tiposRedesSociais", TipoRedeSocial.values());
         return "sistema/minha-conta";
     }
 
@@ -174,6 +182,67 @@ public class UsuarioController {
         }
         usuarioService.atualizarPropriaConta(login, dto);
         return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.minha-conta.atualizada", locale)));
+    }
+
+    // ---------- Redes Sociais do Usuário (self-service: EDP15 a EDP19) ----------
+
+    @GetMapping("/minha-conta/redes-sociais")
+    @ResponseBody
+    public List<UsuarioRedeSocialDTO> listarRedesSociais() {
+        Usuario usuario = usuarioService.buscarPorLogin(SecurityUtils.loginAtual());
+        return usuarioRedeSocialService.listarPorUsuario(usuario.getId());
+    }
+
+    @GetMapping("/minha-conta/redes-sociais/ativas")
+    @ResponseBody
+    public List<UsuarioRedeSocialDTO> listarRedesSociaisAtivas() {
+        Usuario usuario = usuarioService.buscarPorLogin(SecurityUtils.loginAtual());
+        return usuarioRedeSocialService.listarAtivasPorUsuario(usuario.getId());
+    }
+
+    @GetMapping("/minha-conta/redes-sociais/{id}")
+    @ResponseBody
+    public UsuarioRedeSocialDTO buscarRedeSocial(@PathVariable Long id) {
+        Usuario usuario = usuarioService.buscarPorLogin(SecurityUtils.loginAtual());
+        return usuarioRedeSocialService.buscarPorIdEUsuario(id, usuario.getId());
+    }
+
+    @PostMapping("/minha-conta/redes-sociais")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> inserirRedeSocial(@ModelAttribute UsuarioRedeSocialFormDTO form, Locale locale) {
+        String login = SecurityUtils.loginAtual();
+        Usuario usuario = usuarioService.buscarPorLogin(login);
+        UsuarioRedeSocialDTO criada = usuarioRedeSocialService.inserir(form, usuario.getId(), login);
+        return ResponseEntity.ok(Map.of(
+                "sucesso", true,
+                "mensagem", mensagem("msg.usuario.rede-social.cadastrada", locale),
+                "redeSocial", criada
+        ));
+    }
+
+    @PutMapping("/minha-conta/redes-sociais/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> editarRedeSocial(@PathVariable Long id, @ModelAttribute UsuarioRedeSocialFormDTO form, Locale locale) {
+        String login = SecurityUtils.loginAtual();
+        Usuario usuario = usuarioService.buscarPorLogin(login);
+        UsuarioRedeSocialDTO atualizada = usuarioRedeSocialService.editar(id, form, usuario.getId(), login);
+        return ResponseEntity.ok(Map.of(
+                "sucesso", true,
+                "mensagem", mensagem("msg.usuario.rede-social.atualizada", locale),
+                "redeSocial", atualizada
+        ));
+    }
+
+    @DeleteMapping("/minha-conta/redes-sociais/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> excluirRedeSocial(@PathVariable Long id, Locale locale) {
+        String login = SecurityUtils.loginAtual();
+        Usuario usuario = usuarioService.buscarPorLogin(login);
+        usuarioRedeSocialService.excluir(id, usuario.getId(), login);
+        return ResponseEntity.ok(Map.of(
+                "sucesso", true,
+                "mensagem", mensagem("msg.usuario.rede-social.excluida", locale)
+        ));
     }
 
     // ---------- Públicos: auto-cadastro ----------

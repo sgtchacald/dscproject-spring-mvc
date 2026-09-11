@@ -4,6 +4,7 @@ import br.com.diegocordeiro.dscproject.config.SecurityConfig;
 import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.service.AutorizacaoService;
 import br.com.diegocordeiro.dscproject.service.RecuperacaoSenhaService;
+import br.com.diegocordeiro.dscproject.service.UsuarioRedeSocialService;
 import br.com.diegocordeiro.dscproject.service.UsuarioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,8 @@ class MinhaContaControllerTest {
     private UsuarioService usuarioService;
     @MockitoBean
     private RecuperacaoSenhaService recuperacaoSenhaService;
+    @MockitoBean
+    private UsuarioRedeSocialService usuarioRedeSocialService;
     @MockitoBean
     private AutorizacaoService autorizacaoService;
     @MockitoBean
