@@ -49,7 +49,9 @@ public class PermissaoCatalogoService extends SincronizadorDeCatalogo<PermissaoD
 
     @Override
     protected Permissao novaLinha(PermissaoDefinida definicao) {
-        return new Permissao(definicao.getCodigo(), definicao.getNome(), definicao.getDescricao(), definicao.getModulo());
+        Permissao linha = new Permissao(definicao.getCodigo(), definicao.getNome(), definicao.getDescricao(), definicao.getModulo());
+        linha.setConcedivelPorPlano(definicao.isConcedivelPorPlano());
+        return linha;
     }
 
     @Override
@@ -57,5 +59,6 @@ public class PermissaoCatalogoService extends SincronizadorDeCatalogo<PermissaoD
         linha.setNome(definicao.getNome());
         linha.setDescricao(definicao.getDescricao());
         linha.setModulo(definicao.getModulo());
+        linha.setConcedivelPorPlano(definicao.isConcedivelPorPlano());
     }
 }

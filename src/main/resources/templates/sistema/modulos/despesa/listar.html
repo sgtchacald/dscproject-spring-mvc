@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{sistema/template-admin/layout}">
+<head>
+    <title th:text="#{despesa.lista.titulo}">Despesas</title>
+</head>
+<body>
+
+<div layout:fragment="cabecalho">
+    <div class="row g-2 align-items-center">
+        <div class="col">
+            <h2 class="page-title" th:text="#{despesa.lista.cabecalho}">Despesas</h2>
+            <br><br>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/}">
+                            <i class="ph ph-house" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item" th:text="#{despesa.lista.breadcrumb.pai}">Finanças</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{despesa.lista.titulo}">Despesas</li>
+                </ol>
+            </nav>
+            <br>
+            <div class="text-secondary mt-1" th:text="#{despesa.lista.descricao}">
+                Cadastre e controle suas compras à vista, no cartão, parceladas e em dinheiro.
+            </div>
+        </div>
+        <div class="col-auto ms-auto">
+            <button class="btn" id="btnFiltrar" data-bs-toggle="modal" data-bs-target="#modalFiltroDespesa">
+                <i class="ph ph-funnel" aria-hidden="true"></i>
+                <span th:text="#{despesa.lista.botao.filtrar}">Filtrar</span>
+            </button>
+            <button class="btn" id="btnPagarLote" disabled sec:authorize="hasAuthority('PERM_DESPESAS_MANTER')"
+                    data-bs-toggle="modal" data-bs-target="#modalPagamentoLote">
+                <i class="ph ph-currency-dollar" aria-hidden="true"></i>
+                <span th:text="#{despesa.lista.botao.pagarLote}">Registrar pagamento</span>
+            </button>
+            <button class="btn btn-primary" id="btnNovaDespesa" sec:authorize="hasAuthority('PERM_DESPESAS_MANTER')"
+                    data-bs-toggle="modal" data-bs-target="#modalDespesa">
+                <i class="ph ph-plus" aria-hidden="true"></i>
+                <span th:text="#{despesa.lista.botao.nova}">Nova despesa</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<section layout:fragment="corpo">
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table" id="tabelaDespesas">
+                <thead>
+                <tr>
+                    <th class="w-1">
+                        <input class="form-check-input" type="checkbox" id="chkTodos">
+                    </th>
+                    <th data-col="competencia" class="sortable" role="button" th:text="#{despesa.col.competencia}">Competência</th>
+                    <th data-col="nome" class="sortable" role="button" th:text="#{despesa.col.nome}">Nome / Descrição</th>
+                    <th data-col="categoria" class="sortable" role="button" th:text="#{despesa.col.categoria}">Categoria</th>
+                    <th data-col="forma" class="sortable" role="button" th:text="#{despesa.col.forma}">Forma / Meio</th>
+                    <th data-col="valor" class="sortable text-end" role="button" th:text="#{despesa.col.valor}">Valor</th>
+                    <th data-col="dataVencimento" class="sortable" role="button" th:text="#{despesa.col.vencimento}">Vencimento</th>
+                    <th data-col="status" class="sortable" role="button" th:text="#{despesa.col.status}">Status</th>
+                    <th data-col="dataPagamento" class="sortable" role="button" th:text="#{despesa.form.campo.dataPagamento.label}">Data de pagamento</th>
+                    <th data-col="rateio" class="sortable text-center" role="button" th:if="${podeRatear}" th:text="#{despesa.col.rateio}">Rateio</th>
+                    <th data-col="origem" class="sortable" role="button" th:text="#{despesa.col.origem}">Origem</th>
+                    <th class="w-1" th:text="#{despesa.col.acoes}">Ações</th>
+                </tr>
+                </thead>
+                <tbody id="corpoTabelaDespesas"></tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-secondary" id="rodapeContagemDespesas"></p>
+        </div>
+    </div>
+
+    <div th:replace="~{sistema/modulos/despesa/fragments/modal-filtro :: modal}"></div>
+    <div th:replace="~{sistema/modulos/despesa/fragments/modal-despesa :: modal}"></div>
+    <div th:replace="~{sistema/modulos/despesa/fragments/modal-pagamento :: modal}"></div>
+    <div th:replace="~{sistema/modulos/despesa/fragments/modal-pagamento-lote :: modal}"></div>
+
+    <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
+
+    <span sec:authorize="hasAuthority('PERM_DESPESAS_MANTER')" data-perm="manter" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_DESPESA_RATEAR_MULTIUSUARIO')" data-perm="ratear" hidden></span>
+
+    <div id="dadosTelaDespesa"
+         th:data-url-dados="@{/despesas/listar-dados}"
+         th:data-url-buscar="@{/despesas/buscar}"
+         th:data-url-inserir="@{/despesas/inserir}"
+         th:data-url-editar="@{/despesas/editar}"
+         th:data-url-excluir="@{/despesas/excluir}"
+         th:data-url-pagamento="@{/despesas/registrar-pagamento}"
+         th:data-url-pagamento-lote="@{/despesas/registrar-pagamento-lote}"
+         th:data-url-rateio-acerto="@{/despesas}"
+         th:data-url-usuarios-rateio="@{/despesas/usuarios-rateio}"
+         th:data-url-contas-opcoes="@{/contas/opcoes}"
+         th:data-url-cartoes-opcoes="@{/cartoes/opcoes}"
+         th:data-url-categorias-opcoes="@{/categorias/opcoes(aplicaA='DESPESA')}"
+         th:data-pode-ratear="${podeRatear}"
+         th:data-msg-filtro-vazio="#{msg.despesa.filtro.vazio}"
+         th:data-msg-confirma-exclusao="#{msg.despesa.confirma.exclusao}"
+         th:data-msg-confirma-exclusao-mae="#{msg.despesa.confirma.exclusao-mae}"
+         th:data-label-paga="#{despesa.badge.paga}"
+         th:data-label-em-aberto="#{despesa.badge.emAberto}"
+         th:data-label-nao-se-aplica="#{despesa.badge.naoSeAplica}"
+         th:data-label-excluida="#{despesa.badge.excluida}"
+         th:data-label-origem-manual="#{despesa.origem.manual}"
+         th:data-label-origem-open-finance="#{despesa.origem.openFinance}"
+         th:data-label-origem-importacao="#{despesa.origem.importacao}"
+         th:data-label-novo="#{despesa.form.titulo.novo}"
+         th:data-label-editar="#{despesa.form.titulo.editar}"
+         th:data-label-forma-conta="#{despesa.forma.conta}"
+         th:data-label-forma-cartao="#{despesa.forma.cartao}"
+         th:data-label-forma-dinheiro="#{despesa.forma.dinheiro}"
+         th:data-acao-editar="#{despesa.acao.editar}"
+         th:data-acao-pagamento="#{despesa.acao.registrarPagamento}"
+         th:data-acao-ratear="#{despesa.acao.ratear}"
+         hidden></div>
+</section>
+
+<th:block layout:fragment="js">
+    <script type="module" th:src="@{/js/despesa/listar.js}"></script>
+</th:block>
+</body>
+</html>

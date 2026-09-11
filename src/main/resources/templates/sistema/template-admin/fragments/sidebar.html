@@ -29,8 +29,8 @@
                 </li>
 
                 <li class="nav-item dropdown"
-                    sec:authorize="hasAuthority('PERM_CONTAS_LISTAR') or hasAuthority('PERM_RECEITAS_LISTAR') or hasAuthority('PERM_CATEGORIAS_LISTAR') or hasAuthority('PERM_INSTITUICOES_LISTAR') or hasAuthority('PERM_CARTOES_LISTAR')"
-                    th:with="grupoAtivo=${#strings.startsWith(uri, '/contas/') or #strings.startsWith(uri, '/receitas/') or #strings.startsWith(uri, '/categorias/') or #strings.startsWith(uri, '/instituicoes-financeiras/') or #strings.startsWith(uri, '/cartoes/')}"
+                    sec:authorize="hasAuthority('PERM_CONTAS_LISTAR') or hasAuthority('PERM_RECEITAS_LISTAR') or hasAuthority('PERM_DESPESAS_LISTAR') or hasAuthority('PERM_CATEGORIAS_LISTAR') or hasAuthority('PERM_INSTITUICOES_LISTAR') or hasAuthority('PERM_CARTOES_LISTAR')"
+                    th:with="grupoAtivo=${#strings.startsWith(uri, '/contas/') or #strings.startsWith(uri, '/receitas/') or #strings.startsWith(uri, '/despesas/') or #strings.startsWith(uri, '/categorias/') or #strings.startsWith(uri, '/instituicoes-financeiras/') or #strings.startsWith(uri, '/cartoes/')}"
                     th:classappend="${grupoAtivo} ? 'active'">
                     <a class="nav-link dropdown-toggle" href="#navbar-financas" data-bs-toggle="dropdown"
                        data-bs-auto-close="false" role="button" aria-expanded="false"
@@ -52,6 +52,12 @@
                            th:classappend="${#strings.startsWith(uri, '/receitas/')} ? 'active'">
                             <i class="ph ph-hand-coins dropdown-item-icon" aria-hidden="true"></i>
                             <span th:text="#{menu.receitas}">Receitas</span>
+                        </a>
+                        <a class="dropdown-item" th:href="@{/despesas/listar}"
+                           sec:authorize="hasAuthority('PERM_DESPESAS_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/despesas/')} ? 'active'">
+                            <i class="ph ph-receipt dropdown-item-icon" aria-hidden="true"></i>
+                            <span th:text="#{menu.despesas}">Despesas</span>
                         </a>
                         <a class="dropdown-item" th:href="@{/cartoes/listar}"
                            sec:authorize="hasAuthority('PERM_CARTOES_LISTAR')"

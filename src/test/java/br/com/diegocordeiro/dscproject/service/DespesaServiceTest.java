@@ -1,0 +1,322 @@
+package br.com.diegocordeiro.dscproject.service;
+
+import br.com.diegocordeiro.dscproject.dto.despesa.DespesaFormDTO;
+import br.com.diegocordeiro.dscproject.dto.despesa.DespesaGridDTO;
+import br.com.diegocordeiro.dscproject.dto.despesa.DespesaRateioDTO;
+import br.com.diegocordeiro.dscproject.dto.despesa.UsuarioRateioDTO;
+import br.com.diegocordeiro.dscproject.enums.MeioPagamento;
+import br.com.diegocordeiro.dscproject.enums.OrigemLancamento;
+import br.com.diegocordeiro.dscproject.enums.StatusPagamento;
+import br.com.diegocordeiro.dscproject.enums.TipoConta;
+import br.com.diegocordeiro.dscproject.model.CartaoCredito;
+import br.com.diegocordeiro.dscproject.model.Conta;
+import br.com.diegocordeiro.dscproject.model.Despesa;
+import br.com.diegocordeiro.dscproject.model.DespesaUsuario;
+import br.com.diegocordeiro.dscproject.model.Usuario;
+import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
+import br.com.diegocordeiro.dscproject.repository.CategoriaRepository;
+import br.com.diegocordeiro.dscproject.repository.ContaRepository;
+import br.com.diegocordeiro.dscproject.repository.DespesaRepository;
+import br.com.diegocordeiro.dscproject.repository.DespesaUsuarioRepository;
+import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
+import br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException;
+import br.com.diegocordeiro.dscproject.service.exceptions.RegraNegocioException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class DespesaServiceTest {
+
+    @Mock private DespesaRepository despesaRepository;
+    @Mock private DespesaUsuarioRepository despesaUsuarioRepository;
+    @Mock private ContaRepository contaRepository;
+    @Mock private CartaoCreditoRepository cartaoCreditoRepository;
+    @Mock private CategoriaRepository categoriaRepository;
+    @Mock private UsuarioRepository usuarioRepository;
+
+    private DespesaService despesaService;
+
+    @BeforeEach
+    void setUp() {
+        despesaService = new DespesaService(
+                despesaRepository,
+                despesaUsuarioRepository,
+                contaRepository,
+                cartaoCreditoRepository,
+                categoriaRepository,
+                usuarioRepository);
+    }
+
+    private Conta contaAtiva(Long id, Long usuarioId) {
+        Conta c = new Conta();
+        c.setId(id);
+        c.setDescricao("Conta Corrente");
+        c.setTipo(TipoConta.CORRENTE);
+        c.setAtivo(true);
+        Usuario u = new Usuario();
+        u.setId(usuarioId);
+        c.setUsuario(u);
+        return c;
+    }
+
+    private CartaoCredito cartaoAtivo(Long id, Long usuarioId) {
+        CartaoCredito cc = new CartaoCredito();
+        cc.setId(id);
+        cc.setDescricao("Cartão Teste");
+        cc.setAtivo(true);
+        Usuario u = new Usuario();
+        u.setId(usuarioId);
+        cc.setUsuario(u);
+        return cc;
+    }
+
+    private DespesaFormDTO dtoSimples(Long contaId) {
+        DespesaFormDTO dto = new DespesaFormDTO();
+        dto.setNome("Energia Elétrica");
+        dto.setValor(new BigDecimal("150.00"));
+        dto.setDataLancamento(LocalDate.of(2026, 9, 1));
+        dto.setDataVencimento(LocalDate.of(2026, 9, 15));
+        dto.setCompetencia("2026-09");
+        dto.setFormaPagamento("CONTA");
+        dto.setContaId(contaId);
+        dto.setMeioPagamento(MeioPagamento.DEBITO);
+        dto.setStatusPagamento(StatusPagamento.NAO);
+        dto.setParcelada(false);
+        return dto;
+    }
+
+    @Test
+    @DisplayName("RN07 / EDP04 - Inserir despesa simples salva com origem MANUAL")
+    void inserir_despesaSimples_salvaComSucesso() {
+        Conta c = contaAtiva(10L, 1L);
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(c));
+        when(despesaRepository.save(any(Despesa.class))).thenAnswer(invocation -> {
+            Despesa d = invocation.getArgument(0);
+            d.setId(100L);
+            return d;
+        });
+
+        DespesaFormDTO dto = dtoSimples(10L);
+        Despesa salva = despesaService.inserir(dto, 1L, "user_teste", false);
+
+        assertNotNull(salva.getId());
+        assertEquals("Energia Elétrica", salva.getNome());
+        assertEquals(OrigemLancamento.MANUAL, salva.getOrigem());
+        assertEquals(new BigDecimal("150.00"), salva.getValor());
+        assertFalse(salva.isParcelada());
+        verify(despesaRepository, times(1)).save(any(Despesa.class));
+    }
+
+    @Test
+    @DisplayName("RN12 - Inserir parcelada gera série com N parcelas e resíduo na última")
+    void inserir_despesaParcelada_geraSerieComResiduoNaUltima() {
+        Conta c = contaAtiva(10L, 1L);
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(c));
+
+        List<Despesa> salvas = new ArrayList<>();
+        when(despesaRepository.save(any(Despesa.class))).thenAnswer(invocation -> {
+            Despesa d = invocation.getArgument(0);
+            d.setId((long) (salvas.size() + 1));
+            salvas.add(d);
+            return d;
+        });
+
+        DespesaFormDTO dto = dtoSimples(10L);
+        dto.setParcelada(true);
+        dto.setValorTotalCompra(new BigDecimal("100.00"));
+        dto.setQtdParcelas(3);
+
+        despesaService.inserir(dto, 1L, "user_teste", false);
+
+        assertEquals(3, salvas.size());
+        Despesa mae = salvas.get(0);
+        Despesa p2 = salvas.get(1);
+        Despesa p3 = salvas.get(2);
+
+        assertEquals(1, mae.getNroParcela());
+        assertNull(mae.getParcelaPai());
+        assertEquals(new BigDecimal("33.33"), mae.getValor());
+
+        assertEquals(2, p2.getNroParcela());
+        assertEquals(mae, p2.getParcelaPai());
+        assertEquals(new BigDecimal("33.33"), p2.getValor());
+
+        assertEquals(3, p3.getNroParcela());
+        assertEquals(mae, p3.getParcelaPai());
+        assertEquals(new BigDecimal("33.34"), p3.getValor()); // 100.00 - (33.33 * 2) = 33.34
+    }
+
+    @Test
+    @DisplayName("RN12 / RN16 - Rateio em compra parcelada é replicado com fatias proporcionais")
+    void inserir_despesaParceladaComRateio_replicaRateioComResiduo() {
+        Conta c = contaAtiva(10L, 1L);
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(c));
+
+        Usuario amigo = new Usuario();
+        amigo.setId(2L);
+        when(usuarioRepository.findById(2L)).thenReturn(Optional.of(amigo));
+
+        when(despesaRepository.save(any(Despesa.class))).thenAnswer(inv -> {
+            Despesa d = inv.getArgument(0);
+            d.setId(10L);
+            return d;
+        });
+
+        DespesaFormDTO dto = dtoSimples(10L);
+        dto.setParcelada(true);
+        dto.setValorTotalCompra(new BigDecimal("100.00"));
+        dto.setQtdParcelas(2);
+        dto.setRateio(List.of(new DespesaRateioDTO(2L, "Amigo", new BigDecimal("50.00"), StatusPagamento.NAO, null)));
+
+        despesaService.inserir(dto, 1L, "user_teste", true);
+
+        ArgumentCaptor<DespesaUsuario> captor = ArgumentCaptor.forClass(DespesaUsuario.class);
+        verify(despesaUsuarioRepository, times(2)).save(captor.capture());
+
+        List<DespesaUsuario> gravados = captor.getAllValues();
+        assertEquals(new BigDecimal("25.00"), gravados.get(0).getValor());
+        assertEquals(new BigDecimal("25.00"), gravados.get(1).getValor());
+    }
+
+    @Test
+    @DisplayName("RN08 - Editar despesa não-MANUAL preserva conta/cartão original")
+    void editar_despesaImportada_preservaContaOriginal() {
+        Conta cOriginal = contaAtiva(10L, 1L);
+        Despesa existente = new Despesa();
+        existente.setId(50L);
+        existente.setNome("Original");
+        existente.setValor(new BigDecimal("100.00"));
+        existente.setCompetencia(YearMonth.of(2026, 9));
+        existente.setConta(cOriginal);
+        existente.setOrigem(OrigemLancamento.OPEN_FINANCE);
+        existente.setStatusPagamento(StatusPagamento.NAO);
+
+        when(despesaRepository.buscarPorIdEUsuario(50L, 1L)).thenReturn(Optional.of(existente));
+        when(despesaRepository.save(any(Despesa.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        DespesaFormDTO dto = dtoSimples(999L);
+        dto.setNome("Nome Editado");
+        dto.setValor(new BigDecimal("120.00"));
+
+        Despesa editada = despesaService.editar(50L, dto, 1L, "user_teste", false);
+
+        assertEquals("Nome Editado", editada.getNome());
+        assertEquals(cOriginal, editada.getConta());
+        assertEquals(OrigemLancamento.OPEN_FINANCE, editada.getOrigem());
+    }
+
+    @Test
+    @DisplayName("RN08 / MSG16b - Excluir despesa importada lança RegraNegocioException")
+    void excluir_despesaImportada_lancaExcecao() {
+        Despesa existente = new Despesa();
+        existente.setId(50L);
+        existente.setOrigem(OrigemLancamento.OPEN_FINANCE);
+        when(despesaRepository.buscarPorIdEUsuario(50L, 1L)).thenReturn(Optional.of(existente));
+
+        assertThrows(RegraNegocioException.class, () -> despesaService.excluir(50L, 1L, "user_teste"));
+    }
+
+    @Test
+    @DisplayName("RN14 - Excluir despesa-mãe de série parcelada exclui todas as parcelas")
+    void excluir_despesaMae_excluiTodaSerie() {
+        Despesa mae = new Despesa();
+        mae.setId(10L);
+        mae.setOrigem(OrigemLancamento.MANUAL);
+        mae.setParcelada(true);
+        mae.setNroParcela(1);
+        mae.setParcelaPai(null);
+
+        Despesa f1 = new Despesa();
+        f1.setId(11L);
+        f1.setParcelaPai(mae);
+
+        when(despesaRepository.buscarPorIdEUsuario(10L, 1L)).thenReturn(Optional.of(mae));
+        when(despesaRepository.buscarParcelasDaSerie(10L)).thenReturn(List.of(mae, f1));
+
+        despesaService.excluir(10L, 1L, "user_teste");
+
+        assertNotNull(mae.getDataExclusao());
+        assertNotNull(f1.getDataExclusao());
+        verify(despesaRepository, times(2)).save(any(Despesa.class));
+    }
+
+    @Test
+    @DisplayName("RN21 / MSG20 - Registrar pagamento em despesa de cartão de crédito lança exceção")
+    void registrarPagamento_despesaCartao_lancaExcecao() {
+        Despesa d = new Despesa();
+        d.setId(10L);
+        d.setStatusPagamento(StatusPagamento.NAO_SE_APLICA);
+        when(despesaRepository.buscarPorIdEUsuario(10L, 1L)).thenReturn(Optional.of(d));
+
+        assertThrows(RegraNegocioException.class, () ->
+                despesaService.registrarPagamento(10L, LocalDate.of(2026, 9, 10), 1L, "user_teste"));
+    }
+
+    @Test
+    @DisplayName("RN21 - Registrar pagamento marca status SIM e data")
+    void registrarPagamento_despesaConta_marcaPago() {
+        Despesa d = new Despesa();
+        d.setId(10L);
+        d.setStatusPagamento(StatusPagamento.NAO);
+        when(despesaRepository.buscarPorIdEUsuario(10L, 1L)).thenReturn(Optional.of(d));
+
+        despesaService.registrarPagamento(10L, LocalDate.of(2026, 9, 10), 1L, "user_teste");
+
+        assertEquals(StatusPagamento.SIM, d.getStatusPagamento());
+        assertEquals(LocalDate.of(2026, 9, 10), d.getDataPagamento());
+        verify(despesaRepository).save(d);
+    }
+
+    @Test
+    @DisplayName("RN21 / C9 - Registrar pagamento em lote com ID de outro usuário lança 404")
+    void registrarPagamentoLote_comIdInvalido_lancaExcecao() {
+        when(despesaRepository.countPorIdsEUsuario(List.of(1L, 2L), 10L)).thenReturn(1L);
+
+        assertThrows(RegistroNaoEncontradoException.class, () ->
+                despesaService.registrarPagamentoLote(List.of(1L, 2L), LocalDate.now(), 10L, "user_teste"));
+    }
+
+    @Test
+    @DisplayName("RN20 - Registrar acerto de rateio atualiza status e data de acerto")
+    void registrarAcertoRateio_atualizaCorretamente() {
+        Despesa d = new Despesa();
+        d.setId(1L);
+        when(despesaRepository.buscarPorIdEUsuario(1L, 10L)).thenReturn(Optional.of(d));
+
+        DespesaUsuario du = new DespesaUsuario();
+        du.setStatusPagamento(StatusPagamento.NAO);
+        du.setDataAcerto(null);
+        when(despesaUsuarioRepository.findByDespesaIdAndUsuarioIdAndDataExclusaoIsNull(1L, 2L)).thenReturn(Optional.of(du));
+
+        despesaService.registrarAcertoRateio(1L, 2L, true, LocalDate.of(2026, 9, 11), 10L, "user_teste");
+
+        assertEquals(StatusPagamento.SIM, du.getStatusPagamento());
+        assertEquals(LocalDate.of(2026, 9, 11), du.getDataAcerto());
+        verify(despesaUsuarioRepository).save(du);
+    }
+
+    @Test
+    @DisplayName("EDP10 - Buscar usuários para rateio com termo curto retorna vazio")
+    void buscarUsuariosParaRateio_termoCurto_retornaVazio() {
+        List<UsuarioRateioDTO> resultado = despesaService.buscarUsuariosParaRateio("ab", 1L);
+        assertTrue(resultado.isEmpty());
+        verifyNoInteractions(usuarioRepository);
+    }
+}
