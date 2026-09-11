@@ -1,5 +1,7 @@
 package br.com.diegocordeiro.dscproject.service;
 
+import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoEdicaoDTO;
+import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoFormDTO;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoGridDTO;
 import br.com.diegocordeiro.dscproject.model.CartaoCredito;
 import br.com.diegocordeiro.dscproject.model.Conta;
@@ -8,6 +10,7 @@ import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
 import br.com.diegocordeiro.dscproject.repository.ContaRepository;
 import br.com.diegocordeiro.dscproject.repository.ParametroGlobalRepository;
 import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
+import br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,14 +21,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -126,5 +135,127 @@ class CartaoCreditoServiceTest {
 
         CartaoCreditoGridDTO dto = service.listarParaGrid(1L).get(0);
         assertEquals(3L, dto.getQtdVinculos());
+    }
+
+    @Test
+    @DisplayName("BDD 16.3 / RN02 - Buscar cartão de outro usuário lança RegistroNaoEncontradoException (404)")
+    void buscarParaEdicao_quandoCartaoDeOutroUsuario_deveLancarRegistroNaoEncontradoException() {
+        when(cartaoCreditoRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(50L, 1L)).thenReturn(Optional.empty());
+
+        assertThrows(RegistroNaoEncontradoException.class, () -> service.buscarParaEdicao(50L, 1L));
+    }
+
+    @Test
+    @DisplayName("BDD 16.4 - Cadastrar cartão com dados válidos vincula ao usuário autenticado e fica ativo")
+    void inserir_comDadosValidos_deveSalvarComoAtivoDoUsuario() {
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(criarUsuario(1L)));
+        when(cartaoCreditoRepository.save(any())).thenAnswer(inv -> {
+            CartaoCredito c = inv.getArgument(0);
+            c.setId(100L);
+            return c;
+        });
+
+        CartaoCreditoFormDTO dto = new CartaoCreditoFormDTO();
+        dto.setDescricao("Nubank Ultravioleta");
+        dto.setBandeira("MASTERCARD");
+        dto.setFinalCartao("1234");
+        dto.setDiaFechamento(3);
+        dto.setDiaVencimento(10);
+
+        CartaoCredito salvo = service.inserir(dto, 1L, "user1");
+
+        assertNotNull(salvo);
+        assertEquals("Nubank Ultravioleta", salvo.getDescricao());
+        assertTrue(salvo.isAtivo());
+        assertEquals(1L, salvo.getUsuario().getId());
+        assertNull(salvo.getConta());
+        verify(cartaoCreditoRepository).save(any(CartaoCredito.class));
+    }
+
+    @Test
+    @DisplayName("BDD 16.8 - Cadastrar cartão sem conta de débito cria com CTA_ID nulo")
+    void inserir_semContaDebito_deveCriarComContaNula() {
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(criarUsuario(1L)));
+        when(cartaoCreditoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        CartaoCreditoFormDTO dto = new CartaoCreditoFormDTO();
+        dto.setDescricao("Cartão sem conta");
+        dto.setContaId(null);
+
+        CartaoCredito salvo = service.inserir(dto, 1L, "user1");
+        assertNull(salvo.getConta());
+    }
+
+    @Test
+    @DisplayName("Cadastrar cartão com conta de débito válida vincula a conta")
+    void inserir_comContaDebitoValida_deveVincularConta() {
+        Conta conta = new Conta();
+        conta.setId(7L);
+        conta.setAtivo(true);
+
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(criarUsuario(1L)));
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(7L, 1L)).thenReturn(Optional.of(conta));
+        when(cartaoCreditoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        CartaoCreditoFormDTO dto = new CartaoCreditoFormDTO();
+        dto.setDescricao("Nubank");
+        dto.setContaId(7L);
+
+        CartaoCredito salvo = service.inserir(dto, 1L, "user1");
+        assertEquals(7L, salvo.getConta().getId());
+    }
+
+    @Test
+    @DisplayName("BDD 16.13 / RN10 - Editar dia de vencimento de cartão com faturas existentes é permitido")
+    void editar_diasComFaturaExistente_devePermitir() {
+        CartaoCredito cartao = new CartaoCredito();
+        cartao.setId(50L);
+        cartao.setDescricao("Nubank");
+        cartao.setDiaVencimento(10);
+        cartao.setUsuario(criarUsuario(1L));
+
+        when(cartaoCreditoRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(50L, 1L)).thenReturn(Optional.of(cartao));
+        when(cartaoCreditoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        CartaoCreditoFormDTO dto = new CartaoCreditoFormDTO();
+        dto.setDescricao("Nubank");
+        dto.setDiaVencimento(15);
+        dto.setAtivo(true);
+
+        CartaoCredito editado = service.editar(50L, dto, 1L, "user1");
+        assertEquals(15, editado.getDiaVencimento());
+        verify(cartaoCreditoRepository).save(any());
+    }
+
+    @Test
+    @DisplayName("RN09 - Editar com ativo=false desativa o cartão sem afetar outros campos")
+    void editar_comAtivoFalse_deveDesativarCartao() {
+        CartaoCredito cartao = new CartaoCredito();
+        cartao.setId(50L);
+        cartao.setDescricao("Nubank");
+        cartao.setAtivo(true);
+        cartao.setUsuario(criarUsuario(1L));
+
+        when(cartaoCreditoRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(50L, 1L)).thenReturn(Optional.of(cartao));
+        when(cartaoCreditoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        CartaoCreditoFormDTO dto = new CartaoCreditoFormDTO();
+        dto.setDescricao("Nubank");
+        dto.setAtivo(false);
+
+        CartaoCredito editado = service.editar(50L, dto, 1L, "user1");
+        assertFalse(editado.isAtivo());
+    }
+
+    @Test
+    @DisplayName("Editar cartão de outro usuário lança RegistroNaoEncontradoException")
+    void editar_quandoCartaoDeOutroUsuario_deveLancarExcecao() {
+        when(cartaoCreditoRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(99L, 1L)).thenReturn(Optional.empty());
+
+        CartaoCreditoFormDTO dto = new CartaoCreditoFormDTO();
+        dto.setDescricao("Qualquer");
+
+        assertThrows(RegistroNaoEncontradoException.class, () -> service.editar(99L, dto, 1L, "user1"));
+        verify(cartaoCreditoRepository, never()).save(any());
     }
 }

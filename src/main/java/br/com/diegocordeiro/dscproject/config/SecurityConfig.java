@@ -138,6 +138,12 @@ public class SecurityConfig {
                 // Cartões de Crédito (Meus Cartões) — cada operação exige a sua permissão
                 .requestMatchers(HttpMethod.GET, "/cartoes/listar", "/cartoes/listar-dados")
                     .hasAuthority("PERM_CARTOES_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/cartoes/buscar/**")
+                    .hasAuthority("PERM_CARTOES_MANTER")
+                .requestMatchers(HttpMethod.POST, "/cartoes/inserir")
+                    .hasAuthority("PERM_CARTOES_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/cartoes/editar/**")
+                    .hasAuthority("PERM_CARTOES_MANTER")
 
                 .anyRequest().authenticated()
             )

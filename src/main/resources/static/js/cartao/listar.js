@@ -1,6 +1,7 @@
 import { getJson } from '../comum/http.js';
 import { semAcento } from '../comum/ui.js';
 import { inicializarFiltro, obterFiltroAtual, abrirModalFiltro } from './modal-filtro.js';
+import { inicializarForm, abrirEdicao, EVENTO_ALTERADO } from './modal-form.js';
 
 const cfg = () => document.getElementById('dadosTelaCartao').dataset;
 
@@ -9,6 +10,8 @@ let ordenacao = { col: 'descricao', asc: true };
 
 const corpo = document.getElementById('corpoTabelaCartoes');
 const rodape = document.getElementById('rodapeContagemCartoes');
+
+const podeManter = () => !!document.querySelector('[data-perm="manter"]');
 
 async function carregar() {
     try {
@@ -75,6 +78,14 @@ function ordenar(lista) {
     });
 }
 
+function acaoHtml(c) {
+    if (!podeManter()) return '';
+    let html = `<button type="button" class="btn btn-action" data-acao="editar" data-id="${c.id}" title="Editar cartão" aria-label="Editar cartão">
+        <i class="ph ph-pencil-simple" aria-hidden="true"></i>
+    </button>`;
+    return html;
+}
+
 function formatarMoeda(valor) {
     if (valor == null) return '';
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(valor));
@@ -122,7 +133,7 @@ function render() {
                 <td>${fechVencHtml}</td>
                 <td>${contaHtml}</td>
                 <td>${situacaoHtml}</td>
-                <td><div class="d-flex gap-1" data-acoes-cartao="${c.id}"></div></td>
+                <td><div class="d-flex gap-1">${acaoHtml(c)}</div></td>
             `;
 
             corpo.appendChild(tr);
@@ -147,9 +158,24 @@ function inicializarOrdenacao() {
     });
 }
 
+function inicializarAcoes() {
+    corpo.addEventListener('click', function (e) {
+        const btn = e.target.closest('button[data-acao]');
+        if (!btn) return;
+        const acao = btn.dataset.acao;
+        const id = btn.dataset.id;
+
+        if (acao === 'editar') {
+            abrirEdicao(id);
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+    inicializarForm();
     inicializarFiltro(() => render());
     inicializarOrdenacao();
+    inicializarAcoes();
 
     const btnFiltrar = document.getElementById('btnFiltrar');
     if (btnFiltrar) {
@@ -158,6 +184,8 @@ document.addEventListener('DOMContentLoaded', function () {
             abrirModalFiltro();
         });
     }
+
+    document.addEventListener(EVENTO_ALTERADO, carregar);
 
     carregar();
 });

@@ -34,6 +34,11 @@
                 <i class="ph ph-funnel" aria-hidden="true"></i>
                 <span th:text="#{cartao.lista.botao.filtrar}">Filtrar</span>
             </button>
+            <button class="btn btn-primary" id="btnNovoCartao" sec:authorize="hasAuthority('PERM_CARTOES_MANTER')"
+                    data-bs-toggle="modal" data-bs-target="#modalCartao">
+                <i class="ph ph-plus" aria-hidden="true"></i>
+                <span th:text="#{cartao.lista.botao.novo}">Novo cartão</span>
+            </button>
         </div>
     </div>
 </div>
@@ -63,6 +68,7 @@
     </div>
 
     <div th:replace="~{sistema/modulos/cartao/fragments/modal-filtro :: modal}"></div>
+    <div th:replace="~{sistema/modulos/cartao/fragments/modal-cartao :: modal}"></div>
 
     <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
 
@@ -70,11 +76,19 @@
 
     <div id="dadosTelaCartao"
          th:data-url-dados="@{/cartoes/listar-dados}"
+         th:data-url-buscar="@{/cartoes/buscar}"
+         th:data-url-inserir="@{/cartoes/inserir}"
+         th:data-url-editar="@{/cartoes/editar}"
+         th:data-url-contas-opcoes="@{/contas/opcoes}"
          th:data-msg-filtro-vazio="#{msg.cartao.filtro.vazio}"
          th:data-label-ativo="#{cartao.badge.ativo}"
          th:data-label-inativo="#{cartao.badge.inativo}"
          th:data-label-excluido="#{cartao.badge.excluido}"
          th:data-label-conta-nao-definida="#{cartao.conta.naoDefinida}"
+         th:data-label-conta-nenhuma="#{cartao.form.campo.contaDebito.nenhuma}"
+         th:data-label-novo="#{cartao.form.titulo.novo}"
+         th:data-label-editar="#{cartao.form.titulo.editar}"
+         th:data-label-aviso-em-uso="#{cartao.form.aviso.emUso}"
          hidden></div>
 </section>
 

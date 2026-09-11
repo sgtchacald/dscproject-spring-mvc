@@ -1,13 +1,16 @@
 package br.com.diegocordeiro.dscproject.web.sistema.controller;
 
 import br.com.diegocordeiro.dscproject.config.SecurityConfig;
+import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoEdicaoDTO;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoGridDTO;
+import br.com.diegocordeiro.dscproject.model.CartaoCredito;
 import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
 import br.com.diegocordeiro.dscproject.repository.ContaRepository;
 import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
 import br.com.diegocordeiro.dscproject.service.AutorizacaoService;
 import br.com.diegocordeiro.dscproject.service.CartaoCreditoService;
+import br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,10 +27,16 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -80,6 +89,33 @@ class CartaoCreditoControllerTest {
     }
 
     @Test
+    @DisplayName("SB01 - O combobox de bandeira vem do enum BandeiraCartao, não de <option> fixa no HTML")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_LISTAR")
+    void listar_deveRenderizarAsQuatroBandeirasDoEnum() throws Exception {
+        mockMvc.perform(get("/cartoes/listar"))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(org.hamcrest.Matchers.allOf(
+                        org.hamcrest.Matchers.containsString("value=\"VISA\""),
+                        org.hamcrest.Matchers.containsString("value=\"MASTERCARD\""),
+                        org.hamcrest.Matchers.containsString("value=\"ELO\""),
+                        org.hamcrest.Matchers.containsString("value=\"AMEX\""))));
+    }
+
+    @Test
+    @DisplayName("Botão Cancelar do modal de cartão é vermelho (btn-danger)")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_LISTAR")
+    void listar_botaoCancelarDoModal_deveSerBtnDanger() throws Exception {
+        String html = mockMvc.perform(get("/cartoes/listar"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        long qtdCancelarVermelho = java.util.regex.Pattern.compile("class=\"btn btn-danger\" data-bs-dismiss=\"modal\"")
+                .matcher(html).results().count();
+
+        org.junit.jupiter.api.Assertions.assertEquals(1, qtdCancelarVermelho);
+    }
+
+    @Test
     @DisplayName("BDD 16.1 / RN01 - Bloquear acesso de perfil sem CARTOES_LISTAR")
     @WithMockUser(username = "user_teste", authorities = "ROLE_USER")
     void listar_semPermissao_deveRetornar403() throws Exception {
@@ -119,5 +155,131 @@ class CartaoCreditoControllerTest {
                 .andExpect(jsonPath("$[0].bandeira").value("MASTERCARD"));
 
         verify(cartaoCreditoService).listarParaGrid(1L);
+    }
+
+    @Test
+    @DisplayName("Buscar dados para edição de cartão pertencente ao usuário")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    void buscar_quandoCartaoDoUsuario_deveRetornarEdicaoDTO() throws Exception {
+        CartaoCreditoEdicaoDTO dto = CartaoCreditoEdicaoDTO.builder()
+                .id(10L)
+                .descricao("Nubank Ultravioleta")
+                .bandeira("MASTERCARD")
+                .ativo(true)
+                .build();
+
+        when(cartaoCreditoService.buscarParaEdicao(10L, 1L)).thenReturn(dto);
+
+        mockMvc.perform(get("/cartoes/buscar/10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(10))
+                .andExpect(jsonPath("$.descricao").value("Nubank Ultravioleta"));
+    }
+
+    @Test
+    @DisplayName("BDD 16.3 - Buscar cartão de outro usuário retorna 404 (RN02)")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    void buscar_quandoCartaoDeOutroUsuario_deveRetornar404() throws Exception {
+        when(cartaoCreditoService.buscarParaEdicao(99L, 1L))
+                .thenThrow(new RegistroNaoEncontradoException("msg.cartao.nao-encontrado"));
+
+        mockMvc.perform(get("/cartoes/buscar/99"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("BDD 16.4 - Cadastrar cartão com dados válidos retorna sucesso")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    void inserir_comDadosValidos_deveRetornarOk() throws Exception {
+        when(cartaoCreditoService.inserir(any(), eq(1L), eq("user_teste"))).thenReturn(new CartaoCredito());
+
+        mockMvc.perform(post("/cartoes/inserir")
+                        .with(csrf())
+                        .param("descricao", "Nubank Ultravioleta")
+                        .param("bandeira", "MASTERCARD")
+                        .param("finalCartao", "1234")
+                        .param("diaFechamento", "3")
+                        .param("diaVencimento", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true));
+
+        verify(cartaoCreditoService).inserir(any(), eq(1L), eq("user_teste"));
+    }
+
+    @Test
+    @DisplayName("BDD 16.5 - Dia de vencimento fora de 1-31 retorna 422")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    void inserir_comDiaVencimentoInvalido_deveRetornar422() throws Exception {
+        mockMvc.perform(post("/cartoes/inserir")
+                        .with(csrf())
+                        .param("descricao", "Nubank Ultravioleta")
+                        .param("diaVencimento", "35"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false))
+                .andExpect(jsonPath("$.errosCampos.diaVencimento").exists());
+
+        verify(cartaoCreditoService, never()).inserir(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("BDD 16.6 - Final do cartão com caractere inválido retorna 422")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    void inserir_comFinalCartaoInvalido_deveRetornar422() throws Exception {
+        mockMvc.perform(post("/cartoes/inserir")
+                        .with(csrf())
+                        .param("descricao", "Nubank Ultravioleta")
+                        .param("finalCartao", "12A"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false))
+                .andExpect(jsonPath("$.errosCampos.finalCartao").exists());
+
+        verify(cartaoCreditoService, never()).inserir(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("BDD 16.7 - Conta de débito de outro usuário retorna 422 no campo contaId")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    void inserir_comContaDeOutroUsuario_deveRetornar422() throws Exception {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(9L, 1L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/cartoes/inserir")
+                        .with(csrf())
+                        .param("descricao", "Nubank Ultravioleta")
+                        .param("contaId", "9"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false))
+                .andExpect(jsonPath("$.errosCampos.contaId").exists());
+
+        verify(cartaoCreditoService, never()).inserir(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("Editar cartão com sucesso")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    void editar_comDadosValidos_deveRetornarOk() throws Exception {
+        when(cartaoCreditoService.editar(eq(10L), any(), eq(1L), eq("user_teste"))).thenReturn(new CartaoCredito());
+
+        mockMvc.perform(put("/cartoes/editar/10")
+                        .with(csrf())
+                        .param("descricao", "Nubank Ultravioleta Atualizado")
+                        .param("ativo", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true));
+
+        verify(cartaoCreditoService).editar(eq(10L), any(), eq(1L), eq("user_teste"));
+    }
+
+    @Test
+    @DisplayName("Editar cartão de outro usuário retorna 404")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    void editar_quandoCartaoDeOutroUsuario_deveRetornar404() throws Exception {
+        when(cartaoCreditoService.editar(eq(99L), any(), eq(1L), eq("user_teste")))
+                .thenThrow(new RegistroNaoEncontradoException("msg.cartao.nao-encontrado"));
+
+        mockMvc.perform(put("/cartoes/editar/99")
+                        .with(csrf())
+                        .param("descricao", "Qualquer")
+                        .param("ativo", "true"))
+                .andExpect(status().isNotFound());
     }
 }

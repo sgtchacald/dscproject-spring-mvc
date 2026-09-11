@@ -1,19 +1,29 @@
 package br.com.diegocordeiro.dscproject.service;
 
+import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoEdicaoDTO;
+import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoFormDTO;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoGridDTO;
+import br.com.diegocordeiro.dscproject.enums.BandeiraCartao;
 import br.com.diegocordeiro.dscproject.model.CartaoCredito;
+import br.com.diegocordeiro.dscproject.model.Conta;
+import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
 import br.com.diegocordeiro.dscproject.repository.ContaRepository;
 import br.com.diegocordeiro.dscproject.repository.ParametroGlobalRepository;
 import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
+import br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException;
+import br.com.diegocordeiro.dscproject.service.exceptions.RegraNegocioException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 public class CartaoCreditoService {
+
+    private static final Pattern PADRAO_FINAL_CARTAO = Pattern.compile("\\d{4}");
 
     private final CartaoCreditoRepository cartaoCreditoRepository;
     private final ContaRepository contaRepository;
@@ -48,6 +58,108 @@ public class CartaoCreditoService {
                 .excluido(c.isExcluido())
                 .build())
             .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public CartaoCredito buscarPorIdEUsuario(Long id, Long usuarioId) {
+        return cartaoCreditoRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(id, usuarioId)
+            .orElseThrow(() -> new RegistroNaoEncontradoException("msg.cartao.nao-encontrado"));
+    }
+
+    @Transactional(readOnly = true)
+    public CartaoCreditoEdicaoDTO buscarParaEdicao(Long id, Long usuarioId) {
+        CartaoCredito c = buscarPorIdEUsuario(id, usuarioId);
+        return CartaoCreditoEdicaoDTO.builder()
+            .id(c.getId())
+            .descricao(c.getDescricao())
+            .bandeira(c.getBandeira())
+            .finalCartao(c.getFinalCartao())
+            .limite(c.getLimite())
+            .diaFechamento(c.getDiaFechamento())
+            .diaVencimento(c.getDiaVencimento())
+            .contaId(c.getConta() != null ? c.getConta().getId() : null)
+            .ativo(c.isAtivo())
+            .qtdVinculos(contarVinculos(c.getId()))
+            .build();
+    }
+
+    @Transactional
+    public CartaoCredito inserir(CartaoCreditoFormDTO dto, Long usuarioId, String usuarioAuditoria) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+            .orElseThrow(() -> new RegistroNaoEncontradoException("msg.usuario.nao-encontrado"));
+
+        validarCampos(dto);
+        Conta conta = resolverContaDebito(dto.getContaId(), usuarioId);
+
+        CartaoCredito cartao = new CartaoCredito();
+        cartao.setDescricao(dto.getDescricao().trim());
+        cartao.setBandeira(normalizarTexto(dto.getBandeira()));
+        cartao.setFinalCartao(normalizarTexto(dto.getFinalCartao()));
+        cartao.setLimite(dto.getLimite());
+        cartao.setDiaFechamento(dto.getDiaFechamento());
+        cartao.setDiaVencimento(dto.getDiaVencimento());
+        cartao.setConta(conta);
+        cartao.setAtivo(true);
+        cartao.setUsuario(usuario);
+
+        return cartaoCreditoRepository.save(cartao);
+    }
+
+    @Transactional
+    public CartaoCredito editar(Long id, CartaoCreditoFormDTO dto, Long usuarioId, String usuarioAuditoria) {
+        CartaoCredito cartao = buscarPorIdEUsuario(id, usuarioId);
+
+        validarCampos(dto);
+        Conta conta = resolverContaDebito(dto.getContaId(), usuarioId);
+
+        cartao.setDescricao(dto.getDescricao().trim());
+        cartao.setBandeira(normalizarTexto(dto.getBandeira()));
+        cartao.setFinalCartao(normalizarTexto(dto.getFinalCartao()));
+        cartao.setLimite(dto.getLimite());
+        cartao.setDiaFechamento(dto.getDiaFechamento());
+        cartao.setDiaVencimento(dto.getDiaVencimento());
+        cartao.setConta(conta);
+        cartao.setAtivo(dto.isAtivo());
+
+        return cartaoCreditoRepository.save(cartao);
+    }
+
+    /** Repete no serviço as validações de campo já feitas na tela/Validator (RNF03). */
+    private void validarCampos(CartaoCreditoFormDTO dto) {
+        if (dto.getDescricao() == null || dto.getDescricao().isBlank()) {
+            throw new RegraNegocioException("descricao", "cartao.validacao.descricao.obrigatoria");
+        }
+        if (dto.getBandeira() != null && !dto.getBandeira().isBlank() && BandeiraCartao.porCodigo(dto.getBandeira()) == null) {
+            throw new RegraNegocioException("bandeira", "cartao.validacao.bandeira.invalida");
+        }
+        if (dto.getFinalCartao() != null && !dto.getFinalCartao().isBlank() && !PADRAO_FINAL_CARTAO.matcher(dto.getFinalCartao()).matches()) {
+            throw new RegraNegocioException("finalCartao", "cartao.validacao.finalCartao.invalido");
+        }
+        if (dto.getDiaFechamento() != null && (dto.getDiaFechamento() < 1 || dto.getDiaFechamento() > 31)) {
+            throw new RegraNegocioException("diaFechamento", "cartao.validacao.dia.invalido");
+        }
+        if (dto.getDiaVencimento() != null && (dto.getDiaVencimento() < 1 || dto.getDiaVencimento() > 31)) {
+            throw new RegraNegocioException("diaVencimento", "cartao.validacao.dia.invalido");
+        }
+    }
+
+    private Conta resolverContaDebito(Long contaId, Long usuarioId) {
+        if (contaId == null) {
+            return null;
+        }
+        Conta conta = contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(contaId, usuarioId)
+            .orElseThrow(() -> new RegraNegocioException("contaId", "msg.cartao.conta.invalida"));
+        if (!conta.isAtivo()) {
+            throw new RegraNegocioException("contaId", "msg.cartao.conta.invalida");
+        }
+        return conta;
+    }
+
+    private String normalizarTexto(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        return valor.trim();
     }
 
     /** Soma faturas e despesas não excluídas vinculadas ao cartão (C4/RN08). */
