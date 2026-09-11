@@ -3,6 +3,7 @@ package br.com.diegocordeiro.dscproject.service;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoEdicaoDTO;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoFormDTO;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoGridDTO;
+import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoOpcaoDTO;
 import br.com.diegocordeiro.dscproject.enums.BandeiraCartao;
 import br.com.diegocordeiro.dscproject.model.CartaoCredito;
 import br.com.diegocordeiro.dscproject.model.Conta;
@@ -20,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 @Service
@@ -32,6 +35,8 @@ public class CartaoCreditoService {
     private final UsuarioRepository usuarioRepository;
     private final ParametroGlobalRepository parametroGlobalRepository;
     private final JdbcTemplate jdbcTemplate;
+
+    private final Map<Long, List<CartaoCreditoOpcaoDTO>> cacheOpcoes = new ConcurrentHashMap<>();
 
     public CartaoCreditoService(CartaoCreditoRepository cartaoCreditoRepository, ContaRepository contaRepository, UsuarioRepository usuarioRepository, ParametroGlobalRepository parametroGlobalRepository, JdbcTemplate jdbcTemplate) {
         this.cartaoCreditoRepository = cartaoCreditoRepository;
@@ -104,7 +109,9 @@ public class CartaoCreditoService {
         cartao.setAtivo(true);
         cartao.setUsuario(usuario);
 
-        return cartaoCreditoRepository.save(cartao);
+        CartaoCredito salvo = cartaoCreditoRepository.save(cartao);
+        invalidarCache(usuarioId);
+        return salvo;
     }
 
     @Transactional
@@ -123,7 +130,9 @@ public class CartaoCreditoService {
         cartao.setConta(conta);
         cartao.setAtivo(dto.isAtivo());
 
-        return cartaoCreditoRepository.save(cartao);
+        CartaoCredito salvo = cartaoCreditoRepository.save(cartao);
+        invalidarCache(usuarioId);
+        return salvo;
     }
 
     @Transactional
@@ -152,6 +161,33 @@ public class CartaoCreditoService {
         cartao.setDataExclusao(Instant.now());
         cartao.setExcluidoPor(usuarioAuditoria);
         cartaoCreditoRepository.save(cartao);
+        invalidarCache(usuarioId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CartaoCreditoOpcaoDTO> listarOpcoesCombobox(Long usuarioId) {
+        boolean usarCache = parametroGlobalRepository
+            .findByCodigo(ParametrosCartaoCatalogo.CARTAO_COMBOBOX_CACHE.getCodigo())
+            .map(p -> Boolean.parseBoolean(p.getValor()))
+            .orElse(true);
+
+        if (usarCache && cacheOpcoes.containsKey(usuarioId)) {
+            return cacheOpcoes.get(usuarioId);
+        }
+
+        List<CartaoCredito> ativos = cartaoCreditoRepository.listarAtivasPorUsuario(usuarioId);
+        List<CartaoCreditoOpcaoDTO> dtos = ativos.stream()
+            .map(c -> new CartaoCreditoOpcaoDTO(c.getId(), c.getDescricao(), c.getBandeira(), c.getFinalCartao(), c.getDiaFechamento(), c.getDiaVencimento()))
+            .toList();
+
+        if (usarCache) {
+            cacheOpcoes.put(usuarioId, dtos);
+        }
+        return dtos;
+    }
+
+    private void invalidarCache(Long usuarioId) {
+        cacheOpcoes.remove(usuarioId);
     }
 
     private void desvincularTabela(String tabela, Long cartaoId) {

@@ -3,6 +3,7 @@ package br.com.diegocordeiro.dscproject.web.sistema.controller;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoEdicaoDTO;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoFormDTO;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoGridDTO;
+import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoOpcaoDTO;
 import br.com.diegocordeiro.dscproject.enums.BandeiraCartao;
 import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
@@ -121,6 +122,13 @@ public class CartaoCreditoController {
         Usuario usuario = obterUsuarioAutenticado(principal);
         cartaoCreditoService.excluir(id, usuario.getId(), usuario.getLogin());
         return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.cartao.excluido", locale)));
+    }
+
+    @GetMapping("/cartoes/opcoes")
+    @ResponseBody
+    public List<CartaoCreditoOpcaoDTO> listarOpcoes(Principal principal) {
+        Usuario usuario = obterUsuarioAutenticado(principal);
+        return cartaoCreditoService.listarOpcoesCombobox(usuario.getId());
     }
 
     private Usuario obterUsuarioAutenticado(Principal principal) {

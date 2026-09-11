@@ -3,6 +3,7 @@ package br.com.diegocordeiro.dscproject.web.sistema.controller;
 import br.com.diegocordeiro.dscproject.config.SecurityConfig;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoEdicaoDTO;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoGridDTO;
+import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoOpcaoDTO;
 import br.com.diegocordeiro.dscproject.model.CartaoCredito;
 import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
@@ -308,5 +309,20 @@ class CartaoCreditoControllerTest {
                         .with(csrf()))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.sucesso").value(false));
+    }
+
+    @Test
+    @DisplayName("BDD 16.12 - Listar opções de cartões ativos exige apenas usuário autenticado")
+    @WithMockUser(username = "user_teste", authorities = "ROLE_USER")
+    void listarOpcoes_usuarioAutenticado_deveRetornarListaJson() throws Exception {
+        when(cartaoCreditoService.listarOpcoesCombobox(1L)).thenReturn(List.of(
+                new CartaoCreditoOpcaoDTO(1L, "Nubank", "MASTERCARD", "1234", 3, 10)
+        ));
+
+        mockMvc.perform(get("/cartoes/opcoes"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].descricao").value("Nubank"));
+
+        verify(cartaoCreditoService).listarOpcoesCombobox(1L);
     }
 }

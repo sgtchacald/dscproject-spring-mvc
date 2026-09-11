@@ -3,6 +3,7 @@ package br.com.diegocordeiro.dscproject.service;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoEdicaoDTO;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoFormDTO;
 import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoGridDTO;
+import br.com.diegocordeiro.dscproject.dto.cartaocredito.CartaoCreditoOpcaoDTO;
 import br.com.diegocordeiro.dscproject.model.CartaoCredito;
 import br.com.diegocordeiro.dscproject.model.Conta;
 import br.com.diegocordeiro.dscproject.model.Usuario;
@@ -340,5 +341,39 @@ class CartaoCreditoServiceTest {
 
         assertThrows(RegistroNaoEncontradoException.class, () -> service.excluir(99L, 1L, "user1"));
         verify(cartaoCreditoRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("BDD 16.12 - Combobox de despesa retorna apenas os cartões ativos do usuário")
+    void listarOpcoesCombobox_deveRetornarApenasAtivos() {
+        CartaoCredito nubank = new CartaoCredito();
+        nubank.setId(1L);
+        nubank.setDescricao("Nubank");
+        nubank.setBandeira("MASTERCARD");
+        nubank.setFinalCartao("1234");
+        nubank.setDiaFechamento(3);
+        nubank.setDiaVencimento(10);
+
+        when(cartaoCreditoRepository.listarAtivasPorUsuario(1L)).thenReturn(List.of(nubank));
+
+        List<CartaoCreditoOpcaoDTO> opcoes = service.listarOpcoesCombobox(1L);
+        assertEquals(1, opcoes.size());
+        assertEquals("Nubank", opcoes.get(0).getDescricao());
+        assertEquals("1234", opcoes.get(0).getFinalCartao());
+    }
+
+    @Test
+    @DisplayName("Combobox de despesa usa cache por usuário quando o parâmetro está ligado")
+    void listarOpcoesCombobox_comCacheHabilitado_naoConsultaRepositorioDeNovo() {
+        br.com.diegocordeiro.dscproject.model.ParametroGlobal parametroCache = new br.com.diegocordeiro.dscproject.model.ParametroGlobal();
+        parametroCache.setValor("true");
+
+        when(parametroGlobalRepository.findByCodigo("CARTAO_COMBOBOX_CACHE")).thenReturn(Optional.of(parametroCache));
+        when(cartaoCreditoRepository.listarAtivasPorUsuario(1L)).thenReturn(List.of());
+
+        service.listarOpcoesCombobox(1L);
+        service.listarOpcoesCombobox(1L);
+
+        verify(cartaoCreditoRepository, org.mockito.Mockito.times(1)).listarAtivasPorUsuario(1L);
     }
 }

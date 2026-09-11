@@ -11,6 +11,11 @@ public enum ParametrosCartaoCatalogo implements ParametroDefinido {
     CARTAO_EXCLUSAO_BLOQUEIA_EM_USO(
         "Exclusão de cartão bloqueia em uso",
         "Se verdadeiro, impede excluir um cartão referenciado por despesas (só desativar). Se falso, a exclusão é permitida e as despesas afetadas ficam com CACR_ID nulo. O bloqueio por faturas é sempre aplicado, independentemente deste parâmetro.",
+        TipoParametro.BOOLEAN, "true"),
+
+    CARTAO_COMBOBOX_CACHE(
+        "Cache do combobox de cartões",
+        "Se verdadeiro, a lista de cartões ativos do usuário para o combobox de despesa é cacheada por usuário e invalidada nas gravações de cartões daquele usuário.",
         TipoParametro.BOOLEAN, "true");
 
     public static final String MODULO = "Cartões de Crédito";
