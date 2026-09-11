@@ -95,7 +95,7 @@ class InstituicaoFinanceiraControllerTest {
 
     @Test
     @DisplayName("Buscar dados para edição")
-    @WithMockUser(authorities = "PERM_INSTITUICOES_MANTER")
+    @WithMockUser(authorities = "PERM_INSTITUICOES_EDITAR")
     void buscar_comPermissao_deveRetornarEdicaoDTO() throws Exception {
         InstituicaoFinanceiraEdicaoDTO dto = new InstituicaoFinanceiraEdicaoDTO();
         dto.setId(1L);
@@ -116,7 +116,7 @@ class InstituicaoFinanceiraControllerTest {
 
     @Test
     @DisplayName("Inserir instituição com sucesso")
-    @WithMockUser(authorities = "PERM_INSTITUICOES_MANTER")
+    @WithMockUser(authorities = "PERM_INSTITUICOES_INSERIR")
     void inserir_comDadosValidos_deveRetornarOk() throws Exception {
         when(instituicaoFinanceiraRepository.contarPorNome("Banco Inovador", null)).thenReturn(0L);
         when(instituicaoFinanceiraRepository.contarPorCodigo("777", null)).thenReturn(0L);
@@ -135,7 +135,7 @@ class InstituicaoFinanceiraControllerTest {
 
     @Test
     @DisplayName("Inserir instituição com nome duplicado retorna 422")
-    @WithMockUser(authorities = "PERM_INSTITUICOES_MANTER")
+    @WithMockUser(authorities = "PERM_INSTITUICOES_INSERIR")
     void inserir_quandoNomeDuplicado_deveRetornar422() throws Exception {
         when(instituicaoFinanceiraRepository.contarPorNome("Banco Inovador", null)).thenReturn(1L);
 
@@ -153,7 +153,7 @@ class InstituicaoFinanceiraControllerTest {
 
     @Test
     @DisplayName("Editar instituição com sucesso")
-    @WithMockUser(authorities = "PERM_INSTITUICOES_MANTER")
+    @WithMockUser(authorities = "PERM_INSTITUICOES_EDITAR")
     void editar_comDadosValidos_deveRetornarOk() throws Exception {
         when(instituicaoFinanceiraRepository.contarPorNome("Banco Atualizado", 2L)).thenReturn(0L);
         when(instituicaoFinanceiraRepository.contarPorCodigo("888", 2L)).thenReturn(0L);
@@ -172,7 +172,7 @@ class InstituicaoFinanceiraControllerTest {
 
     @Test
     @DisplayName("Desativar instituição com sucesso")
-    @WithMockUser(authorities = "PERM_INSTITUICOES_MANTER")
+    @WithMockUser(authorities = "PERM_INSTITUICOES_EDITAR")
     void desativar_comPermissao_deveRetornarOk() throws Exception {
         mockMvc.perform(put("/instituicoes-financeiras/desativar/3")
                         .with(csrf()))
@@ -184,7 +184,7 @@ class InstituicaoFinanceiraControllerTest {
 
     @Test
     @DisplayName("Excluir instituição com sucesso")
-    @WithMockUser(authorities = "PERM_INSTITUICOES_MANTER", username = "admin_user")
+    @WithMockUser(authorities = "PERM_INSTITUICOES_EXCLUIR", username = "admin_user")
     void excluir_comPermissao_deveRetornarOk() throws Exception {
         mockMvc.perform(delete("/instituicoes-financeiras/excluir/4")
                         .with(csrf()))

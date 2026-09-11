@@ -16,7 +16,11 @@ const rodape = document.getElementById('rodapeContagemDespesas');
 const chkTodos = document.getElementById('chkTodos');
 const btnPagarLote = document.getElementById('btnPagarLote');
 
-const podeManter = () => !!document.querySelector('[data-perm="manter"]');
+const podeInserir = () => !!document.querySelector('[data-perm="inserir"]');
+const podeEditar = () => !!document.querySelector('[data-perm="editar"]');
+const podeExcluir = () => !!document.querySelector('[data-perm="excluir"]');
+const podePagar = () => !!document.querySelector('[data-perm="pagar"]');
+const podeImportar = () => !!document.querySelector('[data-perm="importar"]');
 const podeRatear = () => !!document.querySelector('[data-perm="ratear"]') || cfg().podeRatear === 'true';
 
 async function carregar() {
@@ -177,9 +181,9 @@ function render() {
                 : '';
 
             let acaoHtml = '';
-            if (podeManter() && !d.excluido) {
-                // Registrar Pagamento (somente se status for NAO)
-                if (d.statusPagamento === 'NAO') {
+            if (!d.excluido) {
+                // Registrar Pagamento (somente se status for NAO e tiver permissão)
+                if (d.statusPagamento === 'NAO' && podePagar()) {
                     acaoHtml += `<button type="button" class="btn btn-action text-success" data-acao="pagamento"
                         data-id="${d.id}" data-valor="${d.valor}" title="${cfg().acaoPagamento || 'Registrar pagamento'}" aria-label="Registrar pagamento">
                         <i class="ph ph-currency-dollar" aria-hidden="true"></i>
@@ -195,13 +199,15 @@ function render() {
                 }
 
                 // Editar
-                acaoHtml += `<button type="button" class="btn btn-action" data-acao="editar"
-                    data-id="${d.id}" title="${cfg().acaoEditar || 'Editar despesa'}" aria-label="Editar despesa">
-                    <i class="ph ph-pencil-simple" aria-hidden="true"></i>
-                </button> `;
+                if (podeEditar()) {
+                    acaoHtml += `<button type="button" class="btn btn-action" data-acao="editar"
+                        data-id="${d.id}" title="${cfg().acaoEditar || 'Editar despesa'}" aria-label="Editar despesa">
+                        <i class="ph ph-pencil-simple" aria-hidden="true"></i>
+                    </button> `;
+                }
 
-                // Excluir (somente MANUAL)
-                if (d.origem === 'MANUAL') {
+                // Excluir (somente MANUAL e tiver permissão)
+                if (d.origem === 'MANUAL' && podeExcluir()) {
                     acaoHtml += `<button type="button" class="btn btn-action text-danger" data-acao="excluir"
                         data-id="${d.id}" data-nome="${d.nome}" data-parcelada="${d.parcelada}"
                         data-nro="${d.nroParcela}" data-qtd="${d.qtdParcelas}"

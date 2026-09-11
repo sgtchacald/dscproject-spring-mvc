@@ -44,11 +44,11 @@ class PerfilPermissaoAuditIntegrationTest {
         Usuario usuario = usuarioRepository.save(usuario("aud_" + s, perfil));
 
         PerfilFormDTO comTresPermissoes = form("AUD_" + s, "Auditoria " + s,
-            "PERFIS_MANTER", "USUARIOS_EDITAR", "USUARIOS_VER_HISTORICO");
+            "PERFIS_VINCULAR_PERMISSAO", "USUARIOS_EDITAR", "USUARIOS_VER_HISTORICO");
         perfilService.editar(perfil.getId(), comTresPermissoes, null);
 
         PerfilFormDTO semHistorico = form("AUD_" + s, "Auditoria " + s,
-            "PERFIS_MANTER", "USUARIOS_EDITAR");
+            "PERFIS_VINCULAR_PERMISSAO", "USUARIOS_EDITAR");
         perfilService.editar(perfil.getId(), semHistorico, null);
 
         PerfilPermissao removido = perfilPermissaoRepository.findAll().stream()
@@ -62,7 +62,7 @@ class PerfilPermissaoAuditIntegrationTest {
         Usuario recarregado = usuarioRepository.findById(usuario.getId()).orElseThrow();
         List<String> autoridades = recarregado.getAuthorities().stream()
             .map(Object::toString).toList();
-        assertThat(autoridades).contains("PERM_PERFIS_MANTER", "PERM_USUARIOS_EDITAR");
+        assertThat(autoridades).contains("PERM_PERFIS_VINCULAR_PERMISSAO", "PERM_USUARIOS_EDITAR");
         assertThat(autoridades).doesNotContain("PERM_USUARIOS_VER_HISTORICO");
     }
 

@@ -89,10 +89,11 @@ public class CargaInicialRunner implements ApplicationRunner {
                 if (!"DESPESA_RATEAR_MULTIUSUARIO".equals(permissao.getCodigo())) {
                     vincular(admin, permissao);
                 }
-                if ("CONTAS_LISTAR".equals(permissao.getCodigo()) || "CONTAS_MANTER".equals(permissao.getCodigo())
-                        || "CARTOES_LISTAR".equals(permissao.getCodigo()) || "CARTOES_MANTER".equals(permissao.getCodigo())
-                        || "RECEITAS_LISTAR".equals(permissao.getCodigo()) || "RECEITAS_MANTER".equals(permissao.getCodigo())
-                        || "DESPESAS_LISTAR".equals(permissao.getCodigo()) || "DESPESAS_MANTER".equals(permissao.getCodigo())) {
+                boolean isUserPerm = permissao.getCodigo().startsWith("CONTAS_")
+                        || permissao.getCodigo().startsWith("CARTOES_")
+                        || permissao.getCodigo().startsWith("RECEITAS_")
+                        || permissao.getCodigo().startsWith("DESPESAS_");
+                if (isUserPerm && !permissao.isConcedivelPorPlano()) {
                     vincular(user, permissao);
                 }
             }

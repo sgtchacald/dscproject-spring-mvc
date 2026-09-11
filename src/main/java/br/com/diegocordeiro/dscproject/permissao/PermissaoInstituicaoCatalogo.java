@@ -7,7 +7,9 @@ package br.com.diegocordeiro.dscproject.permissao;
 public enum PermissaoInstituicaoCatalogo implements PermissaoDefinida {
 
     INSTITUICOES_LISTAR("Listar instituições financeiras", "Abrir a tela de Instituições Financeiras, listar e filtrar. Controla a visibilidade do menu 'Instituições Financeiras'."),
-    INSTITUICOES_MANTER("Manter instituições financeiras", "Cadastrar, editar, desativar/reativar e excluir instituição.");
+    INSTITUICOES_INSERIR("Cadastrar instituições financeiras", "Cadastrar novas instituições financeiras."),
+    INSTITUICOES_EDITAR("Editar instituições financeiras", "Alterar dados cadastrais e ativar/desativar instituições financeiras."),
+    INSTITUICOES_EXCLUIR("Excluir instituições financeiras", "Excluir logicamente instituições financeiras sem vínculos.");
 
     public static final String MODULO = "Instituições Financeiras";
 

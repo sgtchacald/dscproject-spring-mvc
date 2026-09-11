@@ -7,7 +7,9 @@ package br.com.diegocordeiro.dscproject.permissao;
 public enum PermissaoInstituicaoProvedorCatalogo implements PermissaoDefinida {
 
     INSTITUICOES_PROVEDOR_LISTAR("Listar instituições por provedor", "Abrir a tela de Instituições por Provedor, listar e filtrar. Controla a visibilidade do menu 'Instituições por Provedor'."),
-    INSTITUICOES_PROVEDOR_MANTER("Manter instituições por provedor", "Cadastrar, editar e excluir o vínculo instituição × provedor.");
+    INSTITUICOES_PROVEDOR_INSERIR("Cadastrar instituições por provedor", "Cadastrar o vínculo instituição × provedor."),
+    INSTITUICOES_PROVEDOR_EDITAR("Editar instituições por provedor", "Alterar o vínculo instituição × provedor."),
+    INSTITUICOES_PROVEDOR_EXCLUIR("Excluir instituições por provedor", "Excluir o vínculo instituição × provedor.");
 
     public static final String MODULO = "Instituições por Provedor";
 

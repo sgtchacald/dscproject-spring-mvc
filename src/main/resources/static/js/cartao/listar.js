@@ -11,7 +11,11 @@ let ordenacao = { col: 'descricao', asc: true };
 const corpo = document.getElementById('corpoTabelaCartoes');
 const rodape = document.getElementById('rodapeContagemCartoes');
 
-const podeManter = () => !!document.querySelector('[data-perm="manter"]');
+const pode = {
+    inserir: () => !!document.querySelector('[data-perm="inserir"]'),
+    editar: () => !!document.querySelector('[data-perm="editar"]'),
+    excluir: () => !!document.querySelector('[data-perm="excluir"]')
+};
 
 async function carregar() {
     try {
@@ -79,11 +83,13 @@ function ordenar(lista) {
 }
 
 function acaoHtml(c) {
-    if (!podeManter()) return '';
-    let html = `<button type="button" class="btn btn-action" data-acao="editar" data-id="${c.id}" title="Editar cartão" aria-label="Editar cartão">
-        <i class="ph ph-pencil-simple" aria-hidden="true"></i>
-    </button>`;
-    if (!c.excluido) {
+    let html = '';
+    if (pode.editar()) {
+        html += `<button type="button" class="btn btn-action" data-acao="editar" data-id="${c.id}" title="Editar cartão" aria-label="Editar cartão">
+            <i class="ph ph-pencil-simple" aria-hidden="true"></i>
+        </button>`;
+    }
+    if (pode.excluir() && !c.excluido) {
         html += `<button type="button" class="btn btn-action text-danger" data-acao="excluir" data-id="${c.id}" data-descricao="${c.descricao}" title="Excluir cartão" aria-label="Excluir cartão">
             <i class="ph ph-trash" aria-hidden="true"></i>
         </button>`;

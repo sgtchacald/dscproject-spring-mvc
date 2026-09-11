@@ -150,7 +150,7 @@ class ContaControllerTest {
 
     @Test
     @DisplayName("Buscar dados para edição de conta pertencente ao usuário")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_EDITAR")
     void buscar_quandoContaDoUsuario_deveRetornarEdicaoDTO() throws Exception {
         ContaEdicaoDTO dto = new ContaEdicaoDTO();
         dto.setId(10L);
@@ -170,7 +170,7 @@ class ContaControllerTest {
 
     @Test
     @DisplayName("Buscar conta pertencente a outro usuário retorna 404 (RN02 / BDD 16.3 / 16.4)")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_EDITAR")
     void buscar_quandoContaDeOutroUsuario_deveRetornar404() throws Exception {
         when(contaService.buscarParaEdicao(99L, 1L))
                 .thenThrow(new RegistroNaoEncontradoException("msg.conta.nao-encontrada"));
@@ -181,7 +181,7 @@ class ContaControllerTest {
 
     @Test
     @DisplayName("Inserir conta com sucesso")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_INSERIR")
     void inserir_comDadosValidos_deveRetornarOk() throws Exception {
         when(contaRepository.contarPorUsuarioEDescricao(1L, "Conta XP", null)).thenReturn(0L);
 
@@ -207,7 +207,7 @@ class ContaControllerTest {
 
     @Test
     @DisplayName("RF03 / RT10 / SB03 - Moeda escolhida no formulário chega ao Service")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_INSERIR")
     void inserir_comMoedaEscolhida_deveRepassarAoService() throws Exception {
         when(contaRepository.contarPorUsuarioEDescricao(1L, "Conta em Dólar", null)).thenReturn(0L);
 
@@ -236,7 +236,7 @@ class ContaControllerTest {
 
     @Test
     @DisplayName("Inserir conta com descrição duplicada retorna 422")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_INSERIR")
     void inserir_quandoDescricaoDuplicada_deveRetornar422() throws Exception {
         when(contaRepository.contarPorUsuarioEDescricao(1L, "Conta XP", null)).thenReturn(1L);
 
@@ -259,7 +259,7 @@ class ContaControllerTest {
 
     @Test
     @DisplayName("Editar conta com sucesso")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_EDITAR")
     void editar_comDadosValidos_deveRetornarOk() throws Exception {
         InstituicaoFinanceira inst = new InstituicaoFinanceira();
         inst.setId(5L);
@@ -286,7 +286,7 @@ class ContaControllerTest {
 
     @Test
     @DisplayName("Ajustar saldo com sucesso")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_AJUSTAR_SALDO")
     void ajustarSaldo_comDadosValidos_deveRetornarOk() throws Exception {
         mockMvc.perform(put("/contas/ajustar-saldo/10")
                         .with(csrf())
@@ -300,7 +300,7 @@ class ContaControllerTest {
 
     @Test
     @DisplayName("Desativar conta com sucesso")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_DESATIVAR")
     void desativar_comPermissao_deveRetornarOk() throws Exception {
         mockMvc.perform(put("/contas/desativar/10")
                         .with(csrf()))
@@ -312,7 +312,7 @@ class ContaControllerTest {
 
     @Test
     @DisplayName("Excluir conta com sucesso")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_EXCLUIR")
     void excluir_comPermissao_deveRetornarOk() throws Exception {
         mockMvc.perform(delete("/contas/excluir/10")
                         .with(csrf()))

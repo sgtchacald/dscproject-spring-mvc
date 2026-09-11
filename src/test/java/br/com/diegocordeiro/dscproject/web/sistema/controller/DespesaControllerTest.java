@@ -109,8 +109,8 @@ class DespesaControllerTest {
     }
 
     @Test
-    @DisplayName("EDP03 - Buscar por ID com PERM_DESPESAS_MANTER")
-    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    @DisplayName("EDP03 - Buscar por ID com PERM_DESPESAS_EDITAR")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_EDITAR")
     void buscar_comPermissao_despesaExiste_retorna200() throws Exception {
         Despesa d = new Despesa();
         d.setId(10L);
@@ -131,7 +131,7 @@ class DespesaControllerTest {
 
     @Test
     @DisplayName("EDP03 - Buscar com ID inexistente retorna 404")
-    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_EDITAR")
     void buscar_naoEncontrado_retorna404() throws Exception {
         when(despesaService.buscarParaEdicao(999L, 1L)).thenThrow(new RegistroNaoEncontradoException("msg.despesa.nao-encontrada"));
 
@@ -140,8 +140,8 @@ class DespesaControllerTest {
     }
 
     @Test
-    @DisplayName("EDP04 - Inserir despesa válida com PERM_DESPESAS_MANTER retorna 200")
-    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    @DisplayName("EDP04 - Inserir despesa válida com PERM_DESPESAS_INSERIR retorna 200")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_INSERIR")
     void inserir_valido_retorna200() throws Exception {
         Conta conta = new Conta();
         conta.setId(10L);
@@ -169,7 +169,7 @@ class DespesaControllerTest {
 
     @Test
     @DisplayName("EDP04 - Inserir dados inválidos retorna 422")
-    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_INSERIR")
     void inserir_invalido_retorna422() throws Exception {
         mockMvc.perform(post("/despesas/inserir")
                         .with(csrf())
@@ -181,8 +181,8 @@ class DespesaControllerTest {
     }
 
     @Test
-    @DisplayName("EDP05 - Editar despesa com PERM_DESPESAS_MANTER retorna 200")
-    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    @DisplayName("EDP05 - Editar despesa com PERM_DESPESAS_EDITAR retorna 200")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_EDITAR")
     void editar_valido_retorna200() throws Exception {
         Conta conta = new Conta();
         conta.setId(10L);
@@ -210,8 +210,8 @@ class DespesaControllerTest {
     }
 
     @Test
-    @DisplayName("EDP06 - Excluir despesa com PERM_DESPESAS_MANTER retorna 200")
-    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    @DisplayName("EDP06 - Excluir despesa com PERM_DESPESAS_EXCLUIR retorna 200")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_EXCLUIR")
     void excluir_comPermissao_retorna200() throws Exception {
         doNothing().when(despesaService).excluir(5L, 1L, "user_teste");
 
@@ -221,8 +221,8 @@ class DespesaControllerTest {
     }
 
     @Test
-    @DisplayName("EDP07 - Registrar pagamento individual com PERM_DESPESAS_MANTER retorna 200")
-    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    @DisplayName("EDP07 - Registrar pagamento individual com PERM_DESPESAS_PAGAR retorna 200")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_PAGAR")
     void registrarPagamento_comPermissao_retorna200() throws Exception {
         doNothing().when(despesaService).registrarPagamento(eq(5L), any(LocalDate.class), eq(1L), eq("user_teste"));
 
@@ -234,8 +234,8 @@ class DespesaControllerTest {
     }
 
     @Test
-    @DisplayName("EDP08 - Registrar pagamento em lote com PERM_DESPESAS_MANTER retorna 200")
-    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    @DisplayName("EDP08 - Registrar pagamento em lote com PERM_DESPESAS_PAGAR retorna 200")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_PAGAR")
     void registrarPagamentoLote_comPermissao_retorna200() throws Exception {
         when(despesaService.registrarPagamentoLote(any(), any(LocalDate.class), eq(1L), eq("user_teste"))).thenReturn(2);
 
@@ -262,7 +262,7 @@ class DespesaControllerTest {
 
     @Test
     @DisplayName("EDP09 - Acerto rateio sem PERM_DESPESA_RATEAR_MULTIUSUARIO retorna 403")
-    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_EDITAR")
     void acertoRateio_semPermissao_retorna403() throws Exception {
         mockMvc.perform(put("/despesas/1/rateio-acerto")
                         .with(csrf())
@@ -284,7 +284,7 @@ class DespesaControllerTest {
 
     @Test
     @DisplayName("EDP10 - Buscar usuários rateio sem autoridade retorna 403")
-    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_EDITAR")
     void buscarUsuariosRateio_semPermissao_retorna403() throws Exception {
         mockMvc.perform(get("/despesas/usuarios-rateio").param("termo", "diego"))
                 .andExpect(status().isForbidden());
@@ -303,7 +303,7 @@ class DespesaControllerTest {
 
     @Test
     @DisplayName("EDP10 - Buscar contatos rateio sem autoridade retorna 403")
-    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_EDITAR")
     void buscarContatosRateio_semPermissao_retorna403() throws Exception {
         mockMvc.perform(get("/despesas/contatos-rateio").param("termo", "carlos"))
                 .andExpect(status().isForbidden());
@@ -330,7 +330,7 @@ class DespesaControllerTest {
 
     @Test
     @DisplayName("EDP11 - Cadastrar contato rápido sem autoridade retorna 403")
-    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_EDITAR")
     void cadastrarContatoRapido_semPermissao_retorna403() throws Exception {
         mockMvc.perform(post("/despesas/contatos-rapido")
                         .with(csrf())

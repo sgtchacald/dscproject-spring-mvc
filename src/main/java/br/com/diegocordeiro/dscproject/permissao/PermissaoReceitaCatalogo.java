@@ -7,7 +7,10 @@ package br.com.diegocordeiro.dscproject.permissao;
 public enum PermissaoReceitaCatalogo implements PermissaoDefinida {
 
     RECEITAS_LISTAR("Listar minhas receitas", "Abrir a tela Receitas, listar e filtrar as próprias receitas. Controla a visibilidade do menu 'Receitas'."),
-    RECEITAS_MANTER("Manter minhas receitas", "Cadastrar, editar, registrar o recebimento e excluir as próprias receitas.");
+    RECEITAS_INSERIR("Cadastrar receitas", "Cadastrar novas receitas e duplicar receitas para si próprio."),
+    RECEITAS_EDITAR("Editar receitas", "Alterar dados de receitas existentes do próprio usuário."),
+    RECEITAS_EXCLUIR("Excluir receitas", "Excluir logicamente receitas manuais do próprio usuário."),
+    RECEITAS_REGISTRAR_RECEBIMENTO("Registrar recebimento de receitas", "Registrar o recebimento de receitas previstas.");
 
     public static final String MODULO = "Receitas";
 

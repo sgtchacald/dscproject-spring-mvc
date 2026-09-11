@@ -81,7 +81,7 @@ class PermissaoControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "PERM_PERFIS_MANTER")
+    @WithMockUser(authorities = "PERM_PERFIS_EDITAR")
     void sincronizar_semPermissaoSincronizar_403() throws Exception {
         mockMvc.perform(post("/permissoes/sincronizar-catalogo").with(csrf()))
             .andExpect(status().isForbidden());

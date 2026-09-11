@@ -12,7 +12,12 @@ let ordenacao = { col: 'competencia', asc: false };
 const corpo = document.getElementById('corpoTabelaReceitas');
 const rodape = document.getElementById('rodapeContagemReceitas');
 
-const podeManter = () => !!document.querySelector('[data-perm="manter"]');
+const pode = {
+    inserir: () => !!document.querySelector('[data-perm="inserir"]'),
+    editar: () => !!document.querySelector('[data-perm="editar"]'),
+    excluir: () => !!document.querySelector('[data-perm="excluir"]'),
+    receber: () => !!document.querySelector('[data-perm="receber"]')
+};
 
 async function carregar() {
     try {
@@ -130,16 +135,18 @@ function render() {
             const valorHtml = `<span class="fw-bold">${formatarMoeda(r.valor)}</span>`;
 
             let acaoHtml = '';
-            if (podeManter() && !r.excluido) {
-                acaoHtml += `<button type="button" class="btn btn-action" data-acao="editar" data-id="${r.id}" title="Editar receita" aria-label="Editar receita">
-                    <i class="ph ph-pencil-simple" aria-hidden="true"></i>
-                </button> `;
-                if (!r.recebido) {
+            if (!r.excluido) {
+                if (pode.editar()) {
+                    acaoHtml += `<button type="button" class="btn btn-action" data-acao="editar" data-id="${r.id}" title="Editar receita" aria-label="Editar receita">
+                        <i class="ph ph-pencil-simple" aria-hidden="true"></i>
+                    </button> `;
+                }
+                if (pode.receber() && !r.recebido) {
                     acaoHtml += `<button type="button" class="btn btn-action text-success" data-acao="registrar-recebimento" data-id="${r.id}" data-valor="${r.valor}" title="Registrar recebimento" aria-label="Registrar recebimento">
                         <i class="ph ph-money" aria-hidden="true"></i>
                     </button> `;
                 }
-                if (r.origem === 'MANUAL') {
+                if (pode.excluir() && r.origem === 'MANUAL') {
                     acaoHtml += `<button type="button" class="btn btn-action text-danger" data-acao="excluir" data-id="${r.id}" data-nome="${r.nome}" title="Excluir receita" aria-label="Excluir receita">
                         <i class="ph ph-trash" aria-hidden="true"></i>
                     </button>`;

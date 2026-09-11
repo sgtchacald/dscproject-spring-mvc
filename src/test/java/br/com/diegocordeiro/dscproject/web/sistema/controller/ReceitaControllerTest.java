@@ -140,7 +140,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("BDD 16.5 - Cadastrar receita prevista com sucesso")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_INSERIR")
     void inserir_comDadosValidos_deveRetornarOk() throws Exception {
         when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L)));
         when(receitaService.inserir(any(), eq(1L), eq("user_teste"))).thenReturn(new Receita());
@@ -161,7 +161,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("BDD 16.6 / MSG03 - Cadastrar com valor zero retorna 422 como erro de campo")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_INSERIR")
     void inserir_comValorZero_deveRetornar422() throws Exception {
         mockMvc.perform(post("/receitas/inserir")
                         .with(csrf())
@@ -179,7 +179,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("C4 / MSG14 - Cadastrar com categoria inválida retorna 422 como erro de campo")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_INSERIR")
     void inserir_comCategoriaInvalida_deveRetornar422() throws Exception {
         when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L)));
         when(categoriaRepository.findByIdAndDataExclusaoIsNull(99L)).thenReturn(Optional.empty());
@@ -201,7 +201,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("BDD 16.11 / MSG02 - Cadastrar sem conta retorna 422")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_INSERIR")
     void inserir_semConta_deveRetornar422() throws Exception {
         mockMvc.perform(post("/receitas/inserir")
                         .with(csrf())
@@ -218,7 +218,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("BDD 16.12 - Cadastrar com conta de outro usuário retorna 422 (conta inválida)")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_INSERIR")
     void inserir_comContaDeOutroUsuario_deveRetornar422() throws Exception {
         when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.empty());
 
@@ -238,7 +238,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("MSG11 - Cadastrar com competência fora do formato AAAA-MM retorna 422")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_INSERIR")
     void inserir_comCompetenciaForaDoFormato_deveRetornar422() throws Exception {
         when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L)));
 
@@ -257,7 +257,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("BDD 16.3 - Buscar receita de outro usuário retorna 404")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_EDITAR")
     void buscar_quandoReceitaDeOutroUsuario_deveRetornar404() throws Exception {
         when(receitaService.buscarParaEdicao(70L, 1L))
                 .thenThrow(new br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException("msg.receita.nao-encontrada"));
@@ -268,7 +268,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("EDP03 - Buscar receita do próprio usuário retorna os dados para edição")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_EDITAR")
     void buscar_quandoReceitaDoUsuario_deveRetornarDadosDeEdicao() throws Exception {
         when(receitaService.buscarParaEdicao(10L, 1L)).thenReturn(
                 br.com.diegocordeiro.dscproject.dto.receita.ReceitaEdicaoDTO.builder()
@@ -291,7 +291,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("BDD 16.4 - Editar receita de outro usuário retorna 404")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_EDITAR")
     void editar_quandoReceitaDeOutroUsuario_deveRetornar404() throws Exception {
         when(receitaService.buscarPorIdEUsuario(70L, 1L))
                 .thenThrow(new br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException("msg.receita.nao-encontrada"));
@@ -308,7 +308,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("BDD 16.15 - Editar receita com sucesso")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_EDITAR")
     void editar_comDadosValidos_deveRetornarOk() throws Exception {
         when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.empty());
         when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L)));
@@ -329,7 +329,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("BDD 16.4 - Registrar recebimento de receita de outro usuário retorna 404")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_REGISTRAR_RECEBIMENTO")
     void marcarRecebida_quandoReceitaDeOutroUsuario_deveRetornar404() throws Exception {
         when(receitaService.marcarRecebida(eq(70L), any(), eq(1L), eq("user_teste")))
                 .thenThrow(new br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException("msg.receita.nao-encontrada"));
@@ -342,7 +342,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("BDD 16.10 - Registrar recebimento com sucesso")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_REGISTRAR_RECEBIMENTO")
     void marcarRecebida_comDataValida_deveRetornarOk() throws Exception {
         when(receitaService.marcarRecebida(eq(10L), eq(LocalDate.of(2026, 10, 5)), eq(1L), eq("user_teste")))
                 .thenReturn(new Receita());
@@ -356,7 +356,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("RT09 / MSG02 - Registrar recebimento sem data retorna 422")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_REGISTRAR_RECEBIMENTO")
     void marcarRecebida_semData_deveRetornar422() throws Exception {
         mockMvc.perform(put("/receitas/marcar-recebida/10")
                         .with(csrf()))
@@ -368,7 +368,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("BDD 16.4 - Excluir receita de outro usuário retorna 404")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_EXCLUIR")
     void excluir_quandoReceitaDeOutroUsuario_deveRetornar404() throws Exception {
         doThrow(new br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException("msg.receita.nao-encontrada"))
                 .when(receitaService).excluir(70L, 1L, "user_teste");
@@ -379,7 +379,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("BDD 16.13 - Excluir receita manual com sucesso")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_EXCLUIR")
     void excluir_receitaManual_deveRetornarOk() throws Exception {
         mockMvc.perform(delete("/receitas/excluir/10").with(csrf()))
                 .andExpect(status().isOk())
@@ -390,7 +390,7 @@ class ReceitaControllerTest {
 
     @Test
     @DisplayName("BDD 16.14 - Excluir receita do Open Finance retorna 422 (MSG12)")
-    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_EXCLUIR")
     void excluir_receitaOpenFinance_deveRetornar422() throws Exception {
         doThrow(new br.com.diegocordeiro.dscproject.service.exceptions.RegraNegocioException("msg.receita.importada.nao-excluivel"))
                 .when(receitaService).excluir(10L, 1L, "user_teste");

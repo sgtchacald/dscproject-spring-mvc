@@ -94,11 +94,11 @@ class PerfilControllerTest {
                 org.hamcrest.Matchers.containsString("/js/perfil/listar.js"))));
     }
 
-    // ---------- RN01 — botões só com PERFIS_MANTER ----------
+    // ---------- RN01 — botões com permissão atômica ----------
 
     @Test
     @WithMockUser(authorities = "PERM_PERFIS_LISTAR")
-    void listar_semManter_naoMostraBotaoNovoPerfil() throws Exception {
+    void listar_semInserir_naoMostraBotaoNovoPerfil() throws Exception {
         mockMvc.perform(get("/perfis/listar"))
             .andExpect(status().isOk())
             .andExpect(content().string(org.hamcrest.Matchers.not(
@@ -106,8 +106,8 @@ class PerfilControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = {"PERM_PERFIS_LISTAR", "PERM_PERFIS_MANTER"})
-    void listar_comManter_mostraBotaoNovoPerfil() throws Exception {
+    @WithMockUser(authorities = {"PERM_PERFIS_LISTAR", "PERM_PERFIS_INSERIR"})
+    void listar_comInserir_mostraBotaoNovoPerfil() throws Exception {
         mockMvc.perform(get("/perfis/listar"))
             .andExpect(status().isOk())
             .andExpect(content().string(org.hamcrest.Matchers.containsString("id=\"btnNovoPerfil\"")));
@@ -116,15 +116,15 @@ class PerfilControllerTest {
     // ---------- EDP03 / BDD 16.3 ----------
 
     @Test
-    @WithMockUser(authorities = "PERM_PERFIS_MANTER")
+    @WithMockUser(authorities = "PERM_PERFIS_EDITAR")
     void buscar_perfilDeSistema_devolveFlagSistema() throws Exception {
         when(perfilService.buscarParaEdicao(1L))
-            .thenReturn(new PerfilEdicaoDTO(perfil(1L, "ADMIN", true), List.of("PERFIS_MANTER")));
+            .thenReturn(new PerfilEdicaoDTO(perfil(1L, "ADMIN", true), List.of("PERFIS_EDITAR")));
 
         mockMvc.perform(get("/perfis/buscar/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.sistema").value(true))
-            .andExpect(jsonPath("$.permissoes[0]").value("PERFIS_MANTER"));
+            .andExpect(jsonPath("$.permissoes[0]").value("PERFIS_EDITAR"));
     }
 
     @Test
@@ -136,21 +136,21 @@ class PerfilControllerTest {
     // ---------- EDP05 / BDD 16.1 e 16.2 ----------
 
     @Test
-    @WithMockUser(authorities = "PERM_PERFIS_MANTER")
+    @WithMockUser(authorities = "PERM_PERFIS_INSERIR")
     void inserir_dadosValidos_200() throws Exception {
         when(perfilService.verificarCodigoDuplicado(any(), any())).thenReturn(false);
         when(perfilService.inserir(any())).thenReturn(new Perfil());
 
         mockMvc.perform(post("/perfis/inserir").with(csrf())
                 .param("codigo", "RELATORIOS").param("nome", "Relatórios")
-                .param("permissoes", "USUARIOS_LISTAR").param("permissoes", "DESPESA_MANTER")
+                .param("permissoes", "USUARIOS_LISTAR").param("permissoes", "DESPESAS_LISTAR")
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.sucesso").value(true));
     }
 
     @Test
-    @WithMockUser(authorities = "PERM_PERFIS_MANTER")
+    @WithMockUser(authorities = "PERM_PERFIS_INSERIR")
     void inserir_codigoDuplicado_422ComMsg04() throws Exception {
         when(perfilService.verificarCodigoDuplicado(eq("ADMIN"), isNull())).thenReturn(true);
 
@@ -162,7 +162,7 @@ class PerfilControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "PERM_PERFIS_MANTER")
+    @WithMockUser(authorities = "PERM_PERFIS_INSERIR")
     void inserir_semNome_422ErroDeCampo() throws Exception {
         mockMvc.perform(post("/perfis/inserir").with(csrf())
                 .param("codigo", "RELATORIOS").param("nome", "")
@@ -182,7 +182,7 @@ class PerfilControllerTest {
     // ---------- EDP06 / RN05 e RN06 / BDD 16.4 e 16.5 ----------
 
     @Test
-    @WithMockUser(authorities = "PERM_PERFIS_MANTER")
+    @WithMockUser(authorities = "PERM_PERFIS_EDITAR")
     void editar_antiLockoutGlobal_422ComMsg06() throws Exception {
         when(perfilService.verificarCodigoDuplicado(any(), any())).thenReturn(false);
         doThrow(new RegraNegocioException("perfil.antilockout.global"))
@@ -197,7 +197,7 @@ class PerfilControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "PERM_PERFIS_MANTER")
+    @WithMockUser(authorities = "PERM_PERFIS_EDITAR")
     void editar_antiLockoutProprioPerfil_422ComMsg05() throws Exception {
         when(perfilService.verificarCodigoDuplicado(any(), any())).thenReturn(false);
         doThrow(new RegraNegocioException("perfil.antilockout.proprio"))
@@ -214,7 +214,7 @@ class PerfilControllerTest {
     // ---------- EDP07 / RN07 / BDD 16.6 e 16.7 ----------
 
     @Test
-    @WithMockUser(authorities = "PERM_PERFIS_MANTER")
+    @WithMockUser(authorities = "PERM_PERFIS_EXCLUIR")
     void excluir_perfilDeSistema_422ComMsg08() throws Exception {
         doThrow(new RegraNegocioException("perfil.exclusao.sistema")).when(perfilService).excluir(2L);
 
@@ -224,7 +224,7 @@ class PerfilControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "PERM_PERFIS_MANTER")
+    @WithMockUser(authorities = "PERM_PERFIS_EXCLUIR")
     void excluir_perfilComUsuarios_422ComMsg09() throws Exception {
         doThrow(new RegraNegocioException("perfil.exclusao.com.usuarios")).when(perfilService).excluir(9L);
 
@@ -234,7 +234,7 @@ class PerfilControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "PERM_PERFIS_MANTER")
+    @WithMockUser(authorities = "PERM_PERFIS_EXCLUIR")
     void excluir_ok_200ComMsg10() throws Exception {
         mockMvc.perform(delete("/perfis/excluir/9").with(csrf()).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())

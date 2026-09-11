@@ -162,7 +162,7 @@ class CartaoCreditoControllerTest {
 
     @Test
     @DisplayName("Buscar dados para edição de cartão pertencente ao usuário")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_EDITAR")
     void buscar_quandoCartaoDoUsuario_deveRetornarEdicaoDTO() throws Exception {
         CartaoCreditoEdicaoDTO dto = CartaoCreditoEdicaoDTO.builder()
                 .id(10L)
@@ -181,7 +181,7 @@ class CartaoCreditoControllerTest {
 
     @Test
     @DisplayName("BDD 16.3 - Buscar cartão de outro usuário retorna 404 (RN02)")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_EDITAR")
     void buscar_quandoCartaoDeOutroUsuario_deveRetornar404() throws Exception {
         when(cartaoCreditoService.buscarParaEdicao(99L, 1L))
                 .thenThrow(new RegistroNaoEncontradoException("msg.cartao.nao-encontrado"));
@@ -192,7 +192,7 @@ class CartaoCreditoControllerTest {
 
     @Test
     @DisplayName("BDD 16.4 - Cadastrar cartão com dados válidos retorna sucesso")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_INSERIR")
     void inserir_comDadosValidos_deveRetornarOk() throws Exception {
         when(cartaoCreditoService.inserir(any(), eq(1L), eq("user_teste"))).thenReturn(new CartaoCredito());
 
@@ -211,7 +211,7 @@ class CartaoCreditoControllerTest {
 
     @Test
     @DisplayName("BDD 16.5 - Dia de vencimento fora de 1-31 retorna 422")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_INSERIR")
     void inserir_comDiaVencimentoInvalido_deveRetornar422() throws Exception {
         mockMvc.perform(post("/cartoes/inserir")
                         .with(csrf())
@@ -226,7 +226,7 @@ class CartaoCreditoControllerTest {
 
     @Test
     @DisplayName("BDD 16.6 - Final do cartão com caractere inválido retorna 422")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_INSERIR")
     void inserir_comFinalCartaoInvalido_deveRetornar422() throws Exception {
         mockMvc.perform(post("/cartoes/inserir")
                         .with(csrf())
@@ -241,7 +241,7 @@ class CartaoCreditoControllerTest {
 
     @Test
     @DisplayName("BDD 16.7 - Conta de débito de outro usuário retorna 422 no campo contaId")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_INSERIR")
     void inserir_comContaDeOutroUsuario_deveRetornar422() throws Exception {
         when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(9L, 1L)).thenReturn(Optional.empty());
 
@@ -258,7 +258,7 @@ class CartaoCreditoControllerTest {
 
     @Test
     @DisplayName("Editar cartão com sucesso")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_EDITAR")
     void editar_comDadosValidos_deveRetornarOk() throws Exception {
         when(cartaoCreditoService.editar(eq(10L), any(), eq(1L), eq("user_teste"))).thenReturn(new CartaoCredito());
 
@@ -274,7 +274,7 @@ class CartaoCreditoControllerTest {
 
     @Test
     @DisplayName("Editar cartão de outro usuário retorna 404")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_EDITAR")
     void editar_quandoCartaoDeOutroUsuario_deveRetornar404() throws Exception {
         when(cartaoCreditoService.editar(eq(99L), any(), eq(1L), eq("user_teste")))
                 .thenThrow(new RegistroNaoEncontradoException("msg.cartao.nao-encontrado"));
@@ -288,7 +288,7 @@ class CartaoCreditoControllerTest {
 
     @Test
     @DisplayName("BDD 16.11 - Excluir cartão sem vínculo com sucesso")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_EXCLUIR")
     void excluir_semVinculo_deveRetornarOk() throws Exception {
         mockMvc.perform(delete("/cartoes/excluir/10")
                         .with(csrf()))
@@ -300,7 +300,7 @@ class CartaoCreditoControllerTest {
 
     @Test
     @DisplayName("BDD 16.9 - Excluir cartão em uso retorna 422 com a oferta de desativar")
-    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_MANTER")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CARTOES_EXCLUIR")
     void excluir_comVinculo_deveRetornar422() throws Exception {
         org.mockito.Mockito.doThrow(new RegraNegocioException("msg.cartao.em-uso.bloqueada"))
                 .when(cartaoCreditoService).excluir(10L, 1L, "user_teste");

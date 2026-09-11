@@ -28,7 +28,7 @@ import java.util.Set;
 public class PerfilService {
 
     /** Permissão que gere perfis — alvo das travas anti-lockout. */
-    static final String PERFIS_MANTER = "PERFIS_MANTER";
+    static final String PERFIS_VINCULAR_PERMISSAO = "PERFIS_VINCULAR_PERMISSAO";
     /** Permissão que reatribui o perfil de um usuário — a segunda trava anti-lockout. */
     static final String USUARIOS_EDITAR = "USUARIOS_EDITAR";
 
@@ -92,7 +92,7 @@ public class PerfilService {
         Set<String> atuais = new HashSet<>(perfilPermissaoRepository.buscarCodigosPermissaoAtivos(id));
 
         if (ehPerfilDoUsuarioLogado(loginUsuarioLogado, perfil)
-                && atuais.contains(PERFIS_MANTER) && !desejados.contains(PERFIS_MANTER)) {
+                && atuais.contains(PERFIS_VINCULAR_PERMISSAO) && !desejados.contains(PERFIS_VINCULAR_PERMISSAO)) {
             throw new RegraNegocioException("perfil.antilockout.proprio");
         }
 
@@ -154,7 +154,7 @@ public class PerfilService {
     /** Nenhuma gravação pode deixar o sistema sem um perfil, com usuário ativo, capaz de gerir perfis ou usuários. */
     private void validarAntiLockoutGlobal() {
         perfilPermissaoRepository.flush();
-        for (String codigo : List.of(PERFIS_MANTER, USUARIOS_EDITAR)) {
+        for (String codigo : List.of(PERFIS_VINCULAR_PERMISSAO, USUARIOS_EDITAR)) {
             if (perfilRepository.contarPerfisComUsuarioAtivoConcedendo(codigo) == 0) {
                 throw new RegraNegocioException("perfil.antilockout.global");
             }

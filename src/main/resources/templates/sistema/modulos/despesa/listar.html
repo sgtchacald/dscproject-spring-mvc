@@ -34,12 +34,12 @@
                 <i class="ph ph-funnel" aria-hidden="true"></i>
                 <span th:text="#{despesa.lista.botao.filtrar}">Filtrar</span>
             </button>
-            <button class="btn" id="btnPagarLote" disabled sec:authorize="hasAuthority('PERM_DESPESAS_MANTER')"
+            <button class="btn" id="btnPagarLote" disabled sec:authorize="hasAuthority('PERM_DESPESAS_PAGAR')"
                     data-bs-toggle="modal" data-bs-target="#modalPagamentoLote">
                 <i class="ph ph-currency-dollar" aria-hidden="true"></i>
                 <span th:text="#{despesa.lista.botao.pagarLote}">Registrar pagamento</span>
             </button>
-            <button class="btn btn-primary" id="btnNovaDespesa" sec:authorize="hasAuthority('PERM_DESPESAS_MANTER')"
+            <button class="btn btn-primary" id="btnNovaDespesa" sec:authorize="hasAuthority('PERM_DESPESAS_INSERIR')"
                     data-bs-toggle="modal" data-bs-target="#modalDespesa">
                 <i class="ph ph-plus" aria-hidden="true"></i>
                 <span th:text="#{despesa.lista.botao.nova}">Nova despesa</span>
@@ -85,7 +85,11 @@
 
     <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
 
-    <span sec:authorize="hasAuthority('PERM_DESPESAS_MANTER')" data-perm="manter" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_DESPESAS_INSERIR')" data-perm="inserir" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_DESPESAS_EDITAR')" data-perm="editar" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_DESPESAS_EXCLUIR')" data-perm="excluir" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_DESPESAS_PAGAR')" data-perm="pagar" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_DESPESAS_IMPORTAR')" data-perm="importar" hidden></span>
     <span sec:authorize="hasAuthority('PERM_DESPESA_RATEAR_MULTIUSUARIO')" data-perm="ratear" hidden></span>
 
     <div id="dadosTelaDespesa"

@@ -79,7 +79,7 @@ class PerfilServiceTest {
 
     @Test
     void inserir_criaPerfilNaoSistemaComExatamenteAsPermissoesMarcadas() {
-        Perfil salvo = perfilService.inserir(form("RELATORIOS", "Relatórios", "USUARIOS_LISTAR", "DESPESA_MANTER"));
+        Perfil salvo = perfilService.inserir(form("RELATORIOS", "Relatórios", "USUARIOS_LISTAR", "DESPESAS_LISTAR"));
 
         assertThat(salvo.getCodigo()).isEqualTo("RELATORIOS");
         assertThat(salvo.isSistema()).isFalse();
@@ -110,13 +110,13 @@ class PerfilServiceTest {
         when(perfilRepository.findById(5L)).thenReturn(Optional.of(perfil));
 
         PerfilPermissao vinculoOrfao = new PerfilPermissao(perfil, permissao("RECURSO_ANTIGO", true));
-        PerfilPermissao vinculoManter = new PerfilPermissao(perfil, permissao("PERFIS_MANTER", false));
+        PerfilPermissao vinculoManter = new PerfilPermissao(perfil, permissao("PERFIS_VINCULAR_PERMISSAO", false));
         when(perfilPermissaoRepository.buscarCodigosPermissaoAtivos(5L))
-            .thenReturn(new ArrayList<>(List.of("RECURSO_ANTIGO", "PERFIS_MANTER")));
+            .thenReturn(new ArrayList<>(List.of("RECURSO_ANTIGO", "PERFIS_VINCULAR_PERMISSAO")));
         when(perfilPermissaoRepository.findByPerfilAndDataExclusaoIsNull(perfil))
             .thenReturn(new ArrayList<>(List.of(vinculoOrfao, vinculoManter)));
 
-        perfilService.editar(5L, form("RELATORIOS", "Relatórios", "PERFIS_MANTER"), null);
+        perfilService.editar(5L, form("RELATORIOS", "Relatórios", "PERFIS_VINCULAR_PERMISSAO"), null);
 
         assertThat(vinculoOrfao.getDataExclusao()).isNotNull();     // órfã pode ser removida
         assertThat(vinculoManter.getDataExclusao()).isNull();
@@ -129,7 +129,7 @@ class PerfilServiceTest {
         Perfil admin = perfil(1L, "ADMIN", true);
         when(perfilRepository.findById(1L)).thenReturn(Optional.of(admin));
 
-        perfilService.editar(1L, form("OUTRO", "Administrador", "PERFIS_MANTER"), null);
+        perfilService.editar(1L, form("OUTRO", "Administrador", "PERFIS_VINCULAR_PERMISSAO"), null);
 
         assertThat(admin.getCodigo()).isEqualTo("ADMIN");
     }
@@ -171,7 +171,7 @@ class PerfilServiceTest {
         Perfil admin = perfil(1L, "ADMIN", true);
         when(perfilRepository.findById(1L)).thenReturn(Optional.of(admin));
         when(perfilPermissaoRepository.buscarCodigosPermissaoAtivos(1L))
-            .thenReturn(new ArrayList<>(List.of("PERFIS_MANTER", "USUARIOS_EDITAR")));
+            .thenReturn(new ArrayList<>(List.of("PERFIS_VINCULAR_PERMISSAO", "USUARIOS_EDITAR")));
         Usuario logado = new Usuario();
         logado.setPerfil(admin);
         when(usuarioRepository.findByLoginOrEmail("diego", "diego")).thenReturn(logado);
@@ -191,7 +191,7 @@ class PerfilServiceTest {
         when(perfilRepository.findById(1L)).thenReturn(Optional.of(admin));
         when(perfilRepository.contarPerfisComUsuarioAtivoConcedendo("USUARIOS_EDITAR")).thenReturn(0L);
 
-        assertThatThrownBy(() -> perfilService.editar(1L, form("ADMIN", "Administrador", "PERFIS_MANTER"), null))
+        assertThatThrownBy(() -> perfilService.editar(1L, form("ADMIN", "Administrador", "PERFIS_VINCULAR_PERMISSAO"), null))
             .isInstanceOf(RegraNegocioException.class)
             .hasMessage("perfil.antilockout.global");
     }

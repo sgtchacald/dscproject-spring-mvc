@@ -11,7 +11,11 @@ let ordenacao = { col: 'nome', asc: true };
 const corpo = document.getElementById('corpoTabelaInstituicoes');
 const rodape = document.getElementById('rodapeContagemInstituicoes');
 
-const podeManter = () => !!document.querySelector('[data-perm="manter"]');
+const pode = {
+    inserir: () => !!document.querySelector('[data-perm="inserir"]'),
+    editar: () => !!document.querySelector('[data-perm="editar"]'),
+    excluir: () => !!document.querySelector('[data-perm="excluir"]')
+};
 
 async function carregar() {
     try {
@@ -106,15 +110,15 @@ function render() {
             }
 
             let acaoHtml = '';
-            if (podeManter()) {
+            if (pode.editar()) {
                 acaoHtml += `<button type="button" class="btn btn-action" data-acao="editar" data-id="${i.id}" title="Editar instituição">
                     <i class="ph ph-pencil-simple" aria-hidden="true"></i>
                 </button> `;
-                if (!i.sistema && !i.excluido) {
-                    acaoHtml += `<button type="button" class="btn btn-action text-danger" data-acao="excluir" data-id="${i.id}" data-nome="${i.nome}" title="Excluir instituição">
-                        <i class="ph ph-trash" aria-hidden="true"></i>
-                    </button>`;
-                }
+            }
+            if (pode.excluir() && !i.sistema && !i.excluido) {
+                acaoHtml += `<button type="button" class="btn btn-action text-danger" data-acao="excluir" data-id="${i.id}" data-nome="${i.nome}" title="Excluir instituição">
+                    <i class="ph ph-trash" aria-hidden="true"></i>
+                </button>`;
             }
 
             tr.innerHTML = `

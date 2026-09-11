@@ -7,7 +7,12 @@ package br.com.diegocordeiro.dscproject.permissao;
 public enum PermissaoContaCatalogo implements PermissaoDefinida {
 
     CONTAS_LISTAR("Listar minhas contas", "Abrir a tela Minhas Contas, listar e filtrar as próprias contas, e obter a lista de contas ativas para os comboboxes de lançamento. Controla a visibilidade do menu 'Minhas Contas'."),
-    CONTAS_MANTER("Manter minhas contas", "Cadastrar, editar, ajustar saldo, desativar/reativar e excluir as próprias contas.");
+    CONTAS_INSERIR("Cadastrar contas", "Cadastrar novas contas bancárias ou carteiras."),
+    CONTAS_EDITAR("Editar contas", "Alterar dados cadastrais de contas existentes."),
+    CONTAS_EXCLUIR("Excluir contas", "Excluir logicamente contas que não possuem movimentações associadas."),
+    CONTAS_DESATIVAR("Desativar contas", "Desativar contas ativas impedindo novos lançamentos."),
+    CONTAS_ATIVAR("Ativar contas", "Reativar contas inativas permitindo novos lançamentos."),
+    CONTAS_AJUSTAR_SALDO("Ajustar saldo de contas", "Realizar ajuste manual do saldo com registro de motivo na auditoria.");
 
     public static final String MODULO = "Contas";
 

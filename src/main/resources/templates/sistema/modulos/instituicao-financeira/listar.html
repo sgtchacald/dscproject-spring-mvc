@@ -34,7 +34,7 @@
                 <i class="ph ph-funnel" aria-hidden="true"></i>
                 <span th:text="#{instituicao.lista.botao.filtrar}">Filtrar</span>
             </button>
-            <button class="btn btn-primary" id="btnNovaInstituicao" sec:authorize="hasAuthority('PERM_INSTITUICOES_MANTER')"
+            <button class="btn btn-primary" id="btnNovaInstituicao" sec:authorize="hasAuthority('PERM_INSTITUICOES_INSERIR')"
                     data-bs-toggle="modal" data-bs-target="#modalInstituicao">
                 <i class="ph ph-plus" aria-hidden="true"></i>
                 <span th:text="#{instituicao.lista.botao.novo}">Nova instituição</span>
@@ -71,7 +71,9 @@
 
     <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
 
-    <span sec:authorize="hasAuthority('PERM_INSTITUICOES_MANTER')" data-perm="manter" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_INSTITUICOES_INSERIR')" data-perm="inserir" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_INSTITUICOES_EDITAR')" data-perm="editar" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_INSTITUICOES_EXCLUIR')" data-perm="excluir" hidden></span>
 
     <div id="dadosTelaInstituicao"
          th:data-url-dados="@{/instituicoes-financeiras/listar-dados}"

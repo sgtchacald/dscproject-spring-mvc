@@ -108,7 +108,7 @@ class InstituicaoProvedorControllerTest {
 
     @Test
     @DisplayName("Buscar dados para edição")
-    @WithMockUser(authorities = "PERM_INSTITUICOES_PROVEDOR_MANTER")
+    @WithMockUser(authorities = "PERM_INSTITUICOES_PROVEDOR_EDITAR")
     void buscar_comPermissao_deveRetornarEdicaoDTO() throws Exception {
         InstituicaoProvedorEdicaoDTO dto = new InstituicaoProvedorEdicaoDTO();
         dto.setId(1L);
@@ -126,7 +126,7 @@ class InstituicaoProvedorControllerTest {
 
     @Test
     @DisplayName("Inserir vínculo com sucesso")
-    @WithMockUser(authorities = "PERM_INSTITUICOES_PROVEDOR_MANTER")
+    @WithMockUser(authorities = "PERM_INSTITUICOES_PROVEDOR_INSERIR")
     void inserir_comDadosValidos_deveRetornarOk() throws Exception {
         when(opfiInstituicaoProvedorRepository.contarPorInstituicaoEProvedor(10L, 1L, null)).thenReturn(0L);
         when(opfiInstituicaoProvedorRepository.contarPorProvedorEIdExterno(1L, "pluggy_nubank", null)).thenReturn(0L);
@@ -154,7 +154,7 @@ class InstituicaoProvedorControllerTest {
 
     @Test
     @DisplayName("Inserir vínculo com par duplicado retorna 422")
-    @WithMockUser(authorities = "PERM_INSTITUICOES_PROVEDOR_MANTER")
+    @WithMockUser(authorities = "PERM_INSTITUICOES_PROVEDOR_INSERIR")
     void inserir_quandoParDuplicado_deveRetornar422() throws Exception {
         when(opfiInstituicaoProvedorRepository.contarPorInstituicaoEProvedor(10L, 1L, null)).thenReturn(1L);
         when(opfiInstituicaoProvedorRepository.contarPorProvedorEIdExterno(1L, "pluggy_nubank", null)).thenReturn(0L);
@@ -181,7 +181,7 @@ class InstituicaoProvedorControllerTest {
 
     @Test
     @DisplayName("Editar vínculo com sucesso")
-    @WithMockUser(authorities = "PERM_INSTITUICOES_PROVEDOR_MANTER")
+    @WithMockUser(authorities = "PERM_INSTITUICOES_PROVEDOR_EDITAR")
     void editar_comDadosValidos_deveRetornarOk() throws Exception {
         when(opfiInstituicaoProvedorRepository.contarPorInstituicaoEProvedor(10L, 1L, 2L)).thenReturn(0L);
         when(opfiInstituicaoProvedorRepository.contarPorProvedorEIdExterno(1L, "pluggy_nubank_v2", 2L)).thenReturn(0L);
@@ -207,7 +207,7 @@ class InstituicaoProvedorControllerTest {
 
     @Test
     @DisplayName("Excluir vínculo com sucesso")
-    @WithMockUser(authorities = "PERM_INSTITUICOES_PROVEDOR_MANTER", username = "admin_user")
+    @WithMockUser(authorities = "PERM_INSTITUICOES_PROVEDOR_EXCLUIR", username = "admin_user")
     void excluir_comPermissao_deveRetornarOk() throws Exception {
         mockMvc.perform(delete("/instituicoes-provedor/excluir/5")
                         .with(csrf()))
@@ -219,7 +219,7 @@ class InstituicaoProvedorControllerTest {
 
     @Test
     @DisplayName("Listar opções de provedores")
-    @WithMockUser(authorities = "PERM_INSTITUICOES_PROVEDOR_MANTER")
+    @WithMockUser(authorities = "PERM_INSTITUICOES_PROVEDOR_LISTAR")
     void listarProvedoresOpcoes_comPermissao_deveRetornarListaJson() throws Exception {
         when(instituicaoProvedorService.listarProvedoresOpcoes()).thenReturn(List.of(
                 new ProvedorOpcaoDTO(1L, "PLUGGY", "Pluggy", true)

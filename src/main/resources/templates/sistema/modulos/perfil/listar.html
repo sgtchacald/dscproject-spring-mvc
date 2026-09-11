@@ -31,7 +31,7 @@
             <button class="btn" id="btnCatalogo" data-bs-toggle="modal" data-bs-target="#modalCatalogo">
                 <span th:text="#{perfil.lista.botao.catalogo}">Catálogo de permissões</span>
             </button>
-            <button class="btn btn-primary" id="btnNovoPerfil" sec:authorize="hasAuthority('PERM_PERFIS_MANTER')"
+            <button class="btn btn-primary" id="btnNovoPerfil" sec:authorize="hasAuthority('PERM_PERFIS_INSERIR')"
                     data-bs-toggle="modal" data-bs-target="#modalPerfil">
                 <span th:text="#{perfil.lista.botao.novo}">Novo perfil</span>
             </button>
@@ -67,7 +67,10 @@
 
     <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
 
-    <span sec:authorize="hasAuthority('PERM_PERFIS_MANTER')" data-perm="manter" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_PERFIS_INSERIR')" data-perm="inserir" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_PERFIS_EDITAR')" data-perm="editar" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_PERFIS_EXCLUIR')" data-perm="excluir" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_PERFIS_VINCULAR_PERMISSAO')" data-perm="vincular" hidden></span>
     <span sec:authorize="hasAuthority('PERM_PERFIS_SINCRONIZAR_CATALOGO')" data-perm="sincronizar" hidden></span>
 
     <div id="dadosTelaPerfil"

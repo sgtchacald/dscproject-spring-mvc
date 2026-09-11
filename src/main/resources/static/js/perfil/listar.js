@@ -6,7 +6,10 @@ import './modal-catalogo.js';
 const cfg = document.getElementById('dadosTelaPerfil').dataset;
 
 const pode = {
-    manter: !!document.querySelector('[data-perm="manter"]')
+    inserir: !!document.querySelector('[data-perm="inserir"]'),
+    editar: !!document.querySelector('[data-perm="editar"]'),
+    excluir: !!document.querySelector('[data-perm="excluir"]'),
+    vincular: !!document.querySelector('[data-perm="vincular"]')
 };
 
 let todos = [];
@@ -43,9 +46,11 @@ function botaoAcao(acao, rotulo, p, classeCor) {
 }
 
 function acoes(p) {
-    if (!pode.manter) return '';
-    let html = botaoAcao('editar', cfg.labelEditar || 'Editar', p, '');
-    if (!p.sistema && p.qtdUsuarios === 0) {
+    let html = '';
+    if (pode.editar) {
+        html += botaoAcao('editar', cfg.labelEditar || 'Editar', p, '');
+    }
+    if (pode.excluir && !p.sistema && p.qtdUsuarios === 0) {
         html += botaoAcao('excluir', 'Excluir', p, ' text-danger');
     }
     return html;

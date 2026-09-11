@@ -34,7 +34,7 @@
                 <i class="ph ph-funnel" aria-hidden="true"></i>
                 <span th:text="#{receita.lista.botao.filtrar}">Filtrar</span>
             </button>
-            <button class="btn btn-primary" id="btnNovaReceita" sec:authorize="hasAuthority('PERM_RECEITAS_MANTER')"
+            <button class="btn btn-primary" id="btnNovaReceita" sec:authorize="hasAuthority('PERM_RECEITAS_INSERIR')"
                     data-bs-toggle="modal" data-bs-target="#modalReceita">
                 <i class="ph ph-plus" aria-hidden="true"></i>
                 <span th:text="#{receita.lista.botao.novo}">Nova receita</span>
@@ -75,7 +75,10 @@
 
     <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
 
-    <span sec:authorize="hasAuthority('PERM_RECEITAS_MANTER')" data-perm="manter" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_RECEITAS_INSERIR')" data-perm="inserir" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_RECEITAS_EDITAR')" data-perm="editar" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_RECEITAS_EXCLUIR')" data-perm="excluir" hidden></span>
+    <span sec:authorize="hasAuthority('PERM_RECEITAS_REGISTRAR_RECEBIMENTO')" data-perm="receber" hidden></span>
 
     <div id="dadosTelaReceita"
          th:data-url-dados="@{/receitas/listar-dados}"
