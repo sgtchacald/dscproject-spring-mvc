@@ -53,3 +53,39 @@ td.celula-valor.cursor-pointer:hover {
     white-space: normal;
     overflow-wrap: anywhere;
 }
+
+/* Sidebar redimensionável: a largura vem de --sidebar-width (padrão 15rem — o
+   mesmo valor fixo que o Tabler embute por breakpoint) e é ajustada arrastando
+   a alça em .sidebar-resize-handle (ver js/comum/sidebar-resize.js). */
+:root {
+    --sidebar-width: 15rem;
+}
+
+@media (min-width: 992px) {
+    .navbar-vertical.navbar-expand-lg {
+        width: var(--sidebar-width);
+    }
+
+    .navbar-expand-lg.navbar-vertical ~ .navbar,
+    .navbar-expand-lg.navbar-vertical ~ .page-wrapper {
+        margin-left: var(--sidebar-width);
+    }
+}
+
+.sidebar-resize-handle {
+    position: absolute;
+    top: 0;
+    right: -3px;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 1031;
+    background: transparent;
+}
+
+.sidebar-resize-handle:hover,
+.sidebar-resize-handle:focus-visible,
+.sidebar-resize-handle.resizando {
+    background: rgba(var(--tblr-primary-rgb, 32, 107, 196), 0.5);
+    outline: none;
+}
