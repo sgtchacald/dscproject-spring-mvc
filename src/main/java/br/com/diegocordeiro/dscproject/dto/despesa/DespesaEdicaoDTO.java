@@ -73,10 +73,13 @@ public class DespesaEdicaoDTO {
         }
         if (d.getRateios() != null) {
             d.getRateios().stream()
-                .filter(r -> r.getDataExclusao() == null)
+                .filter(r -> r.getDataExclusao() == null && r.getContato() != null)
                 .forEach(r -> this.rateio.add(new DespesaRateioDTO(
-                    r.getUsuario().getId(),
-                    r.getUsuario().getNome(),
+                    r.getContato().getId(),
+                    r.getContato().getNome(),
+                    r.getContato().getEmail(),
+                    r.getContato().getTipo(),
+                    r.getContato().getChavePix(),
                     r.getValor(),
                     r.getStatusPagamento(),
                     r.getDataAcerto()

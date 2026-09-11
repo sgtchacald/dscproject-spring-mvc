@@ -7,16 +7,19 @@ import br.com.diegocordeiro.dscproject.enums.MeioPagamento;
 import br.com.diegocordeiro.dscproject.enums.OrigemLancamento;
 import br.com.diegocordeiro.dscproject.enums.StatusPagamento;
 import br.com.diegocordeiro.dscproject.enums.TipoConta;
+import br.com.diegocordeiro.dscproject.enums.StatusContato;
+import br.com.diegocordeiro.dscproject.enums.TipoContato;
 import br.com.diegocordeiro.dscproject.model.CartaoCredito;
 import br.com.diegocordeiro.dscproject.model.Categoria;
 import br.com.diegocordeiro.dscproject.model.Conta;
+import br.com.diegocordeiro.dscproject.model.Contato;
 import br.com.diegocordeiro.dscproject.model.Despesa;
 import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
 import br.com.diegocordeiro.dscproject.repository.CategoriaRepository;
 import br.com.diegocordeiro.dscproject.repository.ContaRepository;
+import br.com.diegocordeiro.dscproject.repository.ContatoRepository;
 import br.com.diegocordeiro.dscproject.repository.DespesaRepository;
-import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,7 +50,7 @@ class DespesaValidatorTest {
     @Mock private ContaRepository contaRepository;
     @Mock private CartaoCreditoRepository cartaoCreditoRepository;
     @Mock private CategoriaRepository categoriaRepository;
-    @Mock private UsuarioRepository usuarioRepository;
+    @Mock private ContatoRepository contatoRepository;
     @Mock private MessageSource messageSource;
 
     private DespesaValidator validator(Long usuarioId, boolean podeRatear) {
@@ -56,7 +59,7 @@ class DespesaValidatorTest {
                 contaRepository,
                 cartaoCreditoRepository,
                 categoriaRepository,
-                usuarioRepository,
+                contatoRepository,
                 messageSource,
                 Locale.of("pt", "BR"),
                 usuarioId,
@@ -103,6 +106,18 @@ class DespesaValidatorTest {
         u.setId(usuarioId);
         cc.setUsuario(u);
         return cc;
+    }
+
+    private Contato contatoAtivo(Long id, Long usuarioDonoId) {
+        Contato c = new Contato();
+        c.setId(id);
+        c.setNome("Contato Teste");
+        c.setTipo(TipoContato.EXTERNO);
+        c.setStatus(StatusContato.ATIVO);
+        Usuario dono = new Usuario();
+        dono.setId(usuarioDonoId);
+        c.setUsuarioDono(dono);
+        return c;
     }
 
     @Test
@@ -273,9 +288,7 @@ class DespesaValidatorTest {
     @DisplayName("RN17 - Rateio com soma das fatias maior que o valor da despesa é rejeitado")
     void validate_rateioSomaExcede_deveRejeitar() {
         when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L, TipoConta.CORRENTE)));
-        Usuario amigo = new Usuario();
-        amigo.setId(2L);
-        when(usuarioRepository.findById(2L)).thenReturn(Optional.of(amigo));
+        when(contatoRepository.findByIdAndUsuarioDonoIdAndDataExclusaoIsNull(2L, 1L)).thenReturn(Optional.of(contatoAtivo(2L, 1L)));
 
         DespesaFormDTO dto = dtoValido();
         dto.setValor(new BigDecimal("100.00"));
@@ -287,17 +300,36 @@ class DespesaValidatorTest {
     }
 
     @Test
-    @DisplayName("RN18 - Rateio com o próprio usuário como co-participante é rejeitado")
-    void validate_rateioComProprioUsuario_deveRejeitar() {
+    @DisplayName("RN16/RN19 - Rateio com contato inexistente ou de outro usuário é rejeitado")
+    void validate_rateioComContatoDeOutroUsuario_deveRejeitar() {
         when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L, TipoConta.CORRENTE)));
+        when(contatoRepository.findByIdAndUsuarioDonoIdAndDataExclusaoIsNull(999L, 1L)).thenReturn(Optional.empty());
 
         DespesaFormDTO dto = dtoValido();
         dto.setValor(new BigDecimal("100.00"));
-        dto.setRateio(List.of(new DespesaRateioDTO(1L, "Eu mesmo", new BigDecimal("50.00"), StatusPagamento.NAO, null)));
+        dto.setRateio(List.of(new DespesaRateioDTO(999L, "Desconhecido", new BigDecimal("50.00"), StatusPagamento.NAO, null)));
 
         Errors errors = new BeanPropertyBindingResult(dto, "despesaFormDTO");
         validator(1L, true).validate(dto, errors);
-        assertTrue(errors.hasFieldErrors("rateio[0].usuarioId"));
+        assertTrue(errors.hasFieldErrors("rateio[0].contatoId"));
+    }
+
+    @Test
+    @DisplayName("RN20 - Rateio com contato duplicado é rejeitado")
+    void validate_rateioComContatoDuplicado_deveRejeitar() {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L, TipoConta.CORRENTE)));
+        when(contatoRepository.findByIdAndUsuarioDonoIdAndDataExclusaoIsNull(2L, 1L)).thenReturn(Optional.of(contatoAtivo(2L, 1L)));
+
+        DespesaFormDTO dto = dtoValido();
+        dto.setValor(new BigDecimal("100.00"));
+        dto.setRateio(List.of(
+                new DespesaRateioDTO(2L, "Amigo", new BigDecimal("30.00"), StatusPagamento.NAO, null),
+                new DespesaRateioDTO(2L, "Amigo", new BigDecimal("30.00"), StatusPagamento.NAO, null)
+        ));
+
+        Errors errors = new BeanPropertyBindingResult(dto, "despesaFormDTO");
+        validator(1L, true).validate(dto, errors);
+        assertTrue(errors.hasFieldErrors("rateio[1].contatoId"));
     }
 
     @Test

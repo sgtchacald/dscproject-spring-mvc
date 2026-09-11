@@ -9,13 +9,13 @@ import br.com.diegocordeiro.dscproject.enums.TipoConta;
 import br.com.diegocordeiro.dscproject.model.CartaoCredito;
 import br.com.diegocordeiro.dscproject.model.Categoria;
 import br.com.diegocordeiro.dscproject.model.Conta;
+import br.com.diegocordeiro.dscproject.model.Contato;
 import br.com.diegocordeiro.dscproject.model.Despesa;
-import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
 import br.com.diegocordeiro.dscproject.repository.CategoriaRepository;
 import br.com.diegocordeiro.dscproject.repository.ContaRepository;
+import br.com.diegocordeiro.dscproject.repository.ContatoRepository;
 import br.com.diegocordeiro.dscproject.repository.DespesaRepository;
-import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -32,7 +32,7 @@ public class DespesaValidator implements Validator {
     private final ContaRepository contaRepository;
     private final CartaoCreditoRepository cartaoCreditoRepository;
     private final CategoriaRepository categoriaRepository;
-    private final UsuarioRepository usuarioRepository;
+    private final ContatoRepository contatoRepository;
     private final MessageSource messageSource;
     private final Locale locale;
     private final Long usuarioId;
@@ -43,7 +43,7 @@ public class DespesaValidator implements Validator {
             ContaRepository contaRepository,
             CartaoCreditoRepository cartaoCreditoRepository,
             CategoriaRepository categoriaRepository,
-            UsuarioRepository usuarioRepository,
+            ContatoRepository contatoRepository,
             MessageSource messageSource,
             Locale locale,
             Long usuarioId,
@@ -52,7 +52,7 @@ public class DespesaValidator implements Validator {
         this.contaRepository = contaRepository;
         this.cartaoCreditoRepository = cartaoCreditoRepository;
         this.categoriaRepository = categoriaRepository;
-        this.usuarioRepository = usuarioRepository;
+        this.contatoRepository = contatoRepository;
         this.messageSource = messageSource;
         this.locale = locale;
         this.usuarioId = usuarioId;
@@ -193,31 +193,26 @@ public class DespesaValidator implements Validator {
         }
 
         BigDecimal somaFatias = BigDecimal.ZERO;
-        Set<Long> usuariosNoRateio = new HashSet<>();
+        Set<Long> contatosNoRateio = new HashSet<>();
 
         for (int i = 0; i < dto.getRateio().size(); i++) {
             DespesaRateioDTO item = dto.getRateio().get(i);
-            if (item.getUsuarioId() == null) {
-                errors.rejectValue("rateio[" + i + "].usuarioId", "NotNull.despesaFormDTO.rateio.usuarioId",
+            Long cid = item.getContatoId();
+            if (cid == null) {
+                errors.rejectValue("rateio[" + i + "].contatoId", "NotNull.despesaFormDTO.rateio.contatoId",
                         messageSource.getMessage("msg.despesa.rateio.usuario-invalido", null, locale));
                 continue;
             }
 
-            if (item.getUsuarioId().equals(usuarioId)) {
-                errors.rejectValue("rateio[" + i + "].usuarioId", "Invalid.despesaFormDTO.rateio.usuarioId",
+            if (!contatosNoRateio.add(cid)) {
+                errors.rejectValue("rateio[" + i + "].contatoId", "Duplicate.despesaFormDTO.rateio.contatoId",
                         messageSource.getMessage("msg.despesa.rateio.usuario-invalido", null, locale));
                 continue;
             }
 
-            if (!usuariosNoRateio.add(item.getUsuarioId())) {
-                errors.rejectValue("rateio[" + i + "].usuarioId", "Duplicate.despesaFormDTO.rateio.usuarioId",
-                        messageSource.getMessage("msg.despesa.rateio.usuario-invalido", null, locale));
-                continue;
-            }
-
-            Optional<Usuario> usuarioOpt = usuarioRepository.findById(item.getUsuarioId());
-            if (usuarioOpt.isEmpty() || usuarioOpt.get().isExcluido()) {
-                errors.rejectValue("rateio[" + i + "].usuarioId", "Invalid.despesaFormDTO.rateio.usuarioId",
+            Optional<Contato> contatoOpt = contatoRepository.findByIdAndUsuarioDonoIdAndDataExclusaoIsNull(cid, usuarioId);
+            if (contatoOpt.isEmpty() || !contatoOpt.get().isAtivo()) {
+                errors.rejectValue("rateio[" + i + "].contatoId", "Invalid.despesaFormDTO.rateio.contatoId",
                         messageSource.getMessage("msg.despesa.rateio.usuario-invalido", null, locale));
             }
 

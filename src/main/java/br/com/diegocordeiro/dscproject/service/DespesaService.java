@@ -1,5 +1,7 @@
 package br.com.diegocordeiro.dscproject.service;
 
+import br.com.diegocordeiro.dscproject.dto.despesa.ContatoRapidoDTO;
+import br.com.diegocordeiro.dscproject.dto.despesa.ContatoRateioDTO;
 import br.com.diegocordeiro.dscproject.dto.despesa.DespesaEdicaoDTO;
 import br.com.diegocordeiro.dscproject.dto.despesa.DespesaFormDTO;
 import br.com.diegocordeiro.dscproject.dto.despesa.DespesaGridDTO;
@@ -7,16 +9,20 @@ import br.com.diegocordeiro.dscproject.dto.despesa.DespesaRateioDTO;
 import br.com.diegocordeiro.dscproject.dto.despesa.UsuarioRateioDTO;
 import br.com.diegocordeiro.dscproject.enums.MeioPagamento;
 import br.com.diegocordeiro.dscproject.enums.OrigemLancamento;
+import br.com.diegocordeiro.dscproject.enums.StatusContato;
 import br.com.diegocordeiro.dscproject.enums.StatusPagamento;
+import br.com.diegocordeiro.dscproject.enums.TipoContato;
 import br.com.diegocordeiro.dscproject.model.CartaoCredito;
 import br.com.diegocordeiro.dscproject.model.Categoria;
 import br.com.diegocordeiro.dscproject.model.Conta;
+import br.com.diegocordeiro.dscproject.model.Contato;
 import br.com.diegocordeiro.dscproject.model.Despesa;
 import br.com.diegocordeiro.dscproject.model.DespesaUsuario;
 import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
 import br.com.diegocordeiro.dscproject.repository.CategoriaRepository;
 import br.com.diegocordeiro.dscproject.repository.ContaRepository;
+import br.com.diegocordeiro.dscproject.repository.ContatoRepository;
 import br.com.diegocordeiro.dscproject.repository.DespesaRepository;
 import br.com.diegocordeiro.dscproject.repository.DespesaUsuarioRepository;
 import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
@@ -41,6 +47,7 @@ public class DespesaService {
     private final ContaRepository contaRepository;
     private final CartaoCreditoRepository cartaoCreditoRepository;
     private final CategoriaRepository categoriaRepository;
+    private final ContatoRepository contatoRepository;
     private final UsuarioRepository usuarioRepository;
 
     public DespesaService(
@@ -49,12 +56,14 @@ public class DespesaService {
             ContaRepository contaRepository,
             CartaoCreditoRepository cartaoCreditoRepository,
             CategoriaRepository categoriaRepository,
+            ContatoRepository contatoRepository,
             UsuarioRepository usuarioRepository) {
         this.despesaRepository = despesaRepository;
         this.despesaUsuarioRepository = despesaUsuarioRepository;
         this.contaRepository = contaRepository;
         this.cartaoCreditoRepository = cartaoCreditoRepository;
         this.categoriaRepository = categoriaRepository;
+        this.contatoRepository = contatoRepository;
         this.usuarioRepository = usuarioRepository;
     }
 
@@ -223,12 +232,13 @@ public class DespesaService {
         }
 
         for (DespesaRateioDTO item : rateiosDTO) {
-            if (item.getUsuarioId() == null || item.getValor() == null) {
+            Long cid = item.getContatoId();
+            if (cid == null || item.getValor() == null) {
                 continue;
             }
 
-            Usuario usuario = usuarioRepository.findById(item.getUsuarioId()).orElse(null);
-            if (usuario == null) {
+            Contato contato = contatoRepository.findById(cid).orElse(null);
+            if (contato == null) {
                 continue;
             }
 
@@ -246,7 +256,7 @@ public class DespesaService {
 
             DespesaUsuario du = new DespesaUsuario();
             du.setDespesa(d);
-            du.setUsuario(usuario);
+            du.setContato(contato);
             du.setValor(valorFatia);
             du.setStatusPagamento(item.getStatusPagamento() != null ? item.getStatusPagamento() : StatusPagamento.NAO);
             du.setDataAcerto(item.getDataAcerto());
@@ -326,7 +336,7 @@ public class DespesaService {
     private void sincronizarRateio(Despesa d, List<DespesaRateioDTO> novosRateios, String loginAutor) {
         List<DespesaUsuario> existentes = new ArrayList<>(d.getRateios());
         for (DespesaUsuario du : existentes) {
-            boolean manter = novosRateios.stream().anyMatch(nr -> nr.getUsuarioId().equals(du.getUsuario().getId()));
+            boolean manter = novosRateios.stream().anyMatch(nr -> nr.getContatoId() != null && du.getContato() != null && nr.getContatoId().equals(du.getContato().getId()));
             if (!manter) {
                 du.setDataExclusao(Instant.now());
                 du.setExcluidoPor(loginAutor);
@@ -335,8 +345,12 @@ public class DespesaService {
         }
 
         for (DespesaRateioDTO item : novosRateios) {
+            Long cid = item.getContatoId();
+            if (cid == null) {
+                continue;
+            }
             DespesaUsuario du = existentes.stream()
-                    .filter(e -> e.getDataExclusao() == null && e.getUsuario().getId().equals(item.getUsuarioId()))
+                    .filter(e -> e.getDataExclusao() == null && e.getContato() != null && cid.equals(e.getContato().getId()))
                     .findFirst()
                     .orElse(null);
 
@@ -349,11 +363,11 @@ public class DespesaService {
                 du.setAlteradoPor(loginAutor);
                 despesaUsuarioRepository.save(du);
             } else {
-                Usuario u = usuarioRepository.findById(item.getUsuarioId()).orElse(null);
-                if (u != null) {
+                Contato c = contatoRepository.findById(cid).orElse(null);
+                if (c != null) {
                     DespesaUsuario novo = new DespesaUsuario();
                     novo.setDespesa(d);
-                    novo.setUsuario(u);
+                    novo.setContato(c);
                     novo.setValor(item.getValor());
                     novo.setStatusPagamento(item.getStatusPagamento() != null ? item.getStatusPagamento() : StatusPagamento.NAO);
                     novo.setDataAcerto(item.getDataAcerto());
@@ -440,7 +454,7 @@ public class DespesaService {
     @Transactional
     public void registrarAcertoRateio(
             Long despId,
-            Long coParticipanteId,
+            Long contatoId,
             boolean acertado,
             LocalDate dataAcerto,
             Long usuarioId,
@@ -448,13 +462,44 @@ public class DespesaService {
         despesaRepository.buscarPorIdEUsuario(despId, usuarioId)
                 .orElseThrow(() -> new RegistroNaoEncontradoException("msg.despesa.nao-encontrada"));
 
-        DespesaUsuario du = despesaUsuarioRepository.findByDespesaIdAndUsuarioIdAndDataExclusaoIsNull(despId, coParticipanteId)
+        DespesaUsuario du = despesaUsuarioRepository.findByDespesaIdAndContatoIdAndDataExclusaoIsNull(despId, contatoId)
                 .orElseThrow(() -> new RegistroNaoEncontradoException("msg.despesa.rateio.usuario-invalido"));
 
         du.setStatusPagamento(acertado ? StatusPagamento.SIM : StatusPagamento.NAO);
         du.setDataAcerto(acertado ? dataAcerto : null);
         du.setAlteradoPor(loginAutor);
         despesaUsuarioRepository.save(du);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ContatoRateioDTO> buscarContatosParaRateio(String termo, Long usuarioIdLogado) {
+        if (termo == null || termo.trim().length() < 3) {
+            return List.of();
+        }
+        return contatoRepository.buscarAtivosPorDonoETermo(usuarioIdLogado, termo.trim()).stream()
+                .limit(20)
+                .map(ContatoRateioDTO::new)
+                .toList();
+    }
+
+    @Transactional
+    public ContatoRateioDTO cadastrarContatoRapido(ContatoRapidoDTO dto, Long usuarioIdLogado, String loginAutor) {
+        Usuario dono = usuarioRepository.findById(usuarioIdLogado)
+                .orElseThrow(() -> new RegistroNaoEncontradoException("usuario.nao.encontrado"));
+
+        Contato contato = new Contato();
+        contato.setUsuarioDono(dono);
+        contato.setTipo(TipoContato.EXTERNO);
+        contato.setNome(dto.getNome().trim());
+        contato.setEmail(dto.getEmail() != null && !dto.getEmail().isBlank() ? dto.getEmail().trim() : null);
+        contato.setTelefone(dto.getTelefone() != null && !dto.getTelefone().isBlank() ? dto.getTelefone().trim() : null);
+        contato.setChavePix(dto.getChavePix() != null && !dto.getChavePix().isBlank() ? dto.getChavePix().trim() : null);
+        contato.setStatus(StatusContato.ATIVO);
+        contato.setCriadoPor(loginAutor);
+        contato.setAlteradoPor(loginAutor);
+
+        Contato salvo = contatoRepository.save(contato);
+        return new ContatoRateioDTO(salvo);
     }
 
     @Transactional(readOnly = true)

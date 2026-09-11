@@ -14,12 +14,12 @@ public interface DespesaUsuarioRepository extends JpaRepository<DespesaUsuario, 
 
     @Query("""
         SELECT du FROM DespesaUsuario du
-        JOIN FETCH du.usuario u
+        JOIN FETCH du.contato c
         WHERE du.despesa.id = :despId
           AND du.dataExclusao IS NULL
-        ORDER BY u.nome ASC
+        ORDER BY c.nome ASC
         """)
     List<DespesaUsuario> findByDespesaIdAndDataExclusaoIsNull(@Param("despId") Long despId);
 
-    Optional<DespesaUsuario> findByDespesaIdAndUsuarioIdAndDataExclusaoIsNull(Long despId, Long usuarioId);
+    Optional<DespesaUsuario> findByDespesaIdAndContatoIdAndDataExclusaoIsNull(Long despId, Long contatoId);
 }

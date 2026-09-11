@@ -12,10 +12,16 @@ import br.com.diegocordeiro.dscproject.model.CartaoCredito;
 import br.com.diegocordeiro.dscproject.model.Conta;
 import br.com.diegocordeiro.dscproject.model.Despesa;
 import br.com.diegocordeiro.dscproject.model.DespesaUsuario;
+import br.com.diegocordeiro.dscproject.dto.despesa.ContatoRapidoDTO;
+import br.com.diegocordeiro.dscproject.dto.despesa.ContatoRateioDTO;
+import br.com.diegocordeiro.dscproject.enums.StatusContato;
+import br.com.diegocordeiro.dscproject.enums.TipoContato;
+import br.com.diegocordeiro.dscproject.model.Contato;
 import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
 import br.com.diegocordeiro.dscproject.repository.CategoriaRepository;
 import br.com.diegocordeiro.dscproject.repository.ContaRepository;
+import br.com.diegocordeiro.dscproject.repository.ContatoRepository;
 import br.com.diegocordeiro.dscproject.repository.DespesaRepository;
 import br.com.diegocordeiro.dscproject.repository.DespesaUsuarioRepository;
 import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
@@ -49,6 +55,7 @@ class DespesaServiceTest {
     @Mock private ContaRepository contaRepository;
     @Mock private CartaoCreditoRepository cartaoCreditoRepository;
     @Mock private CategoriaRepository categoriaRepository;
+    @Mock private ContatoRepository contatoRepository;
     @Mock private UsuarioRepository usuarioRepository;
 
     private DespesaService despesaService;
@@ -61,6 +68,7 @@ class DespesaServiceTest {
                 contaRepository,
                 cartaoCreditoRepository,
                 categoriaRepository,
+                contatoRepository,
                 usuarioRepository);
     }
 
@@ -169,9 +177,9 @@ class DespesaServiceTest {
         Conta c = contaAtiva(10L, 1L);
         when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(c));
 
-        Usuario amigo = new Usuario();
+        Contato amigo = new Contato();
         amigo.setId(2L);
-        when(usuarioRepository.findById(2L)).thenReturn(Optional.of(amigo));
+        when(contatoRepository.findById(2L)).thenReturn(Optional.of(amigo));
 
         when(despesaRepository.save(any(Despesa.class))).thenAnswer(inv -> {
             Despesa d = inv.getArgument(0);
@@ -303,13 +311,61 @@ class DespesaServiceTest {
         DespesaUsuario du = new DespesaUsuario();
         du.setStatusPagamento(StatusPagamento.NAO);
         du.setDataAcerto(null);
-        when(despesaUsuarioRepository.findByDespesaIdAndUsuarioIdAndDataExclusaoIsNull(1L, 2L)).thenReturn(Optional.of(du));
+        when(despesaUsuarioRepository.findByDespesaIdAndContatoIdAndDataExclusaoIsNull(1L, 2L)).thenReturn(Optional.of(du));
 
         despesaService.registrarAcertoRateio(1L, 2L, true, LocalDate.of(2026, 9, 11), 10L, "user_teste");
 
         assertEquals(StatusPagamento.SIM, du.getStatusPagamento());
         assertEquals(LocalDate.of(2026, 9, 11), du.getDataAcerto());
         verify(despesaUsuarioRepository).save(du);
+    }
+
+    @Test
+    @DisplayName("EDP10 - Buscar contatos para rateio com termo curto retorna vazio")
+    void buscarContatosParaRateio_termoCurto_retornaVazio() {
+        List<ContatoRateioDTO> resultado = despesaService.buscarContatosParaRateio("ab", 1L);
+        assertTrue(resultado.isEmpty());
+        verifyNoInteractions(contatoRepository);
+    }
+
+    @Test
+    @DisplayName("EDP10 - Buscar contatos para rateio com termo válido retorna lista")
+    void buscarContatosParaRateio_termoValido_retornaLista() {
+        Contato c = new Contato();
+        c.setId(5L);
+        c.setNome("Carlos Silva");
+        c.setTipo(TipoContato.EXTERNO);
+        c.setStatus(StatusContato.ATIVO);
+
+        when(contatoRepository.buscarAtivosPorDonoETermo(1L, "carlos")).thenReturn(List.of(c));
+
+        List<ContatoRateioDTO> resultado = despesaService.buscarContatosParaRateio("carlos", 1L);
+        assertEquals(1, resultado.size());
+        assertEquals(5L, resultado.get(0).getId());
+        assertEquals("Carlos Silva", resultado.get(0).getNome());
+        assertEquals(TipoContato.EXTERNO, resultado.get(0).getTipo());
+    }
+
+    @Test
+    @DisplayName("EDP11 - Cadastrar contato rápido inline salva contato externo")
+    void cadastrarContatoRapido_salvaComSucesso() {
+        Usuario dono = new Usuario();
+        dono.setId(1L);
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(dono));
+
+        when(contatoRepository.save(any(Contato.class))).thenAnswer(inv -> {
+            Contato c = inv.getArgument(0);
+            c.setId(50L);
+            return c;
+        });
+
+        ContatoRapidoDTO dto = new ContatoRapidoDTO("Mariana", "mariana@teste.com", "11999998888", "mariana@pix.com");
+        ContatoRateioDTO salvo = despesaService.cadastrarContatoRapido(dto, 1L, "user_teste");
+
+        assertNotNull(salvo.getId());
+        assertEquals("Mariana", salvo.getNome());
+        assertEquals(TipoContato.EXTERNO, salvo.getTipo());
+        assertEquals("mariana@pix.com", salvo.getChavePix());
     }
 
     @Test

@@ -1,6 +1,8 @@
 package br.com.diegocordeiro.dscproject.web.sistema.controller;
 
 import br.com.diegocordeiro.dscproject.config.SecurityConfig;
+import br.com.diegocordeiro.dscproject.dto.despesa.ContatoRapidoDTO;
+import br.com.diegocordeiro.dscproject.dto.despesa.ContatoRateioDTO;
 import br.com.diegocordeiro.dscproject.dto.despesa.DespesaEdicaoDTO;
 import br.com.diegocordeiro.dscproject.dto.despesa.DespesaGridDTO;
 import br.com.diegocordeiro.dscproject.dto.despesa.UsuarioRateioDTO;
@@ -14,6 +16,7 @@ import br.com.diegocordeiro.dscproject.model.Usuario;
 import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
 import br.com.diegocordeiro.dscproject.repository.CategoriaRepository;
 import br.com.diegocordeiro.dscproject.repository.ContaRepository;
+import br.com.diegocordeiro.dscproject.repository.ContatoRepository;
 import br.com.diegocordeiro.dscproject.repository.DespesaRepository;
 import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
 import br.com.diegocordeiro.dscproject.service.AutorizacaoService;
@@ -58,6 +61,7 @@ class DespesaControllerTest {
     @MockitoBean private CartaoCreditoRepository cartaoCreditoRepository;
     @MockitoBean private CategoriaRepository categoriaRepository;
     @MockitoBean private UsuarioRepository usuarioRepository;
+    @MockitoBean private ContatoRepository contatoRepository;
     @MockitoBean private AutorizacaoService autorizacaoService;
     @MockitoBean private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
@@ -283,6 +287,54 @@ class DespesaControllerTest {
     @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
     void buscarUsuariosRateio_semPermissao_retorna403() throws Exception {
         mockMvc.perform(get("/despesas/usuarios-rateio").param("termo", "diego"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("EDP10 - Buscar contatos rateio com autoridade retorna 200")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESA_RATEAR_MULTIUSUARIO")
+    void buscarContatosRateio_comPermissao_retorna200() throws Exception {
+        when(despesaService.buscarContatosParaRateio("carlos", 1L)).thenReturn(List.of());
+
+        mockMvc.perform(get("/despesas/contatos-rateio").param("termo", "carlos"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+    }
+
+    @Test
+    @DisplayName("EDP10 - Buscar contatos rateio sem autoridade retorna 403")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    void buscarContatosRateio_semPermissao_retorna403() throws Exception {
+        mockMvc.perform(get("/despesas/contatos-rateio").param("termo", "carlos"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("EDP11 - Cadastrar contato rápido com autoridade retorna 200")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESA_RATEAR_MULTIUSUARIO")
+    void cadastrarContatoRapido_comPermissao_retorna200() throws Exception {
+        ContatoRateioDTO contatoMock = new ContatoRateioDTO();
+        contatoMock.setId(10L);
+        contatoMock.setNome("Mariana");
+        when(despesaService.cadastrarContatoRapido(any(ContatoRapidoDTO.class), eq(1L), eq("user_teste")))
+                .thenReturn(contatoMock);
+
+        mockMvc.perform(post("/despesas/contatos-rapido")
+                        .with(csrf())
+                        .param("nome", "Mariana")
+                        .param("email", "mariana@teste.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true))
+                .andExpect(jsonPath("$.contato.nome").value("Mariana"));
+    }
+
+    @Test
+    @DisplayName("EDP11 - Cadastrar contato rápido sem autoridade retorna 403")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_MANTER")
+    void cadastrarContatoRapido_semPermissao_retorna403() throws Exception {
+        mockMvc.perform(post("/despesas/contatos-rapido")
+                        .with(csrf())
+                        .param("nome", "Mariana"))
                 .andExpect(status().isForbidden());
     }
 }

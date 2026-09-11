@@ -188,9 +188,19 @@ function renderizarRateios() {
     corpo.innerHTML = '';
 
     itensRateio.forEach((item, index) => {
+        const badgeTipo = item.tipo === 'SISTEMA'
+            ? '<span class="badge bg-blue-lt ms-1">Sistema</span>'
+            : '<span class="badge bg-secondary-lt ms-1">Externo</span>';
+        const infoPix = item.chavePix
+            ? `<div class="text-muted" style="font-size: 0.75rem;"><i class="ph ph-qr-code me-1"></i>PIX: ${item.chavePix}</div>`
+            : '';
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><strong>${item.nome}</strong></td>
+            <td>
+                <strong>${item.nome}</strong> ${badgeTipo}
+                ${infoPix}
+            </td>
             <td>
                 <input type="text" class="form-control form-control-sm input-fatia-rateio"
                        data-index="${index}" value="${formatarInputDecimal(item.valor)}">
@@ -306,8 +316,10 @@ export async function abrirEdicao(id) {
         // Rateio
         if (d.rateio && Array.isArray(d.rateio)) {
             itensRateio = d.rateio.map(r => ({
-                id: r.usuarioId,
-                nome: r.usuarioNome,
+                id: r.contatoId || r.usuarioId,
+                nome: r.contatoNome || r.usuarioNome,
+                tipo: r.contatoTipo,
+                chavePix: r.contatoChavePix,
                 valor: r.valor,
                 statusPagamento: r.statusPagamento || 'NAO',
                 dataAcerto: r.dataAcerto
@@ -395,17 +407,22 @@ export function inicializarForm() {
             clearTimeout(taxaBuscaTimeout);
             taxaBuscaTimeout = setTimeout(async () => {
                 try {
-                    const usuarios = await getJson(`${cfg().urlUsuariosRateio}?termo=${encodeURIComponent(termo)}`);
+                    const url = cfg().urlContatosRateio || cfg().urlUsuariosRateio;
+                    const contatos = await getJson(`${url}?termo=${encodeURIComponent(termo)}`);
                     dataList.innerHTML = '';
-                    usuarios.forEach(u => {
+                    contatos.forEach(c => {
                         const opt = document.createElement('option');
-                        opt.value = `${u.nome} (${u.email})`;
-                        opt.dataset.id = u.id;
-                        opt.dataset.nome = u.nome;
+                        const tipoLabel = c.tipo === 'SISTEMA' ? 'Usuário' : 'Externo';
+                        const info = c.email || c.telefone || '';
+                        opt.value = info ? `${c.nome} (${tipoLabel} - ${info})` : `${c.nome} (${tipoLabel})`;
+                        opt.dataset.id = c.id;
+                        opt.dataset.nome = c.nome;
+                        opt.dataset.tipo = c.tipo;
+                        opt.dataset.chavePix = c.chavePix || '';
                         dataList.appendChild(opt);
                     });
                 } catch (e) {
-                    console.error('Erro ao buscar usuários para rateio', e);
+                    console.error('Erro ao buscar contatos para rateio', e);
                 }
             }, 300);
         });
@@ -414,21 +431,25 @@ export function inicializarForm() {
             const val = buscaInput.value;
             const opt = Array.from(dataList.options).find(o => o.value === val);
             if (!opt) {
-                toast('Selecione um usuário válido da lista.', true);
+                toast('Selecione um contato válido da lista.', true);
                 return;
             }
 
-            const usuarioId = Number(opt.dataset.id);
-            const usuarioNome = opt.dataset.nome;
+            const contatoId = Number(opt.dataset.id);
+            const contatoNome = opt.dataset.nome;
+            const contatoTipo = opt.dataset.tipo;
+            const contatoChavePix = opt.dataset.chavePix;
 
-            if (itensRateio.some(i => i.id === usuarioId)) {
-                toast('Usuário já adicionado ao rateio.', true);
+            if (itensRateio.some(i => i.id === contatoId)) {
+                toast('Contato já adicionado ao rateio.', true);
                 return;
             }
 
             itensRateio.push({
-                id: usuarioId,
-                nome: usuarioNome,
+                id: contatoId,
+                nome: contatoNome,
+                tipo: contatoTipo,
+                chavePix: contatoChavePix,
                 valor: 0,
                 statusPagamento: 'NAO',
                 dataAcerto: null
@@ -436,6 +457,89 @@ export function inicializarForm() {
 
             buscaInput.value = '';
             renderizarRateios();
+        });
+    }
+
+    // Cadastro rápido de contato externo inline
+    const btnSalvarNovoContato = document.getElementById('btnSalvarNovoContato');
+    const btnFecharCardContato = document.getElementById('btnFecharCardContato');
+    const cardNovoContatoRateio = document.getElementById('cardNovoContatoRateio');
+    const alertaContatoRapido = document.getElementById('alertaContatoRapido');
+
+    if (btnFecharCardContato && cardNovoContatoRateio) {
+        btnFecharCardContato.addEventListener('click', () => {
+            if (typeof bootstrap !== 'undefined') {
+                const collapse = bootstrap.Collapse.getInstance(cardNovoContatoRateio) || new bootstrap.Collapse(cardNovoContatoRateio, { toggle: false });
+                collapse.hide();
+            }
+        });
+    }
+
+    if (btnSalvarNovoContato) {
+        btnSalvarNovoContato.addEventListener('click', async () => {
+            const nomeInput = document.getElementById('novoContatoNome');
+            const emailInput = document.getElementById('novoContatoEmail');
+            const telInput = document.getElementById('novoContatoTelefone');
+            const pixInput = document.getElementById('novoContatoPix');
+
+            const nome = nomeInput ? nomeInput.value.trim() : '';
+            if (!nome) {
+                if (alertaContatoRapido) {
+                    alertaContatoRapido.style.display = 'block';
+                    alertaContatoRapido.textContent = 'O nome do contato é obrigatório.';
+                }
+                if (nomeInput) nomeInput.focus();
+                return;
+            }
+
+            if (alertaContatoRapido) {
+                alertaContatoRapido.style.display = 'none';
+                alertaContatoRapido.textContent = '';
+            }
+
+            const body = new URLSearchParams();
+            body.append('nome', nome);
+            if (emailInput && emailInput.value.trim()) body.append('email', emailInput.value.trim());
+            if (telInput && telInput.value.trim()) body.append('telefone', telInput.value.trim());
+            if (pixInput && pixInput.value.trim()) body.append('chavePix', pixInput.value.trim());
+
+            try {
+                const resp = await enviar(cfg().urlContatosRapido, 'POST', body);
+                if (resp.sucesso && resp.contato) {
+                    const c = resp.contato;
+                    if (!itensRateio.some(i => i.id === c.id)) {
+                        itensRateio.push({
+                            id: c.id,
+                            nome: c.nome,
+                            tipo: c.tipo || 'EXTERNO',
+                            chavePix: c.chavePix,
+                            valor: 0,
+                            statusPagamento: 'NAO',
+                            dataAcerto: null
+                        });
+                        renderizarRateios();
+                    }
+
+                    if (nomeInput) nomeInput.value = '';
+                    if (emailInput) emailInput.value = '';
+                    if (telInput) telInput.value = '';
+                    if (pixInput) pixInput.value = '';
+
+                    if (cardNovoContatoRateio && typeof bootstrap !== 'undefined') {
+                        const collapse = bootstrap.Collapse.getInstance(cardNovoContatoRateio) || new bootstrap.Collapse(cardNovoContatoRateio, { toggle: false });
+                        collapse.hide();
+                    }
+
+                    toast(resp.mensagem || 'Contato cadastrado com sucesso!', false);
+                } else {
+                    if (alertaContatoRapido) {
+                        alertaContatoRapido.style.display = 'block';
+                        alertaContatoRapido.textContent = resp.mensagem || 'Não foi possível salvar o contato.';
+                    }
+                }
+            } catch (err) {
+                toast('Erro de comunicação ao salvar contato rápido.', true);
+            }
         });
     }
 
@@ -524,6 +628,7 @@ export function inicializarForm() {
 
         // Rateio
         itensRateio.forEach((item, i) => {
+            body.append(`rateio[${i}].contatoId`, item.id);
             body.append(`rateio[${i}].usuarioId`, item.id);
             body.append(`rateio[${i}].valor`, Number(item.valor).toFixed(2));
             body.append(`rateio[${i}].statusPagamento`, item.statusPagamento);

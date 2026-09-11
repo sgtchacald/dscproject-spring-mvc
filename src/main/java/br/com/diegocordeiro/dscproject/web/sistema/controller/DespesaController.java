@@ -1,5 +1,7 @@
 package br.com.diegocordeiro.dscproject.web.sistema.controller;
 
+import br.com.diegocordeiro.dscproject.dto.despesa.ContatoRapidoDTO;
+import br.com.diegocordeiro.dscproject.dto.despesa.ContatoRateioDTO;
 import br.com.diegocordeiro.dscproject.dto.despesa.DespesaEdicaoDTO;
 import br.com.diegocordeiro.dscproject.dto.despesa.DespesaFormDTO;
 import br.com.diegocordeiro.dscproject.dto.despesa.DespesaGridDTO;
@@ -13,6 +15,7 @@ import br.com.diegocordeiro.dscproject.permissao.PermissaoDespesaCatalogo;
 import br.com.diegocordeiro.dscproject.repository.CartaoCreditoRepository;
 import br.com.diegocordeiro.dscproject.repository.CategoriaRepository;
 import br.com.diegocordeiro.dscproject.repository.ContaRepository;
+import br.com.diegocordeiro.dscproject.repository.ContatoRepository;
 import br.com.diegocordeiro.dscproject.repository.DespesaRepository;
 import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
 import br.com.diegocordeiro.dscproject.service.DespesaService;
@@ -55,6 +58,7 @@ public class DespesaController {
     private final CartaoCreditoRepository cartaoCreditoRepository;
     private final CategoriaRepository categoriaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final ContatoRepository contatoRepository;
     private final MessageSource messageSource;
     private final SmartValidator smartValidator;
 
@@ -65,6 +69,7 @@ public class DespesaController {
             CartaoCreditoRepository cartaoCreditoRepository,
             CategoriaRepository categoriaRepository,
             UsuarioRepository usuarioRepository,
+            ContatoRepository contatoRepository,
             MessageSource messageSource,
             SmartValidator smartValidator) {
         this.despesaService = despesaService;
@@ -73,6 +78,7 @@ public class DespesaController {
         this.cartaoCreditoRepository = cartaoCreditoRepository;
         this.categoriaRepository = categoriaRepository;
         this.usuarioRepository = usuarioRepository;
+        this.contatoRepository = contatoRepository;
         this.messageSource = messageSource;
         this.smartValidator = smartValidator;
     }
@@ -192,7 +198,7 @@ public class DespesaController {
             return respostaErros(resultado);
         }
 
-        despesaService.registrarAcertoRateio(id, dto.getUsuarioId(), dto.isAcertado(), dto.getDataAcerto(), usuario.getId(), usuario.getLogin());
+        despesaService.registrarAcertoRateio(id, dto.getContatoId(), dto.isAcertado(), dto.getDataAcerto(), usuario.getId(), usuario.getLogin());
         return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.despesa.rateio.acerto-registrado", locale)));
     }
 
@@ -201,6 +207,31 @@ public class DespesaController {
     public List<UsuarioRateioDTO> buscarUsuariosRateio(@RequestParam(required = false, defaultValue = "") String termo, Principal principal) {
         Usuario usuario = obterUsuarioAutenticado(principal);
         return despesaService.buscarUsuariosParaRateio(termo, usuario.getId());
+    }
+
+    @GetMapping("/despesas/contatos-rateio")
+    @ResponseBody
+    public List<ContatoRateioDTO> buscarContatosRateio(@RequestParam(required = false, defaultValue = "") String termo, Principal principal) {
+        Usuario usuario = obterUsuarioAutenticado(principal);
+        return despesaService.buscarContatosParaRateio(termo, usuario.getId());
+    }
+
+    @PostMapping("/despesas/contatos-rapido")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> cadastrarContatoRapido(@ModelAttribute ContatoRapidoDTO dto, Principal principal, Locale locale) {
+        Usuario usuario = obterUsuarioAutenticado(principal);
+
+        BindingResult resultado = new BeanPropertyBindingResult(dto, "contatoRapidoDTO");
+        smartValidator.validate(dto, resultado);
+        if (resultado.hasErrors()) {
+            return respostaErros(resultado);
+        }
+
+        ContatoRateioDTO contatoSalvo = despesaService.cadastrarContatoRapido(dto, usuario.getId(), usuario.getLogin());
+        return ResponseEntity.ok(Map.of(
+                "sucesso", true,
+                "mensagem", mensagem("msg.despesa.rateio.contato-cadastrado", locale),
+                "contato", contatoSalvo));
     }
 
     private boolean usuarioPodeRatear(Principal principal) {
@@ -230,7 +261,7 @@ public class DespesaController {
                 contaRepository,
                 cartaoCreditoRepository,
                 categoriaRepository,
-                usuarioRepository,
+                contatoRepository,
                 messageSource,
                 locale,
                 usuarioId,

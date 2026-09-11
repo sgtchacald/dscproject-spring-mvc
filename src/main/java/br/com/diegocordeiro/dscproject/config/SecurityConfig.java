@@ -174,7 +174,9 @@ public class SecurityConfig {
                     .hasAuthority("PERM_DESPESAS_MANTER")
                 .requestMatchers(HttpMethod.PUT, "/despesas/*/rateio-acerto")
                     .hasAuthority("PERM_DESPESA_RATEAR_MULTIUSUARIO")
-                .requestMatchers(HttpMethod.GET, "/despesas/usuarios-rateio")
+                .requestMatchers(HttpMethod.GET, "/despesas/usuarios-rateio", "/despesas/contatos-rateio")
+                    .hasAuthority("PERM_DESPESA_RATEAR_MULTIUSUARIO")
+                .requestMatchers(HttpMethod.POST, "/despesas/contatos-rapido")
                     .hasAuthority("PERM_DESPESA_RATEAR_MULTIUSUARIO")
 
                 .anyRequest().authenticated()

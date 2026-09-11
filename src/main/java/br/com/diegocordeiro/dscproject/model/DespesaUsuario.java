@@ -48,6 +48,6 @@ public class DespesaUsuario extends AbstractAuditoria {
     private Despesa despesa;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USU_ID", nullable = false)
-    private Usuario usuario;
+    @JoinColumn(name = "CONT_ID", nullable = false)
+    private Contato contato;
 }

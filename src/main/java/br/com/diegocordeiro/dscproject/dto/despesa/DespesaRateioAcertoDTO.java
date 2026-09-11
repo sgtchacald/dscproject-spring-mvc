@@ -14,10 +14,17 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class DespesaRateioAcertoDTO {
 
-    @NotNull(message = "{msg.despesa.campo.obrigatorio}")
-    private Long usuarioId;
+    private Long contatoId;
 
     private boolean acertado;
 
     private LocalDate dataAcerto;
+
+    public Long getUsuarioId() {
+        return contatoId;
+    }
+
+    public void setUsuarioId(Long usuarioId) {
+        this.contatoId = usuarioId;
+    }
 }
