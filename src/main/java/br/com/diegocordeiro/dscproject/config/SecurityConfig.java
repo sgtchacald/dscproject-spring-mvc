@@ -161,6 +161,22 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/receitas/excluir/**")
                     .hasAuthority("PERM_RECEITAS_MANTER")
 
+                // Despesas (Finanças > Despesas) — cada operação exige a sua permissão
+                .requestMatchers(HttpMethod.GET, "/despesas/listar", "/despesas/listar-dados")
+                    .hasAuthority("PERM_DESPESAS_LISTAR")
+                .requestMatchers(HttpMethod.GET, "/despesas/buscar/**")
+                    .hasAuthority("PERM_DESPESAS_MANTER")
+                .requestMatchers(HttpMethod.POST, "/despesas/inserir", "/despesas/registrar-pagamento-lote")
+                    .hasAuthority("PERM_DESPESAS_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/despesas/editar/**", "/despesas/registrar-pagamento/**")
+                    .hasAuthority("PERM_DESPESAS_MANTER")
+                .requestMatchers(HttpMethod.DELETE, "/despesas/excluir/**")
+                    .hasAuthority("PERM_DESPESAS_MANTER")
+                .requestMatchers(HttpMethod.PUT, "/despesas/*/rateio-acerto")
+                    .hasAuthority("PERM_DESPESA_RATEAR_MULTIUSUARIO")
+                .requestMatchers(HttpMethod.GET, "/despesas/usuarios-rateio")
+                    .hasAuthority("PERM_DESPESA_RATEAR_MULTIUSUARIO")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

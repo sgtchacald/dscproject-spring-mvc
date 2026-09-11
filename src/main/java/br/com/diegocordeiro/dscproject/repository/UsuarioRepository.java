@@ -50,4 +50,14 @@ public interface UsuarioRepository
           AND u.dataExclusao IS NULL
         """)
     long contarAdminsAtivos();
+
+    /** Busca usuários ativos para rateio, por parte do nome ou do e-mail. */
+    @Query("""
+        SELECT u FROM Usuario u
+        WHERE u.dataExclusao IS NULL
+          AND u.id <> :usuIdLogado
+          AND (LOWER(u.nome) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :termo, '%')))
+        ORDER BY u.nome ASC
+        """)
+    List<Usuario> buscarAtivosParaRateio(@Param("termo") String termo, @Param("usuIdLogado") Long usuIdLogado);
 }
