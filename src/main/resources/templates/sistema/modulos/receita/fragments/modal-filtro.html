@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="modal modal-blur fade" id="modalFiltroReceita" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{receita.filtro.titulo}">Filtrar Receitas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="filtroBusca" th:text="#{receita.filtro.busca.label}">Busca</label>
+                    <input type="text" class="form-control" id="filtroBusca"
+                           th:placeholder="#{receita.filtro.busca.placeholder}">
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="filtroCompetenciaInicial" th:text="#{receita.filtro.competenciaInicial.label}">Competência inicial</label>
+                        <input type="month" class="form-control" id="filtroCompetenciaInicial">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="filtroCompetenciaFinal" th:text="#{receita.filtro.competenciaFinal.label}">Competência final</label>
+                        <input type="month" class="form-control" id="filtroCompetenciaFinal">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="filtroConta" th:text="#{receita.filtro.conta.label}">Conta</label>
+                        <select class="form-select" id="filtroConta">
+                            <option value="" th:text="#{receita.filtro.conta.todas}">Todas as contas</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="filtroCategoria" th:text="#{receita.filtro.categoria.label}">Categoria</label>
+                        <select class="form-select" id="filtroCategoria">
+                            <option value="" th:text="#{receita.filtro.categoria.todas}">Todas as categorias</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="filtroSituacao" th:text="#{receita.filtro.situacao.label}">Situação</label>
+                    <select class="form-select" id="filtroSituacao">
+                        <option value="" selected th:text="#{receita.filtro.situacao.todas}">Todas</option>
+                        <option value="PREVISTA" th:text="#{receita.badge.prevista}">Prevista</option>
+                        <option value="RECEBIDA" th:text="#{receita.badge.recebida}">Recebida</option>
+                        <option value="EXCLUIDA" th:text="#{receita.badge.excluida}">Excluída</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link link-secondary me-auto" id="btnLimparFiltroReceita" th:text="#{receita.filtro.limpar}">Limpar</button>
+                <button type="button" class="btn btn-primary" id="btnAplicarFiltroReceita" th:text="#{receita.filtro.aplicar}">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

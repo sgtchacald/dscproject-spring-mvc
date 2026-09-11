@@ -87,7 +87,8 @@ public class CargaInicialRunner implements ApplicationRunner {
         for (Permissao permissao : permissaoRepository.findAll()) {
             if (!permissao.isOrfa()) {
                 vincular(admin, permissao);
-                if ("CONTAS_LISTAR".equals(permissao.getCodigo()) || "CONTAS_MANTER".equals(permissao.getCodigo())) {
+                if ("CONTAS_LISTAR".equals(permissao.getCodigo()) || "CONTAS_MANTER".equals(permissao.getCodigo())
+                        || "RECEITAS_LISTAR".equals(permissao.getCodigo()) || "RECEITAS_MANTER".equals(permissao.getCodigo())) {
                     vincular(user, permissao);
                 }
             }

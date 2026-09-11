@@ -28,8 +28,9 @@
                     </a>
                 </li>
 
-                <li class="nav-item dropdown" sec:authorize="hasAuthority('PERM_CONTAS_LISTAR')"
-                    th:with="grupoAtivo=${#strings.startsWith(uri, '/contas/')}"
+                <li class="nav-item dropdown"
+                    sec:authorize="hasAuthority('PERM_CONTAS_LISTAR') or hasAuthority('PERM_RECEITAS_LISTAR')"
+                    th:with="grupoAtivo=${#strings.startsWith(uri, '/contas/') or #strings.startsWith(uri, '/receitas/')}"
                     th:classappend="${grupoAtivo} ? 'active'">
                     <a class="nav-link dropdown-toggle" href="#navbar-financas" data-bs-toggle="dropdown"
                        data-bs-auto-close="false" role="button" aria-expanded="false"
@@ -45,6 +46,12 @@
                            th:classappend="${#strings.startsWith(uri, '/contas/')} ? 'active'">
                             <i class="ph ph-credit-card dropdown-item-icon" aria-hidden="true"></i>
                             <span th:text="#{menu.contas}">Minhas Contas</span>
+                        </a>
+                        <a class="dropdown-item" th:href="@{/receitas/listar}"
+                           sec:authorize="hasAuthority('PERM_RECEITAS_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/receitas/')} ? 'active'">
+                            <i class="ph ph-hand-coins dropdown-item-icon" aria-hidden="true"></i>
+                            <span th:text="#{menu.receitas}">Receitas</span>
                         </a>
                     </div>
                 </li>
