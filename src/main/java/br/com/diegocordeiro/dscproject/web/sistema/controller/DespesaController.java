@@ -27,6 +27,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import br.com.diegocordeiro.dscproject.service.DespesaImportacaoService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -37,12 +38,15 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,6 +57,7 @@ import java.util.Map;
 public class DespesaController {
 
     private final DespesaService despesaService;
+    private final DespesaImportacaoService despesaImportacaoService;
     private final DespesaRepository despesaRepository;
     private final ContaRepository contaRepository;
     private final CartaoCreditoRepository cartaoCreditoRepository;
@@ -64,6 +69,7 @@ public class DespesaController {
 
     public DespesaController(
             DespesaService despesaService,
+            DespesaImportacaoService despesaImportacaoService,
             DespesaRepository despesaRepository,
             ContaRepository contaRepository,
             CartaoCreditoRepository cartaoCreditoRepository,
@@ -73,6 +79,7 @@ public class DespesaController {
             MessageSource messageSource,
             SmartValidator smartValidator) {
         this.despesaService = despesaService;
+        this.despesaImportacaoService = despesaImportacaoService;
         this.despesaRepository = despesaRepository;
         this.contaRepository = contaRepository;
         this.cartaoCreditoRepository = cartaoCreditoRepository;
@@ -235,6 +242,58 @@ public class DespesaController {
                 "sucesso", true,
                 "mensagem", mensagem("msg.despesa.rateio.contato-cadastrado", locale),
                 "contato", contatoSalvo));
+    }
+
+    @PostMapping("/despesas/duplicar")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> duplicar(@RequestParam(value = "despesaIds", required = false) List<Long> despesaIds, @RequestParam(value = "ids", required = false) List<Long> ids, @RequestParam(value = "competenciaDestino", required = false) String competenciaDestino, Principal principal, Locale locale) {
+        List<Long> targetIds = despesaIds != null && !despesaIds.isEmpty() ? despesaIds : ids;
+        if (targetIds == null || targetIds.isEmpty()) {
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("sucesso", false);
+            body.put("errosCampos", Map.of());
+            body.put("errosNegocio", Map.of("despesaIds", mensagem("msg.despesa.duplicar.vazio", locale)));
+            return ResponseEntity.unprocessableEntity().body(body);
+        }
+        Usuario usuario = obterUsuarioAutenticado(principal);
+        despesaService.duplicar(targetIds, competenciaDestino, usuario.getId(), usuario.getLogin());
+        return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.despesa.duplicada", locale)));
+    }
+
+    @PatchMapping("/despesas/{id}/valor")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> atualizarValor(@PathVariable Long id, @RequestParam(value = "valor", required = false) BigDecimal valor, Principal principal, Locale locale) {
+        if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("sucesso", false);
+            body.put("errosCampos", Map.of("valor", mensagem("msg.despesa.valor-invalido", locale)));
+            body.put("errosNegocio", Map.of());
+            return ResponseEntity.unprocessableEntity().body(body);
+        }
+        Usuario usuario = obterUsuarioAutenticado(principal);
+        Despesa d = despesaService.atualizarValor(id, valor, usuario.getId(), usuario.getLogin());
+        return ResponseEntity.ok(Map.of(
+                "sucesso", true,
+                "mensagem", mensagem("msg.despesa.valor-atualizado", locale),
+                "id", d.getId(),
+                "valor", d.getValor()));
+    }
+
+    @PostMapping("/despesas/importar-extrato")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> importarExtrato(
+            @RequestParam("arquivo") MultipartFile arquivo,
+            @RequestParam("cartaoId") Long cartaoId,
+            @RequestParam("competencia") String competencia,
+            @RequestParam("formato") String formato,
+            @RequestParam(value = "dtVencimento", required = false) String dtVencimento,
+            @RequestParam(value = "categoriaId", required = false) Long categoriaId,
+            Principal principal,
+            Locale locale) {
+        Usuario usuario = obterUsuarioAutenticado(principal);
+        int total = despesaImportacaoService.importarFatura(arquivo, cartaoId, competencia, formato, dtVencimento, categoriaId, usuario.getId(), usuario.getLogin());
+        String msg = messageSource.getMessage("msg.despesa.importacao.sucesso", new Object[]{total}, locale);
+        return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", msg, "total", total));
     }
 
     private boolean usuarioPodeRatear(Principal principal) {

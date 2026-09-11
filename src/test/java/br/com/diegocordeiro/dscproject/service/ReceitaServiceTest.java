@@ -422,4 +422,45 @@ class ReceitaServiceTest {
         assertFalse(receita.isExcluido());
         verify(receitaRepository, never()).save(any());
     }
+
+    @Test
+    @DisplayName("RN15 - Duplicar receita com lista vazia lança RegraNegocioException")
+    void duplicar_comListaVazia_deveLancarExcecao() {
+        assertThrows(RegraNegocioException.class, () -> receitaService.duplicar(List.of(), null, 1L, "user1"));
+    }
+
+    @Test
+    @DisplayName("RN15 - Duplicar receitas com sucesso para mesma competência e como previstas")
+    void duplicar_comSucesso_mesmaCompetencia() {
+        Receita r1 = criarReceita(1L, 1L, true, false);
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(1L, 1L)).thenReturn(Optional.of(r1));
+        when(receitaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        List<Receita> duplicadas = receitaService.duplicar(List.of(1L), null, 1L, "user1");
+
+        assertEquals(1, duplicadas.size());
+        Receita copia = duplicadas.get(0);
+        assertEquals(r1.getNome(), copia.getNome());
+        assertEquals(r1.getValor(), copia.getValor());
+        assertEquals(r1.getCompetencia(), copia.getCompetencia());
+        assertFalse(copia.isRecebido());
+        assertNull(copia.getDataRecebimento());
+        assertEquals(OrigemLancamento.MANUAL, copia.getOrigem());
+        verify(receitaRepository).save(any());
+    }
+
+    @Test
+    @DisplayName("RN15 - Duplicar receitas com sucesso para competência alvo informada")
+    void duplicar_comSucesso_novaCompetencia() {
+        Receita r1 = criarReceita(1L, 1L, false, false);
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(1L, 1L)).thenReturn(Optional.of(r1));
+        when(receitaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        List<Receita> duplicadas = receitaService.duplicar(List.of(1L), "2026-10", 1L, "user1");
+
+        assertEquals(1, duplicadas.size());
+        Receita copia = duplicadas.get(0);
+        assertEquals(YearMonth.of(2026, 10), copia.getCompetencia());
+        assertFalse(copia.isRecebido());
+    }
 }

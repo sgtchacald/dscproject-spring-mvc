@@ -1,5 +1,5 @@
-import { getJson } from '../comum/http.js';
-import { semAcento, dataBr } from '../comum/ui.js';
+import { getJson, enviar } from '../comum/http.js';
+import { semAcento, dataBr, exibirToast } from '../comum/ui.js';
 import { inicializarFiltro, obterFiltroAtual, abrirModalFiltro } from './modal-filtro.js';
 import { inicializarForm, abrirEdicao, excluir, EVENTO_ALTERADO } from './modal-form.js';
 import { inicializarRecebimento, abrirRecebimento, EVENTO_RECEBIMENTO_REGISTRADO } from './modal-recebimento.js';
@@ -8,9 +8,12 @@ const cfg = () => document.getElementById('dadosTelaReceita').dataset;
 
 let todas = [];
 let ordenacao = { col: 'competencia', asc: false };
+let selecionadasMap = new Map();
 
 const corpo = document.getElementById('corpoTabelaReceitas');
 const rodape = document.getElementById('rodapeContagemReceitas');
+const chkTodos = document.getElementById('chkTodosReceitas');
+const btnDuplicarLote = document.getElementById('btnDuplicarReceitaLote');
 
 const pode = {
     inserir: () => !!document.querySelector('[data-perm="inserir"]'),
@@ -19,12 +22,21 @@ const pode = {
     receber: () => !!document.querySelector('[data-perm="receber"]')
 };
 
+function atualizarBotaoDuplicarLote() {
+    if (btnDuplicarLote) {
+        btnDuplicarLote.disabled = selecionadasMap.size === 0;
+    }
+}
+
 async function carregar() {
     try {
         todas = await getJson(cfg().urlDados);
+        selecionadasMap.clear();
+        atualizarBotaoDuplicarLote();
+        if (chkTodos) chkTodos.checked = false;
         render();
     } catch (e) {
-        corpo.innerHTML = '<tr><td colspan="10" class="text-center text-danger">Erro ao carregar receitas.</td></tr>';
+        corpo.innerHTML = '<tr><td colspan="11" class="text-center text-danger">Erro ao carregar receitas.</td></tr>';
     }
 }
 
@@ -122,8 +134,33 @@ function render() {
     const lista = ordenar(filtradas);
     corpo.innerHTML = '';
 
+    // Totalizador por competência única
+    const f = obterFiltroAtual();
+    const cardTotalizador = document.getElementById('cardTotalizadorReceita');
+    if (cardTotalizador) {
+        if (f.competenciaInicial && f.competenciaInicial === f.competenciaFinal) {
+            const totalRecebido = filtradas
+                .filter(r => r.recebido && !r.excluido)
+                .reduce((acc, r) => acc + (r.valor != null ? Number(r.valor) : 0), 0);
+            const totalPrevisto = filtradas
+                .filter(r => !r.recebido && !r.excluido)
+                .reduce((acc, r) => acc + (r.valor != null ? Number(r.valor) : 0), 0);
+            const totalGeral = totalRecebido + totalPrevisto;
+
+            const elRec = document.getElementById('totalReceitaRecebido');
+            const elPrev = document.getElementById('totalReceitaPrevisto');
+            const elGeral = document.getElementById('totalReceitaGeral');
+            if (elRec) elRec.textContent = formatarMoeda(totalRecebido);
+            if (elPrev) elPrev.textContent = formatarMoeda(totalPrevisto);
+            if (elGeral) elGeral.textContent = formatarMoeda(totalGeral);
+            cardTotalizador.style.display = '';
+        } else {
+            cardTotalizador.style.display = 'none';
+        }
+    }
+
     if (lista.length === 0) {
-        corpo.innerHTML = `<tr><td colspan="10" class="text-center text-secondary">${cfg().msgFiltroVazio}</td></tr>`;
+        corpo.innerHTML = `<tr><td colspan="11" class="text-center text-secondary">${cfg().msgFiltroVazio}</td></tr>`;
     } else {
         lista.forEach(r => {
             const tr = document.createElement('tr');
@@ -141,6 +178,11 @@ function render() {
                         <i class="ph ph-pencil-simple" aria-hidden="true"></i>
                     </button> `;
                 }
+                if (pode.inserir()) {
+                    acaoHtml += `<button type="button" class="btn btn-action" data-acao="duplicar" data-id="${r.id}" title="Duplicar receita" aria-label="Duplicar receita">
+                        <i class="ph ph-copy" aria-hidden="true"></i>
+                    </button> `;
+                }
                 if (pode.receber() && !r.recebido) {
                     acaoHtml += `<button type="button" class="btn btn-action text-success" data-acao="registrar-recebimento" data-id="${r.id}" data-valor="${r.valor}" title="Registrar recebimento" aria-label="Registrar recebimento">
                         <i class="ph ph-money" aria-hidden="true"></i>
@@ -153,7 +195,12 @@ function render() {
                 }
             }
 
+            const chkHtml = r.excluido
+                ? ''
+                : `<input class="form-check-input chk-receita" type="checkbox" data-id="${r.id}" ${selecionadasMap.has(String(r.id)) ? 'checked' : ''}>`;
+
             tr.innerHTML = `
+                <td>${chkHtml}</td>
                 <td>${formatarCompetencia(r.competencia)}</td>
                 <td><strong>${r.nome}</strong></td>
                 <td>${categoriaHtml}</td>
@@ -173,6 +220,27 @@ function render() {
     rodape.textContent = `Mostrando ${lista.length} de ${todas.length} receitas`;
 }
 
+async function duplicar(ids) {
+    if (!ids || ids.length === 0) return;
+    try {
+        const params = new URLSearchParams();
+        ids.forEach(id => params.append('ids', id));
+        const res = await enviar(cfg().urlDuplicar, 'POST', params);
+        if (res.sucesso) {
+            exibirToast(res.mensagem || 'Receita(s) duplicada(s) com sucesso.', 'success');
+            selecionadasMap.clear();
+            atualizarBotaoDuplicarLote();
+            if (chkTodos) chkTodos.checked = false;
+            await carregar();
+        } else {
+            const erroMsg = res.errosNegocio?.ids || res.mensagem || 'Erro ao duplicar receitas.';
+            exibirToast(erroMsg, 'danger');
+        }
+    } catch (e) {
+        exibirToast('Erro de comunicação ao duplicar receitas.', 'danger');
+    }
+}
+
 function inicializarAcoes() {
     corpo.addEventListener('click', function (e) {
         const btn = e.target.closest('button[data-acao]');
@@ -184,12 +252,49 @@ function inicializarAcoes() {
 
         if (acao === 'editar') {
             abrirEdicao(id);
+        } else if (acao === 'duplicar') {
+            duplicar([id]);
         } else if (acao === 'registrar-recebimento') {
             abrirRecebimento(id, valor);
         } else if (acao === 'excluir') {
             excluir(id, nome);
         }
     });
+
+    corpo.addEventListener('change', function (e) {
+        const chk = e.target.closest('.chk-receita');
+        if (!chk) return;
+        const id = chk.dataset.id;
+        if (chk.checked) {
+            selecionadasMap.set(id, true);
+        } else {
+            selecionadasMap.delete(id);
+        }
+        atualizarBotaoDuplicarLote();
+    });
+
+    if (chkTodos) {
+        chkTodos.addEventListener('change', function () {
+            const checks = corpo.querySelectorAll('.chk-receita');
+            checks.forEach(c => {
+                c.checked = chkTodos.checked;
+                const id = c.dataset.id;
+                if (chkTodos.checked) {
+                    selecionadasMap.set(id, true);
+                } else {
+                    selecionadasMap.delete(id);
+                }
+            });
+            atualizarBotaoDuplicarLote();
+        });
+    }
+
+    if (btnDuplicarLote) {
+        btnDuplicarLote.addEventListener('click', function () {
+            const ids = Array.from(selecionadasMap.keys());
+            duplicar(ids);
+        });
+    }
 }
 
 function inicializarOrdenacao() {

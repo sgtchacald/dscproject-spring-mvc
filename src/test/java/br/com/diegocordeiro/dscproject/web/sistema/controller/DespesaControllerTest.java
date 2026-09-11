@@ -63,6 +63,7 @@ class DespesaControllerTest {
     @MockitoBean private UsuarioRepository usuarioRepository;
     @MockitoBean private ContatoRepository contatoRepository;
     @MockitoBean private AutorizacaoService autorizacaoService;
+    @MockitoBean private br.com.diegocordeiro.dscproject.service.DespesaImportacaoService despesaImportacaoService;
     @MockitoBean private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
     @BeforeEach
@@ -335,6 +336,111 @@ class DespesaControllerTest {
         mockMvc.perform(post("/despesas/contatos-rapido")
                         .with(csrf())
                         .param("nome", "Mariana"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("EDP12 / RN26 - Duplicar sem despesaIds retorna 422")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_INSERIR")
+    void duplicar_semIds_deveRetornar422() throws Exception {
+        mockMvc.perform(post("/despesas/duplicar").with(csrf()))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false))
+                .andExpect(jsonPath("$.errosNegocio.despesaIds").exists());
+
+        verify(despesaService, never()).duplicar(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("EDP12 / RN26 - Duplicar com sucesso retorna 200")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_INSERIR")
+    void duplicar_comSucesso_deveRetornar200() throws Exception {
+        mockMvc.perform(post("/despesas/duplicar")
+                        .param("despesaIds", "1", "2")
+                        .param("competenciaDestino", "2026-10")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true))
+                .andExpect(jsonPath("$.mensagem").exists());
+
+        verify(despesaService).duplicar(eq(List.of(1L, 2L)), eq("2026-10"), eq(1L), eq("user_teste"));
+    }
+
+    @Test
+    @DisplayName("EDP12 / RN01 - Duplicar sem permissão retorna 403")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_LISTAR")
+    void duplicar_semPermissao_deveRetornar403() throws Exception {
+        mockMvc.perform(post("/despesas/duplicar")
+                        .param("despesaIds", "1")
+                        .with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("EDP13 / RN27 - Atualizar valor com valor zero ou negativo retorna 422")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_EDITAR")
+    void atualizarValor_comValorInvalido_deveRetornar422() throws Exception {
+        mockMvc.perform(patch("/despesas/10/valor")
+                        .param("valor", "0.00")
+                        .with(csrf()))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false))
+                .andExpect(jsonPath("$.errosCampos.valor").exists());
+
+        verify(despesaService, never()).atualizarValor(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("EDP13 / RN27 - Atualizar valor com sucesso retorna 200")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_EDITAR")
+    void atualizarValor_comSucesso_deveRetornar200() throws Exception {
+        Despesa d = new Despesa();
+        d.setId(10L);
+        d.setValor(new BigDecimal("180.00"));
+        when(despesaService.atualizarValor(10L, new BigDecimal("180.00"), 1L, "user_teste")).thenReturn(d);
+
+        mockMvc.perform(patch("/despesas/10/valor")
+                        .param("valor", "180.00")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true))
+                .andExpect(jsonPath("$.valor").value(180.00));
+    }
+
+    @Test
+    @DisplayName("EDP14 / RN28 - Importar extrato com sucesso retorna 200")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_IMPORTAR")
+    void importarExtrato_comSucesso_deveRetornar200() throws Exception {
+        org.springframework.mock.web.MockMultipartFile arq = new org.springframework.mock.web.MockMultipartFile(
+                "arquivo", "fatura.csv", "text/csv", "data;valor".getBytes());
+
+        when(despesaImportacaoService.importarFatura(any(), eq(1L), eq("2026-09"), eq("C6BANK"), any(), any(), eq(1L), eq("user_teste")))
+                .thenReturn(5);
+
+        mockMvc.perform(multipart("/despesas/importar-extrato")
+                        .file(arq)
+                        .param("cartaoId", "1")
+                        .param("competencia", "2026-09")
+                        .param("formato", "C6BANK")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true))
+                .andExpect(jsonPath("$.total").value(5));
+    }
+
+    @Test
+    @DisplayName("EDP14 / RN01 - Importar extrato sem permissão retorna 403")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_LISTAR")
+    void importarExtrato_semPermissao_deveRetornar403() throws Exception {
+        org.springframework.mock.web.MockMultipartFile arq = new org.springframework.mock.web.MockMultipartFile(
+                "arquivo", "fatura.csv", "text/csv", "data;valor".getBytes());
+
+        mockMvc.perform(multipart("/despesas/importar-extrato")
+                        .file(arq)
+                        .param("cartaoId", "1")
+                        .param("competencia", "2026-09")
+                        .param("formato", "C6BANK")
+                        .with(csrf()))
                 .andExpect(status().isForbidden());
     }
 }

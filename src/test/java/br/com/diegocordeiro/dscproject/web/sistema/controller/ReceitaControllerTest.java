@@ -399,4 +399,41 @@ class ReceitaControllerTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.sucesso").value(false));
     }
+
+    @Test
+    @DisplayName("EDP08 / RN15 - Duplicar sem IDs retorna 422")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_INSERIR")
+    void duplicar_semIds_deveRetornar422() throws Exception {
+        mockMvc.perform(post("/receitas/duplicar").with(csrf()))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false))
+                .andExpect(jsonPath("$.errosNegocio.ids").exists());
+
+        verify(receitaService, never()).duplicar(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("EDP08 / RN15 - Duplicar com sucesso retorna 200")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_INSERIR")
+    void duplicar_comSucesso_deveRetornar200() throws Exception {
+        mockMvc.perform(post("/receitas/duplicar")
+                        .param("ids", "1", "2")
+                        .param("competenciaAlvo", "2026-10")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true))
+                .andExpect(jsonPath("$.mensagem").exists());
+
+        verify(receitaService).duplicar(eq(List.of(1L, 2L)), eq("2026-10"), eq(1L), eq("user_teste"));
+    }
+
+    @Test
+    @DisplayName("EDP08 / RN01 - Duplicar sem permissão retorna 403")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_LISTAR")
+    void duplicar_semPermissao_deveRetornar403() throws Exception {
+        mockMvc.perform(post("/receitas/duplicar")
+                        .param("ids", "1")
+                        .with(csrf()))
+                .andExpect(status().isForbidden());
+    }
 }

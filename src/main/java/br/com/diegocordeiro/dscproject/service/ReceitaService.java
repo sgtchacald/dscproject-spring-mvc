@@ -121,6 +121,31 @@ public class ReceitaService {
         receitaRepository.save(receita);
     }
 
+    @Transactional
+    public List<Receita> duplicar(List<Long> ids, String competenciaAlvo, Long usuarioId, String usuarioAuditoria) {
+        if (ids == null || ids.isEmpty()) {
+            throw new RegraNegocioException("msg.receita.duplicar.vazio");
+        }
+        YearMonth comp = (competenciaAlvo != null && !competenciaAlvo.isBlank()) ? YearMonth.parse(competenciaAlvo) : null;
+        return ids.stream().map(id -> {
+            Receita origem = buscarPorIdEUsuario(id, usuarioId);
+            Receita copia = new Receita();
+            copia.setNome(origem.getNome());
+            copia.setDescricao(origem.getDescricao());
+            copia.setValor(origem.getValor());
+            copia.setDataLancamento(origem.getDataLancamento());
+            copia.setCompetencia(comp != null ? comp : origem.getCompetencia());
+            copia.setConta(origem.getConta());
+            copia.setCategoria(origem.getCategoria());
+            copia.setOrigem(OrigemLancamento.MANUAL);
+            copia.setRecebido(false);
+            copia.setDataRecebimento(null);
+            copia.setCriadoPor(usuarioAuditoria);
+            copia.setAlteradoPor(usuarioAuditoria);
+            return receitaRepository.save(copia);
+        }).toList();
+    }
+
     private void aplicarRecebimento(Receita receita, boolean recebido, LocalDate dataRecebimento) {
         receita.setRecebido(recebido);
         receita.setDataRecebimento(recebido ? dataRecebimento : null);

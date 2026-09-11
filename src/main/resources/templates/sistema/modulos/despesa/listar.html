@@ -34,6 +34,15 @@
                 <i class="ph ph-funnel" aria-hidden="true"></i>
                 <span th:text="#{despesa.lista.botao.filtrar}">Filtrar</span>
             </button>
+            <button class="btn" id="btnImportarFatura" sec:authorize="hasAuthority('PERM_DESPESAS_IMPORTAR')"
+                    data-bs-toggle="modal" data-bs-target="#modalImportarFatura">
+                <i class="ph ph-upload-simple" aria-hidden="true"></i>
+                <span th:text="#{despesa.lista.botao.importar}">Importar extrato</span>
+            </button>
+            <button class="btn" id="btnDuplicarLote" disabled sec:authorize="hasAuthority('PERM_DESPESAS_INSERIR')">
+                <i class="ph ph-copy" aria-hidden="true"></i>
+                <span th:text="#{despesa.lista.botao.duplicar}">Duplicar</span>
+            </button>
             <button class="btn" id="btnPagarLote" disabled sec:authorize="hasAuthority('PERM_DESPESAS_PAGAR')"
                     data-bs-toggle="modal" data-bs-target="#modalPagamentoLote">
                 <i class="ph ph-currency-dollar" aria-hidden="true"></i>
@@ -49,6 +58,60 @@
 </div>
 
 <section layout:fragment="corpo">
+    <div class="row row-cards mb-3" id="cardTotalizadorDespesa" style="display: none;">
+        <div class="col-sm-6 col-lg-4">
+            <div class="card card-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="bg-green text-white avatar">
+                                <i class="ph ph-check-circle" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                        <div class="col">
+                            <div class="font-weight-medium" th:text="#{despesa.totalizador.pago}">Pago</div>
+                            <div class="text-secondary" id="totalDespesaPago">R$ 0,00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="card card-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="bg-yellow text-white avatar">
+                                <i class="ph ph-clock" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                        <div class="col">
+                            <div class="font-weight-medium" th:text="#{despesa.totalizador.pendente}">Pendente</div>
+                            <div class="text-secondary" id="totalDespesaPendente">R$ 0,00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="card card-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="bg-primary text-white avatar">
+                                <i class="ph ph-money" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                        <div class="col">
+                            <div class="font-weight-medium" th:text="#{despesa.totalizador.total}">Total Geral</div>
+                            <div class="text-secondary fw-bold" id="totalDespesaGeral">R$ 0,00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="table-responsive">
             <table class="table table-vcenter card-table" id="tabelaDespesas">
@@ -82,6 +145,8 @@
     <div th:replace="~{sistema/modulos/despesa/fragments/modal-despesa :: modal}"></div>
     <div th:replace="~{sistema/modulos/despesa/fragments/modal-pagamento :: modal}"></div>
     <div th:replace="~{sistema/modulos/despesa/fragments/modal-pagamento-lote :: modal}"></div>
+    <div th:replace="~{sistema/modulos/despesa/fragments/modal-duplicar :: modal}"></div>
+    <div th:replace="~{sistema/modulos/despesa/fragments/modal-importar-fatura :: modal}"></div>
 
     <div id="toastArea" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;"></div>
 
@@ -98,6 +163,9 @@
          th:data-url-inserir="@{/despesas/inserir}"
          th:data-url-editar="@{/despesas/editar}"
          th:data-url-excluir="@{/despesas/excluir}"
+         th:data-url-duplicar="@{/despesas/duplicar}"
+         th:data-url-atualizar-valor="@{/despesas}"
+         th:data-url-importar="@{/despesas/importar-extrato}"
          th:data-url-pagamento="@{/despesas/registrar-pagamento}"
          th:data-url-pagamento-lote="@{/despesas/registrar-pagamento-lote}"
          th:data-url-rateio-acerto="@{/despesas}"

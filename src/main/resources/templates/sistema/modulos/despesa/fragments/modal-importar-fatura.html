@@ -1,0 +1,61 @@
+<div class="modal modal-blur fade" id="modalImportarFatura" tabindex="-1" role="dialog" aria-hidden="true"
+     xmlns:th="http://www.thymeleaf.org" th:fragment="modal">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="ph ph-upload-simple me-1" aria-hidden="true"></i>
+                    <span th:text="#{despesa.importar.titulo}">Importar Fatura de Cartão de Crédito</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formImportarFatura" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label required" for="importarCartaoId" th:text="#{despesa.importar.cartao}">Cartão de crédito</label>
+                        <select class="form-select" id="importarCartaoId" name="cartaoId" required>
+                            <option value="" th:text="#{comum.selecione}">Selecione...</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required" for="importarCompetencia" th:text="#{despesa.importar.competencia}">Competência</label>
+                            <input type="month" class="form-control" id="importarCompetencia" name="competencia" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="importarVencimento" th:text="#{despesa.importar.vencimento}">Vencimento da fatura</label>
+                            <input type="date" class="form-control" id="importarVencimento" name="dtVencimento">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required" for="importarFormato" th:text="#{despesa.importar.formato}">Instituição / Formato</label>
+                        <select class="form-select" id="importarFormato" name="formato" required>
+                            <option value="ITAU">Itaú (Excel .xls / .xlsx)</option>
+                            <option value="BRADESCO">Bradesco (Excel .xls / .xlsx)</option>
+                            <option value="C6BANK">C6 Bank (Excel / CSV)</option>
+                            <option value="OFX">Extrato OFX / QFX</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="importarCategoriaId" th:text="#{despesa.importar.categoriaPadrao}">Categoria padrão (opcional)</label>
+                        <select class="form-select" id="importarCategoriaId" name="categoriaId">
+                            <option value="" th:text="#{despesa.importar.semCategoria}">Sem categoria</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required" for="importarArquivo" th:text="#{despesa.importar.arquivo}">Arquivo da fatura</label>
+                        <input type="file" class="form-control" id="importarArquivo" name="arquivo" accept=".xls,.xlsx,.csv,.ofx,.qfx" required>
+                        <small class="form-hint" th:text="#{despesa.importar.arquivoDica}">Formatos suportados: Excel (.xls, .xlsx), CSV ou OFX.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal" th:text="#{comum.botao.cancelar}">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnExecutarImportacao">
+                        <i class="ph ph-upload-simple" aria-hidden="true"></i>
+                        <span th:text="#{despesa.importar.botao}">Importar Fatura</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

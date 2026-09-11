@@ -447,4 +447,66 @@ class DespesaServiceTest {
         assertEquals("autor", filha.getExcluidoPor());
         verify(despesaRepository, times(2)).save(any(Despesa.class));
     }
+
+    @Test
+    @DisplayName("RN26 - Duplicar despesa com lista vazia lança RegraNegocioException")
+    void duplicar_comListaVazia_deveLancarExcecao() {
+        assertThrows(RegraNegocioException.class, () -> despesaService.duplicar(List.of(), null, 1L, "autor"));
+    }
+
+    @Test
+    @DisplayName("RN26 - Duplicar despesas com sucesso para competência destino")
+    void duplicar_comSucesso_paraCompetenciaDestino() {
+        Despesa d = new Despesa();
+        d.setId(10L);
+        d.setNome("Supermercado");
+        d.setDescricao("Compras do mês");
+        d.setValor(new BigDecimal("350.00"));
+        d.setDataLancamento(LocalDate.of(2026, 9, 1));
+        d.setDataVencimento(LocalDate.of(2026, 9, 10));
+        d.setCompetencia(YearMonth.of(2026, 9));
+        d.setOrigem(OrigemLancamento.MANUAL);
+        d.setStatusPagamento(StatusPagamento.NAO);
+
+        when(despesaRepository.countPorIdsEUsuario(List.of(10L), 1L)).thenReturn(1L);
+        when(despesaRepository.buscarPorIdsEUsuario(List.of(10L), 1L)).thenReturn(List.of(d));
+        when(despesaRepository.save(any(Despesa.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        List<Despesa> duplicadas = despesaService.duplicar(List.of(10L), "2026-10", 1L, "autor");
+
+        assertEquals(1, duplicadas.size());
+        Despesa copia = duplicadas.get(0);
+        assertEquals(d.getNome(), copia.getNome());
+        assertEquals(d.getValor(), copia.getValor());
+        assertEquals(YearMonth.of(2026, 10), copia.getCompetencia());
+        assertEquals(LocalDate.of(2026, 10, 10), copia.getDataVencimento());
+        assertEquals(StatusPagamento.NAO, copia.getStatusPagamento());
+        assertNull(copia.getDataPagamento());
+        assertEquals(OrigemLancamento.MANUAL, copia.getOrigem());
+        assertFalse(copia.isParcelada());
+        assertFalse(copia.isRecorrente());
+    }
+
+    @Test
+    @DisplayName("RN27 - Atualizar valor com valor menor ou igual a zero lança RegraNegocioException")
+    void atualizarValor_comValorInvalido_deveLancarExcecao() {
+        assertThrows(RegraNegocioException.class, () -> despesaService.atualizarValor(10L, BigDecimal.ZERO, 1L, "autor"));
+        assertThrows(RegraNegocioException.class, () -> despesaService.atualizarValor(10L, new BigDecimal("-10.00"), 1L, "autor"));
+    }
+
+    @Test
+    @DisplayName("RN27 - Atualizar valor com sucesso")
+    void atualizarValor_comSucesso_deveAtualizar() {
+        Despesa d = new Despesa();
+        d.setId(10L);
+        d.setValor(new BigDecimal("100.00"));
+        when(despesaRepository.buscarPorIdEUsuario(10L, 1L)).thenReturn(Optional.of(d));
+        when(despesaRepository.save(any(Despesa.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Despesa atualizada = despesaService.atualizarValor(10L, new BigDecimal("150.00"), 1L, "autor");
+
+        assertEquals(new BigDecimal("150.00"), atualizada.getValor());
+        assertEquals("autor", atualizada.getAlteradoPor());
+        verify(despesaRepository).save(d);
+    }
 }

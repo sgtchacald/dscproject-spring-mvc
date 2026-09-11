@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.security.Principal;
@@ -141,6 +142,21 @@ public class ReceitaController {
         Usuario usuario = obterUsuarioAutenticado(principal);
         receitaService.excluir(id, usuario.getId(), usuario.getLogin());
         return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.receita.excluida", locale)));
+    }
+
+    @PostMapping("/receitas/duplicar")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> duplicar(@RequestParam(value = "ids", required = false) List<Long> ids, @RequestParam(value = "competenciaAlvo", required = false) String competenciaAlvo, Principal principal, Locale locale) {
+        if (ids == null || ids.isEmpty()) {
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("sucesso", false);
+            body.put("errosCampos", Map.of());
+            body.put("errosNegocio", Map.of("ids", mensagem("msg.receita.duplicar.vazio", locale)));
+            return ResponseEntity.unprocessableEntity().body(body);
+        }
+        Usuario usuario = obterUsuarioAutenticado(principal);
+        receitaService.duplicar(ids, competenciaAlvo, usuario.getId(), usuario.getLogin());
+        return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.receita.duplicada", locale)));
     }
 
     private Usuario obterUsuarioAutenticado(Principal principal) {

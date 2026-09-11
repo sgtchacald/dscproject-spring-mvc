@@ -534,6 +534,82 @@ public class DespesaService {
     }
 
     @Transactional
+    public List<Despesa> duplicar(List<Long> ids, String competenciaDestino, Long usuarioId, String loginAutor) {
+        if (ids == null || ids.isEmpty()) {
+            throw new RegraNegocioException("msg.despesa.duplicar.vazio");
+        }
+        long totalEncontrado = despesaRepository.countPorIdsEUsuario(ids, usuarioId);
+        if (totalEncontrado != ids.size()) {
+            throw new RegistroNaoEncontradoException("msg.despesa.nao-encontrada");
+        }
+        YearMonth comp = (competenciaDestino != null && !competenciaDestino.isBlank()) ? YearMonth.parse(competenciaDestino) : null;
+        List<Despesa> originais = despesaRepository.buscarPorIdsEUsuario(ids, usuarioId);
+        List<Despesa> duplicadas = new ArrayList<>();
+        for (Despesa origem : originais) {
+            Despesa copia = new Despesa();
+            copia.setNome(origem.getNome());
+            copia.setDescricao(origem.getDescricao());
+            copia.setValor(origem.getValor());
+            copia.setDataLancamento(origem.getDataLancamento());
+            copia.setCompetencia(comp != null ? comp : origem.getCompetencia());
+            if (origem.getDataVencimento() != null) {
+                if (comp != null) {
+                    int dia = Math.min(origem.getDataVencimento().getDayOfMonth(), comp.lengthOfMonth());
+                    copia.setDataVencimento(comp.atDay(dia));
+                } else {
+                    copia.setDataVencimento(origem.getDataVencimento());
+                }
+            }
+            copia.setConta(origem.getConta());
+            copia.setCartao(origem.getCartao());
+            copia.setMeioPagamento(origem.getMeioPagamento());
+            copia.setCategoria(origem.getCategoria());
+            copia.setOrigem(OrigemLancamento.MANUAL);
+            copia.setStatusPagamento(origem.getCartao() != null ? StatusPagamento.NAO_SE_APLICA : StatusPagamento.NAO);
+            copia.setDataPagamento(null);
+            copia.setParcelada(false);
+            copia.setNroParcela(null);
+            copia.setQtdParcelas(null);
+            copia.setParcelaPai(null);
+            copia.setValorTotalCompra(null);
+            copia.setRecorrente(false);
+            copia.setRecorrentePai(null);
+            copia.setCriadoPor(loginAutor);
+            copia.setAlteradoPor(loginAutor);
+            copia = despesaRepository.save(copia);
+            if (origem.getRateios() != null) {
+                for (DespesaUsuario du : origem.getRateios()) {
+                    if (du.getDataExclusao() == null && du.getContato() != null) {
+                        DespesaUsuario novoDu = new DespesaUsuario();
+                        novoDu.setDespesa(copia);
+                        novoDu.setContato(du.getContato());
+                        novoDu.setValor(du.getValor());
+                        novoDu.setStatusPagamento(StatusPagamento.NAO);
+                        novoDu.setDataAcerto(null);
+                        novoDu.setCriadoPor(loginAutor);
+                        novoDu.setAlteradoPor(loginAutor);
+                        despesaUsuarioRepository.save(novoDu);
+                        copia.getRateios().add(novoDu);
+                    }
+                }
+            }
+            duplicadas.add(copia);
+        }
+        return duplicadas;
+    }
+
+    @Transactional
+    public Despesa atualizarValor(Long id, BigDecimal novoValor, Long usuarioId, String loginAutor) {
+        if (novoValor == null || novoValor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RegraNegocioException("valor", "msg.despesa.valor-invalido");
+        }
+        Despesa d = buscarPorIdEUsuario(id, usuarioId);
+        d.setValor(novoValor);
+        d.setAlteradoPor(loginAutor);
+        return despesaRepository.save(d);
+    }
+
+    @Transactional
     public void registrarAcertoRateio(
             Long despId,
             Long contatoId,

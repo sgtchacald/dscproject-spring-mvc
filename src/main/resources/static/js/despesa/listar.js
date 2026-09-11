@@ -1,5 +1,6 @@
-import { getJson } from '../comum/http.js';
-import { semAcento, dataBr } from '../comum/ui.js';
+import { getJson, enviar } from '../comum/http.js';
+import { semAcento, dataBr, toast, abrirModal, fecharModal } from '../comum/ui.js';
+import { parseDecimal, formatarMoeda, definirValorMoeda } from '../comum/mascara.js';
 import { inicializarFiltro, obterFiltroAtual, abrirModalFiltro } from './modal-filtro.js';
 import { inicializarForm, abrirEdicao, excluir, EVENTO_ALTERADO } from './modal-form.js';
 import { inicializarPagamento, abrirPagamento, EVENTO_PAGAMENTO_REGISTRADO } from './modal-pagamento.js';
@@ -10,11 +11,13 @@ const cfg = () => document.getElementById('dadosTelaDespesa').dataset;
 let todas = [];
 let ordenacao = { col: 'competencia', asc: false };
 let selecionadasMap = new Map();
+let idsParaDuplicar = [];
 
 const corpo = document.getElementById('corpoTabelaDespesas');
 const rodape = document.getElementById('rodapeContagemDespesas');
 const chkTodos = document.getElementById('chkTodos');
 const btnPagarLote = document.getElementById('btnPagarLote');
+const btnDuplicarLote = document.getElementById('btnDuplicarLote');
 
 const podeInserir = () => !!document.querySelector('[data-perm="inserir"]');
 const podeEditar = () => !!document.querySelector('[data-perm="editar"]');
@@ -27,7 +30,8 @@ async function carregar() {
     try {
         todas = await getJson(cfg().urlDados);
         selecionadasMap.clear();
-        atualizarBotaoLote();
+        atualizarBotoesLote();
+        if (chkTodos) chkTodos.checked = false;
         render();
     } catch (e) {
         corpo.innerHTML = '<tr><td colspan="12" class="text-center text-danger">Erro ao carregar despesas.</td></tr>';
@@ -103,11 +107,6 @@ function ordenar(lista) {
     });
 }
 
-function formatarMoeda(valor) {
-    const num = Number(valor != null ? valor : 0);
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
-}
-
 function formatarCompetencia(competencia) {
     if (!competencia) return '';
     const [ano, mes] = competencia.split('-');
@@ -141,16 +140,49 @@ function labelOrigem(origem) {
     return cfg().labelOrigemManual || 'Manual';
 }
 
-function atualizarBotaoLote() {
-    if (!btnPagarLote) return;
-    const qtd = selecionadasMap.size;
-    btnPagarLote.disabled = qtd === 0;
+function atualizarBotoesLote() {
+    if (btnDuplicarLote) {
+        btnDuplicarLote.disabled = selecionadasMap.size === 0;
+    }
+    if (btnPagarLote) {
+        const temParaPagar = Array.from(selecionadasMap.values()).some(d => d.statusPagamento === 'NAO');
+        btnPagarLote.disabled = !temParaPagar;
+    }
+}
+
+function atualizarTotalizador(filtradas) {
+    const f = obterFiltroAtual();
+    const cardTotalizador = document.getElementById('cardTotalizadorDespesa');
+    if (!cardTotalizador) return;
+
+    if (f.competenciaInicio && f.competenciaInicio === f.competenciaFim) {
+        const totalPago = filtradas
+            .filter(d => !d.excluido && d.statusPagamento === 'SIM')
+            .reduce((acc, d) => acc + (d.valor != null ? Number(d.valor) : 0), 0);
+        const totalPendente = filtradas
+            .filter(d => !d.excluido && d.statusPagamento === 'NAO')
+            .reduce((acc, d) => acc + (d.valor != null ? Number(d.valor) : 0), 0);
+        const totalGeral = totalPago + totalPendente;
+
+        const elPago = document.getElementById('totalDespesaPago');
+        const elPendente = document.getElementById('totalDespesaPendente');
+        const elGeral = document.getElementById('totalDespesaGeral');
+
+        if (elPago) elPago.textContent = formatarMoeda(totalPago);
+        if (elPendente) elPendente.textContent = formatarMoeda(totalPendente);
+        if (elGeral) elGeral.textContent = formatarMoeda(totalGeral);
+        cardTotalizador.style.display = '';
+    } else {
+        cardTotalizador.style.display = 'none';
+    }
 }
 
 function render() {
     const filtradas = filtrar(todas);
     const lista = ordenar(filtradas);
     corpo.innerHTML = '';
+
+    atualizarTotalizador(filtradas);
 
     const colspan = podeRatear() ? 12 : 11;
 
@@ -174,8 +206,7 @@ function render() {
 
             const descHtml = d.descricao ? `<br><small class="text-muted">${d.descricao}</small>` : '';
 
-            // Apenas despesas com status NAO podem ser baixadas em lote
-            const podeSelecionar = !d.excluido && d.statusPagamento === 'NAO';
+            const podeSelecionar = !d.excluido;
             const checkHtml = podeSelecionar
                 ? `<input class="form-check-input chk-despesa" type="checkbox" data-id="${d.id}" ${selecionadasMap.has(d.id) ? 'checked' : ''}>`
                 : '';
@@ -187,6 +218,14 @@ function render() {
                     acaoHtml += `<button type="button" class="btn btn-action text-success" data-acao="pagamento"
                         data-id="${d.id}" data-valor="${d.valor}" title="${cfg().acaoPagamento || 'Registrar pagamento'}" aria-label="Registrar pagamento">
                         <i class="ph ph-currency-dollar" aria-hidden="true"></i>
+                    </button> `;
+                }
+
+                // Duplicar
+                if (podeInserir()) {
+                    acaoHtml += `<button type="button" class="btn btn-action" data-acao="duplicar"
+                        data-id="${d.id}" title="Duplicar despesa" aria-label="Duplicar despesa">
+                        <i class="ph ph-copy" aria-hidden="true"></i>
                     </button> `;
                 }
 
@@ -226,13 +265,17 @@ function render() {
                     : '<td class="text-center text-muted">—</td>';
             }
 
+            const podeEditarValor = podeEditar() && !d.excluido;
+            const classeValor = podeEditarValor ? 'text-end fw-bold cursor-pointer celula-valor' : 'text-end fw-bold';
+            const titleValor = podeEditarValor ? 'Clique para editar o valor' : '';
+
             tr.innerHTML = `
                 <td>${checkHtml}</td>
                 <td>${formatarCompetencia(d.competencia)}</td>
                 <td><strong>${d.nome}</strong>${parcelaBadge}${recorrenteBadge}${descHtml}</td>
                 <td>${categoriaHtml}</td>
                 <td>${badgeForma(d)}</td>
-                <td class="text-end fw-bold">${formatarMoeda(d.valor)}</td>
+                <td class="${classeValor}" data-id="${d.id}" title="${titleValor}">${formatarMoeda(d.valor)}</td>
                 <td>${d.dataVencimento ? dataBr(d.dataVencimento) : '<span class="text-muted">—</span>'}</td>
                 <td>${badgeStatus(d)}</td>
                 <td>${d.dataPagamento ? dataBr(d.dataPagamento) : '<span class="text-muted">—</span>'}</td>
@@ -246,6 +289,223 @@ function render() {
     }
 
     rodape.textContent = `Mostrando ${lista.length} de ${todas.length} despesas`;
+}
+
+function inicializarEdicaoInline() {
+    corpo.addEventListener('click', function (e) {
+        const celula = e.target.closest('td.celula-valor');
+        if (!celula || celula.querySelector('input')) return;
+
+        const id = Number(celula.dataset.id);
+        const d = todas.find(item => item.id === id);
+        if (!d) return;
+
+        const valorOriginal = d.valor != null ? Number(d.valor) : 0;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control form-control-sm text-end mascara-moeda';
+        input.style.minWidth = '110px';
+        input.style.maxWidth = '140px';
+        input.style.display = 'inline-block';
+        definirValorMoeda(input, valorOriginal);
+
+        celula.innerHTML = '';
+        celula.appendChild(input);
+        input.focus();
+        input.select();
+
+        let finalizado = false;
+
+        function restaurar() {
+            if (finalizado) return;
+            finalizado = true;
+            celula.innerHTML = formatarMoeda(d.valor);
+        }
+
+        async function salvar() {
+            if (finalizado) return;
+            finalizado = true;
+            const novoValor = parseDecimal(input.value);
+            if (novoValor <= 0) {
+                toast('O valor da despesa deve ser maior que zero.', true);
+                celula.innerHTML = formatarMoeda(d.valor);
+                return;
+            }
+
+            if (Math.abs(novoValor - Number(d.valor)) < 0.001) {
+                celula.innerHTML = formatarMoeda(d.valor);
+                return;
+            }
+
+            try {
+                const url = `${cfg().urlAtualizarValor}/${id}/valor`;
+                const body = new URLSearchParams();
+                body.append('valor', novoValor.toFixed(2));
+                const res = await enviar(url, 'PATCH', body);
+                if (res.sucesso) {
+                    d.valor = novoValor;
+                    toast(res.mensagem || 'Valor atualizado com sucesso.');
+                    celula.innerHTML = formatarMoeda(novoValor);
+                    const tr = celula.closest('tr');
+                    if (tr) {
+                        const btnPag = tr.querySelector('[data-acao="pagamento"]');
+                        if (btnPag) btnPag.dataset.valor = novoValor;
+                    }
+                    atualizarTotalizador(filtrar(todas));
+                } else {
+                    const erroMsg = res.errosCampos?.valor || res.mensagem || 'Erro ao atualizar valor.';
+                    toast(erroMsg, true);
+                    celula.innerHTML = formatarMoeda(d.valor);
+                }
+            } catch (err) {
+                toast('Erro de comunicação ao atualizar valor.', true);
+                celula.innerHTML = formatarMoeda(d.valor);
+            }
+        }
+
+        input.addEventListener('keydown', function (evt) {
+            if (evt.key === 'Enter') {
+                evt.preventDefault();
+                salvar();
+            } else if (evt.key === 'Escape') {
+                evt.preventDefault();
+                restaurar();
+            }
+        });
+
+        input.addEventListener('blur', function () {
+            salvar();
+        });
+    });
+}
+
+export function abrirModalDuplicar(despesas) {
+    if (!despesas || despesas.length === 0) return;
+    idsParaDuplicar = despesas.map(d => d.id);
+
+    const resumoEl = document.getElementById('duplicarResumoSelecao');
+    if (resumoEl) {
+        if (despesas.length === 1) {
+            resumoEl.textContent = `1 despesa selecionada: ${despesas[0].nome}`;
+        } else {
+            resumoEl.textContent = `${despesas.length} despesas selecionadas para duplicação.`;
+        }
+    }
+
+    const inputComp = document.getElementById('duplicarCompetenciaDestino');
+    if (inputComp) {
+        const compOrigem = despesas[0]?.competencia;
+        inputComp.value = compOrigem || new Date().toISOString().slice(0, 7);
+    }
+
+    abrirModal('modalDuplicarDespesa');
+}
+
+function inicializarDuplicacao() {
+    const btnConfirmar = document.getElementById('btnConfirmarDuplicar');
+    if (btnConfirmar) {
+        btnConfirmar.addEventListener('click', async function () {
+            const inputComp = document.getElementById('duplicarCompetenciaDestino');
+            const compDestino = inputComp ? inputComp.value : '';
+            if (!compDestino) {
+                toast('Informe a competência de destino.', true);
+                if (inputComp) inputComp.focus();
+                return;
+            }
+
+            if (!idsParaDuplicar || idsParaDuplicar.length === 0) {
+                toast('Nenhuma despesa selecionada para duplicação.', true);
+                fecharModal('modalDuplicarDespesa');
+                return;
+            }
+
+            btnConfirmar.disabled = true;
+            try {
+                const body = new URLSearchParams();
+                idsParaDuplicar.forEach(id => body.append('ids', id));
+                body.append('competenciaDestino', compDestino);
+
+                const res = await enviar(cfg().urlDuplicar, 'POST', body);
+                if (res.sucesso) {
+                    toast(res.mensagem || 'Despesa(s) duplicada(s) com sucesso.');
+                    fecharModal('modalDuplicarDespesa');
+                    selecionadasMap.clear();
+                    atualizarBotoesLote();
+                    if (chkTodos) chkTodos.checked = false;
+                    await carregar();
+                } else {
+                    const erroMsg = res.errosNegocio?.ids || res.errosCampos?.competenciaDestino || res.mensagem || 'Erro ao duplicar despesas.';
+                    toast(erroMsg, true);
+                }
+            } catch (err) {
+                toast('Erro de comunicação ao duplicar despesas.', true);
+            } finally {
+                btnConfirmar.disabled = false;
+            }
+        });
+    }
+
+    if (btnDuplicarLote) {
+        btnDuplicarLote.addEventListener('click', function () {
+            if (selecionadasMap.size === 0) return;
+            abrirModalDuplicar(Array.from(selecionadasMap.values()));
+        });
+    }
+}
+
+function inicializarImportacaoFatura() {
+    const modalEl = document.getElementById('modalImportarFatura');
+    if (modalEl) {
+        modalEl.addEventListener('show.bs.modal', async function () {
+            const inputComp = document.getElementById('importarCompetencia');
+            if (inputComp && !inputComp.value) {
+                inputComp.value = new Date().toISOString().slice(0, 7);
+            }
+            try {
+                const [cartoes, categorias] = await Promise.all([
+                    getJson(cfg().urlCartoesOpcoes),
+                    getJson(cfg().urlCategoriasOpcoes)
+                ]);
+                const selCartao = document.getElementById('importarCartaoId');
+                if (selCartao) {
+                    selCartao.innerHTML = '<option value="">Selecione...</option>' +
+                        cartoes.map(c => `<option value="${c.id}">${c.descricao || c.nome}</option>`).join('');
+                }
+                const selCat = document.getElementById('importarCategoriaId');
+                if (selCat) {
+                    selCat.innerHTML = '<option value="">Sem categoria</option>' +
+                        categorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+                }
+            } catch (err) {
+                console.error('Erro ao carregar opções de importação', err);
+            }
+        });
+    }
+
+    const form = document.getElementById('formImportarFatura');
+    if (form) {
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const btnExec = document.getElementById('btnExecutarImportacao');
+            if (btnExec) btnExec.disabled = true;
+            try {
+                const formData = new FormData(form);
+                const res = await enviar(cfg().urlImportar, 'POST', formData);
+                if (res.sucesso) {
+                    toast(res.mensagem || 'Fatura importada com sucesso.');
+                    fecharModal('modalImportarFatura');
+                    form.reset();
+                    await carregar();
+                } else {
+                    toast(res.mensagem || 'Erro ao importar fatura.', true);
+                }
+            } catch (err) {
+                toast('Erro de comunicação ao importar fatura.', true);
+            } finally {
+                if (btnExec) btnExec.disabled = false;
+            }
+        });
+    }
 }
 
 function inicializarSelecaoMultipla() {
@@ -262,7 +522,7 @@ function inicializarSelecaoMultipla() {
                     selecionadasMap.delete(id);
                 }
             });
-            atualizarBotaoLote();
+            atualizarBotoesLote();
         });
     }
 
@@ -275,14 +535,15 @@ function inicializarSelecaoMultipla() {
             } else {
                 selecionadasMap.delete(id);
             }
-            atualizarBotaoLote();
+            atualizarBotoesLote();
         }
     });
 
     if (btnPagarLote) {
         btnPagarLote.addEventListener('click', function () {
-            if (selecionadasMap.size === 0) return;
-            abrirPagamentoLote(Array.from(selecionadasMap.values()));
+            const paraPagar = Array.from(selecionadasMap.values()).filter(d => d.statusPagamento === 'NAO');
+            if (paraPagar.length === 0) return;
+            abrirPagamentoLote(paraPagar);
         });
     }
 }
@@ -303,6 +564,9 @@ function inicializarAcoes() {
 
         if (acao === 'editar' || acao === 'ratear') {
             abrirEdicao(id);
+        } else if (acao === 'duplicar') {
+            const desp = todas.find(item => item.id === id);
+            if (desp) abrirModalDuplicar([desp]);
         } else if (acao === 'pagamento') {
             abrirPagamento(id, valor);
         } else if (acao === 'excluir') {
@@ -330,6 +594,9 @@ document.addEventListener('DOMContentLoaded', function () {
     inicializarForm();
     inicializarPagamento();
     inicializarPagamentoLote();
+    inicializarDuplicacao();
+    inicializarImportacaoFatura();
+    inicializarEdicaoInline();
     inicializarFiltro(() => render());
     inicializarOrdenacao();
     inicializarSelecaoMultipla();
