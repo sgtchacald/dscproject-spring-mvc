@@ -1,5 +1,6 @@
 package br.com.diegocordeiro.dscproject.parametro;
 
+import br.com.diegocordeiro.dscproject.service.parametro.ParametroCatalogoService;
 import br.com.diegocordeiro.dscproject.catalogo.ItemCatalogo;
 import br.com.diegocordeiro.dscproject.enums.TipoParametro;
 

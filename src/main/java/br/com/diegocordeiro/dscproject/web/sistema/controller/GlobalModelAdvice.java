@@ -1,7 +1,7 @@
 package br.com.diegocordeiro.dscproject.web.sistema.controller;
 
 import br.com.diegocordeiro.dscproject.dto.usuario.UsuarioRedeSocialDTO;
-import br.com.diegocordeiro.dscproject.service.UsuarioRedeSocialService;
+import br.com.diegocordeiro.dscproject.service.usuario.UsuarioRedeSocialService;
 import br.com.diegocordeiro.dscproject.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;

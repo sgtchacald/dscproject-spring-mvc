@@ -1,5 +1,6 @@
 package br.com.diegocordeiro.dscproject.catalogo;
 
+import br.com.diegocordeiro.dscproject.model.perfil.Permissao;
 import br.com.diegocordeiro.dscproject.dto.catalogo.SincronizacaoCatalogoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

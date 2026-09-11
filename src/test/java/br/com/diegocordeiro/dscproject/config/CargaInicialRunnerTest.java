@@ -1,14 +1,14 @@
 package br.com.diegocordeiro.dscproject.config;
 
 import br.com.diegocordeiro.dscproject.config.runner.CargaInicialRunner;
-import br.com.diegocordeiro.dscproject.model.Perfil;
-import br.com.diegocordeiro.dscproject.model.Permissao;
-import br.com.diegocordeiro.dscproject.model.Usuario;
-import br.com.diegocordeiro.dscproject.repository.PerfilPermissaoRepository;
-import br.com.diegocordeiro.dscproject.repository.PerfilRepository;
-import br.com.diegocordeiro.dscproject.repository.PermissaoRepository;
-import br.com.diegocordeiro.dscproject.repository.UsuarioRepository;
-import br.com.diegocordeiro.dscproject.service.PermissaoCatalogoService;
+import br.com.diegocordeiro.dscproject.model.perfil.Perfil;
+import br.com.diegocordeiro.dscproject.model.perfil.Permissao;
+import br.com.diegocordeiro.dscproject.model.usuario.Usuario;
+import br.com.diegocordeiro.dscproject.repository.perfil.PerfilPermissaoRepository;
+import br.com.diegocordeiro.dscproject.repository.perfil.PerfilRepository;
+import br.com.diegocordeiro.dscproject.repository.perfil.PermissaoRepository;
+import br.com.diegocordeiro.dscproject.repository.usuario.UsuarioRepository;
+import br.com.diegocordeiro.dscproject.service.perfil.PermissaoCatalogoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

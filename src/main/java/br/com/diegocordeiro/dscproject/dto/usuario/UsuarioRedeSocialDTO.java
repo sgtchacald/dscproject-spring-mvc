@@ -1,7 +1,7 @@
 package br.com.diegocordeiro.dscproject.dto.usuario;
 
 import br.com.diegocordeiro.dscproject.enums.TipoRedeSocial;
-import br.com.diegocordeiro.dscproject.model.UsuarioRedeSocial;
+import br.com.diegocordeiro.dscproject.model.usuario.UsuarioRedeSocial;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
