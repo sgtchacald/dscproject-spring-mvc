@@ -64,6 +64,10 @@ td.celula-valor.cursor-pointer:hover {
 @media (min-width: 992px) {
     .navbar-vertical.navbar-expand-lg {
         width: var(--sidebar-width);
+        /* O Tabler força overflow-y: scroll (barra sempre visível, mesmo sem
+           conteúdo pra rolar) — troca pra auto, e a barra só aparece quando
+           o menu realmente não cabe na altura da tela. */
+        overflow-y: auto;
     }
 
     .navbar-expand-lg.navbar-vertical ~ .navbar,
