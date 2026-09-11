@@ -53,7 +53,7 @@ public class ReceitaService {
         return receitaRepository.save(receita);
     }
 
-    /** RN02/C2 — a receita de outro usuário (ou já excluída) responde como "não encontrada". */
+    /** A receita de outro usuário (ou já excluída) responde como "não encontrada". */
     @Transactional(readOnly = true)
     public Receita buscarPorIdEUsuario(Long id, Long usuarioId) {
         return receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(id, usuarioId)
@@ -82,7 +82,7 @@ public class ReceitaService {
     public Receita editar(Long id, ReceitaFormDTO dto, Long usuarioId, String usuarioAuditoria) {
         Receita receita = buscarPorIdEUsuario(id, usuarioId);
 
-        // RN08 - conta e origem de receita importada não são alteráveis; o contaId do DTO é ignorado.
+        // conta e origem de uma receita importada não são alteráveis; o contaId enviado é ignorado.
         if (receita.getOrigem() == OrigemLancamento.MANUAL) {
             receita.setConta(validarConta(dto.getContaId(), usuarioId));
         }
@@ -105,6 +105,20 @@ public class ReceitaService {
         receita.setRecebido(true);
         receita.setDataRecebimento(dataRecebimento);
         return receitaRepository.save(receita);
+    }
+
+    @Transactional
+    public void excluir(Long id, Long usuarioId, String usuarioAuditoria) {
+        Receita receita = buscarPorIdEUsuario(id, usuarioId);
+
+        // só a receita lançada manualmente é excluível por esta tela; a receita é folha, sem checagem de uso.
+        if (receita.getOrigem() != OrigemLancamento.MANUAL) {
+            throw new RegraNegocioException("msg.receita.importada.nao-excluivel");
+        }
+
+        receita.setDataExclusao(java.time.Instant.now());
+        receita.setExcluidoPor(usuarioAuditoria);
+        receitaRepository.save(receita);
     }
 
     private void aplicarRecebimento(Receita receita, boolean recebido, LocalDate dataRecebimento) {

@@ -12,11 +12,11 @@ import java.util.Optional;
 @Repository
 public interface ReceitaRepository extends JpaRepository<Receita, Long> {
 
-    /** RN02 / C2 — usada antes de editar, registrar o recebimento ou excluir. */
+    /** A receita só é encontrada quando pertence a uma conta do usuário informado. */
     Optional<Receita> findByIdAndContaUsuarioIdAndDataExclusaoIsNull(Long id, Long usuarioId);
 
     /**
-     * C1 — listagem para o grid. Não filtra {@code dataExclusao}: a receita
+     * Listagem para o grid. Não filtra {@code dataExclusao}: a receita
      * excluída continua aparecendo na grid, com a situação "Excluída".
      */
     @Query("""

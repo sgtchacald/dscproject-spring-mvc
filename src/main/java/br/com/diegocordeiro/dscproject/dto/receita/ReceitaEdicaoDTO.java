@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 
-/** Saída de {@code /receitas/buscar/{id}} — dados para preencher o modal de edição (EDP03). */
+/** Saída de {@code /receitas/buscar/{id}} — dados para preencher o modal de edição. */
 @Getter
 @Setter
 @Builder

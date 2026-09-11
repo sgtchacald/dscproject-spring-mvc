@@ -22,6 +22,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -106,7 +107,7 @@ public class ReceitaController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> editar(@PathVariable Long id, @ModelAttribute ReceitaFormDTO dto, Principal principal, Locale locale) {
         Usuario usuario = obterUsuarioAutenticado(principal);
-        // RN02 - resolve a posse antes de qualquer outra validação: id de receita de outro usuário é sempre 404.
+        // resolve a posse antes de qualquer outra validação: id de receita de outro usuário é sempre 404.
         receitaService.buscarPorIdEUsuario(id, usuario.getId());
         dto.setId(id);
 
@@ -132,6 +133,14 @@ public class ReceitaController {
 
         receitaService.marcarRecebida(id, dto.getDataRecebimento(), usuario.getId(), usuario.getLogin());
         return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.receita.recebimento.registrado", locale)));
+    }
+
+    @DeleteMapping("/receitas/excluir/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> excluir(@PathVariable Long id, Principal principal, Locale locale) {
+        Usuario usuario = obterUsuarioAutenticado(principal);
+        receitaService.excluir(id, usuario.getId(), usuario.getLogin());
+        return ResponseEntity.ok(Map.of("sucesso", true, "mensagem", mensagem("msg.receita.excluida", locale)));
     }
 
     private Usuario obterUsuarioAutenticado(Principal principal) {

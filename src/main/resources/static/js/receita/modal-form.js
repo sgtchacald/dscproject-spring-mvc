@@ -144,6 +144,26 @@ export async function abrirEdicao(id) {
     }
 }
 
+export async function excluir(id, nome) {
+    const template = cfg().msgConfirmaExclusao || 'Confirma a exclusão da receita "{0}"?';
+    const msg = template.replace('{0}', nome);
+    if (!confirm(msg)) {
+        return;
+    }
+
+    try {
+        const resp = await enviar(`${cfg().urlExcluir}/${id}`, 'DELETE');
+        if (resp.sucesso) {
+            toast(resp.mensagem || 'Receita excluída com sucesso.', false);
+            document.dispatchEvent(new CustomEvent(EVENTO_ALTERADO));
+        } else {
+            toast(resp.mensagem || 'Não foi possível excluir a receita.', true);
+        }
+    } catch (e) {
+        toast('Erro de comunicação ao excluir receita.', true);
+    }
+}
+
 function corpoFormulario() {
     const body = new URLSearchParams();
     const id = document.getElementById('receitaId').value;

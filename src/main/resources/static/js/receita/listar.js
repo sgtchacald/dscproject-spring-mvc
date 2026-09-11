@@ -1,7 +1,7 @@
 import { getJson } from '../comum/http.js';
 import { semAcento, dataBr } from '../comum/ui.js';
 import { inicializarFiltro, obterFiltroAtual, abrirModalFiltro } from './modal-filtro.js';
-import { inicializarForm, abrirEdicao, EVENTO_ALTERADO } from './modal-form.js';
+import { inicializarForm, abrirEdicao, excluir, EVENTO_ALTERADO } from './modal-form.js';
 import { inicializarRecebimento, abrirRecebimento, EVENTO_RECEBIMENTO_REGISTRADO } from './modal-recebimento.js';
 
 const cfg = () => document.getElementById('dadosTelaReceita').dataset;
@@ -139,6 +139,11 @@ function render() {
                         <i class="ph ph-money" aria-hidden="true"></i>
                     </button> `;
                 }
+                if (r.origem === 'MANUAL') {
+                    acaoHtml += `<button type="button" class="btn btn-action text-danger" data-acao="excluir" data-id="${r.id}" data-nome="${r.nome}" title="Excluir receita" aria-label="Excluir receita">
+                        <i class="ph ph-trash" aria-hidden="true"></i>
+                    </button>`;
+                }
             }
 
             tr.innerHTML = `
@@ -168,11 +173,14 @@ function inicializarAcoes() {
         const acao = btn.dataset.acao;
         const id = btn.dataset.id;
         const valor = btn.dataset.valor;
+        const nome = btn.dataset.nome;
 
         if (acao === 'editar') {
             abrirEdicao(id);
         } else if (acao === 'registrar-recebimento') {
             abrirRecebimento(id, valor);
+        } else if (acao === 'excluir') {
+            excluir(id, nome);
         }
     });
 }

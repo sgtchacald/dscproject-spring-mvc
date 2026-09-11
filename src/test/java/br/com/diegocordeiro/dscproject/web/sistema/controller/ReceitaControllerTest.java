@@ -343,4 +343,38 @@ class ReceitaControllerTest {
 
         verify(receitaService, never()).marcarRecebida(any(), any(), any(), any());
     }
+
+    @Test
+    @DisplayName("BDD 16.4 - Excluir receita de outro usuário retorna 404")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void excluir_quandoReceitaDeOutroUsuario_deveRetornar404() throws Exception {
+        doThrow(new br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException("msg.receita.nao-encontrada"))
+                .when(receitaService).excluir(70L, 1L, "user_teste");
+
+        mockMvc.perform(delete("/receitas/excluir/70").with(csrf()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("BDD 16.13 - Excluir receita manual com sucesso")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void excluir_receitaManual_deveRetornarOk() throws Exception {
+        mockMvc.perform(delete("/receitas/excluir/10").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true));
+
+        verify(receitaService).excluir(10L, 1L, "user_teste");
+    }
+
+    @Test
+    @DisplayName("BDD 16.14 - Excluir receita do Open Finance retorna 422 (MSG12)")
+    @WithMockUser(username = "user_teste", authorities = "PERM_RECEITAS_MANTER")
+    void excluir_receitaOpenFinance_deveRetornar422() throws Exception {
+        doThrow(new br.com.diegocordeiro.dscproject.service.exceptions.RegraNegocioException("msg.receita.importada.nao-excluivel"))
+                .when(receitaService).excluir(10L, 1L, "user_teste");
+
+        mockMvc.perform(delete("/receitas/excluir/10").with(csrf()))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false));
+    }
 }

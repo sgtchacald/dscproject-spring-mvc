@@ -8,7 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-/** Entrada de {@code /receitas/marcar-recebida/{id}} (EDP07). */
+/** Entrada de {@code /receitas/marcar-recebida/{id}}: a data em que o dinheiro entrou. */
 @Getter
 @Setter
 @NoArgsConstructor

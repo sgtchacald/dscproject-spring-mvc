@@ -384,4 +384,42 @@ class ReceitaServiceTest {
         assertEquals(LocalDate.of(2026, 10, 5), marcada.getDataRecebimento());
         verify(receitaRepository).save(receita);
     }
+
+    @Test
+    @DisplayName("BDD 16.4 - Excluir receita de outro usuário lança RegistroNaoEncontradoException (404)")
+    void excluir_quandoReceitaDeOutroUsuario_deveLancarExcecao() {
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(70L, 1L)).thenReturn(Optional.empty());
+
+        assertThrows(br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException.class,
+            () -> receitaService.excluir(70L, 1L, "user1"));
+        verify(receitaRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("BDD 16.13 / RN09 - Excluir receita MANUAL faz exclusão lógica sem checar uso")
+    void excluir_receitaManual_deveFazerExclusaoLogica() {
+        Receita receita = criarReceita(9L, 1L, false, false);
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(9L, 1L)).thenReturn(Optional.of(receita));
+        when(receitaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        receitaService.excluir(9L, 1L, "user1");
+
+        assertTrue(receita.isExcluido());
+        assertNotNull(receita.getDataExclusao());
+        assertEquals("user1", receita.getExcluidoPor());
+        verify(receitaRepository).save(receita);
+    }
+
+    @Test
+    @DisplayName("BDD 16.14 / RN08 - Excluir receita do Open Finance lança RegraNegocioException e não altera nada")
+    void excluir_receitaOpenFinance_deveLancarExcecaoENaoAlterar() {
+        Receita receita = criarReceita(10L, 1L, false, false);
+        receita.setOrigem(OrigemLancamento.OPEN_FINANCE);
+        when(receitaRepository.findByIdAndContaUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(receita));
+
+        RegraNegocioException ex = assertThrows(RegraNegocioException.class, () -> receitaService.excluir(10L, 1L, "user1"));
+        assertEquals("msg.receita.importada.nao-excluivel", ex.getMessage());
+        assertFalse(receita.isExcluido());
+        verify(receitaRepository, never()).save(any());
+    }
 }

@@ -17,8 +17,8 @@ import java.time.LocalDate;
  * Entrada do cadastro/edição de receita. {@code competencia} chega como texto
  * ({@code yyyy-MM}, validado por {@link Pattern}) e é convertida para
  * {@link java.time.YearMonth} no Service — evita um conversor de formulário só
- * para este campo. Não tem campo {@code origem}: a origem é sempre decidida no
- * Service (RN07/RN08), nunca aceita do cliente.
+ * para este campo. Não tem campo {@code origem}: quem decide a origem do
+ * lançamento é sempre o Service, nunca o cliente.
  */
 @Getter
 @Setter

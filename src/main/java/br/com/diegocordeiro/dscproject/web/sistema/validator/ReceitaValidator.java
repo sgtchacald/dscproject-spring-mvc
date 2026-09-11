@@ -16,10 +16,10 @@ import java.util.Locale;
 import java.util.Optional;
 
 /**
- * Validação de fronteira que depende do banco/estado: conta (RN03/C3),
- * categoria (C4) e a coerência recebido × data de recebimento (RN06).
- * Na edição de uma receita importada (origem != MANUAL), a conta não é
- * revalidada — RN08 manda ignorá-la, não rejeitá-la.
+ * Validação de fronteira que depende do banco/estado: conta, categoria e a
+ * coerência entre "recebido" e a data de recebimento. Na edição de uma
+ * receita importada (origem diferente de manual), a conta não é revalidada
+ * — o valor enviado é ignorado, não rejeitado.
  */
 public class ReceitaValidator implements Validator {
 
@@ -69,7 +69,7 @@ public class ReceitaValidator implements Validator {
 
     private void validarConta(ReceitaFormDTO dto, Errors errors) {
         if (edicaoDeReceitaImportada(dto)) {
-            return; // RN08 - conta não é revalidada nem alterada
+            return; // receita importada: a conta original é preservada, não revalidada
         }
         Optional<br.com.diegocordeiro.dscproject.model.Conta> contaOpt =
             contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(dto.getContaId(), usuarioId);
