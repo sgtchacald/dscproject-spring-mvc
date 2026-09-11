@@ -28,6 +28,8 @@ public class DespesaEdicaoDTO {
     private Integer nroParcela;
     private Integer qtdParcelas;
     private Long idParcelaPai;
+    private boolean recorrente;
+    private Long idRecorrentePai;
     private String formaPagamento;
     private Long contaId;
     private Long cartaoId;
@@ -51,6 +53,8 @@ public class DespesaEdicaoDTO {
         this.nroParcela = d.getNroParcela();
         this.qtdParcelas = d.getQtdParcelas();
         this.idParcelaPai = d.getParcelaPai() != null ? d.getParcelaPai().getId() : null;
+        this.recorrente = d.isRecorrente();
+        this.idRecorrentePai = d.getRecorrentePai() != null ? d.getRecorrentePai().getId() : null;
         if (d.getCartao() != null) {
             this.formaPagamento = "CARTAO";
             this.cartaoId = d.getCartao().getId();

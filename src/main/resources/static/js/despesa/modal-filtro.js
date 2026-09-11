@@ -12,7 +12,8 @@ const filtro = {
     status: '',
     forma: '',
     categoriaId: '',
-    parcelada: ''
+    parcelada: '',
+    recorrente: ''
 };
 
 export function obterFiltroAtual() {
@@ -56,6 +57,7 @@ export function inicializarFiltro(onAplicar) {
             filtro.forma = document.getElementById('filtroForma')?.value || '';
             filtro.categoriaId = document.getElementById('filtroCategoria')?.value || '';
             filtro.parcelada = document.getElementById('filtroParcelada')?.value || '';
+            filtro.recorrente = document.getElementById('filtroRecorrente')?.value || '';
 
             fecharModal('modalFiltroDespesa');
             if (typeof onAplicar === 'function') onAplicar();
@@ -71,6 +73,7 @@ export function inicializarFiltro(onAplicar) {
             const elForma = document.getElementById('filtroForma');
             const elCat = document.getElementById('filtroCategoria');
             const elParc = document.getElementById('filtroParcelada');
+            const elRec = document.getElementById('filtroRecorrente');
 
             if (elBusca) elBusca.value = '';
             if (elCompIni) elCompIni.value = '';
@@ -79,6 +82,7 @@ export function inicializarFiltro(onAplicar) {
             if (elForma) elForma.value = '';
             if (elCat) elCat.value = '';
             if (elParc) elParc.value = '';
+            if (elRec) elRec.value = '';
 
             filtro.busca = '';
             filtro.competenciaInicio = '';
@@ -87,6 +91,7 @@ export function inicializarFiltro(onAplicar) {
             filtro.forma = '';
             filtro.categoriaId = '';
             filtro.parcelada = '';
+            filtro.recorrente = '';
 
             fecharModal('modalFiltroDespesa');
             if (typeof onAplicar === 'function') onAplicar();

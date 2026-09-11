@@ -255,8 +255,11 @@ export async function abrirNovo() {
 
     document.getElementById('despesaParcelada').checked = false;
     document.getElementById('despesaParcelada').disabled = false;
-    document.getElementById('secaoParcelamento').style.display = 'block';
+    document.getElementById('despesaRecorrente').checked = false;
+    document.getElementById('despesaRecorrente').disabled = false;
+    document.getElementById('secaoParcelamentoRecorrencia').style.display = 'block';
     document.getElementById('grupoCamposParcelamento').style.display = 'none';
+    document.getElementById('grupoCamposRecorrencia').style.display = 'none';
     document.getElementById('labelValor').textContent = 'Valor';
 
     renderizarRateios();
@@ -310,8 +313,8 @@ export async function abrirEdicao(id) {
         document.getElementById('grupoDataPagamento').style.display = pago ? 'block' : 'none';
         document.getElementById('despesaDataPagamento').value = d.dataPagamento || '';
 
-        // Parcelamento (na edição de parcela isolada, esconde campos de gerar série)
-        document.getElementById('secaoParcelamento').style.display = 'none';
+        // Parcelamento e Recorrência (na edição de item isolado, esconde campos de gerar série)
+        document.getElementById('secaoParcelamentoRecorrencia').style.display = 'none';
 
         // Rateio
         if (d.rateio && Array.isArray(d.rateio)) {
@@ -333,10 +336,12 @@ export async function abrirEdicao(id) {
     }
 }
 
-export function excluir(id, nome, parcelada, nroParcela, qtdParcelas) {
+export function excluir(id, nome, parcelada, nroParcela, qtdParcelas, recorrente, idRecorrentePai) {
     let msg;
     if (parcelada && nroParcela === 1 && qtdParcelas > 1) {
         msg = (cfg().msgConfirmaExclusaoMae || '').replace('{0}', qtdParcelas);
+    } else if (recorrente && !idRecorrentePai) {
+        msg = (cfg().msgConfirmaExclusaoRecorrenteMae || 'Esta despesa é a geradora de uma série recorrente. Ao excluí-la, todas as ocorrências da série também serão excluídas. Deseja prosseguir?');
     } else {
         msg = (cfg().msgConfirmaExclusao || '').replace('{0}', nome);
     }
@@ -384,6 +389,8 @@ export function inicializarForm() {
         const grupo = document.getElementById('grupoCamposParcelamento');
         const labelValor = document.getElementById('labelValor');
         if (this.checked) {
+            document.getElementById('despesaRecorrente').checked = false;
+            document.getElementById('grupoCamposRecorrencia').style.display = 'none';
             grupo.style.display = 'flex';
             labelValor.textContent = 'Valor total da compra';
         } else {
@@ -391,6 +398,21 @@ export function inicializarForm() {
             labelValor.textContent = 'Valor';
         }
         atualizarValorParcelaCalculada();
+    });
+
+    // Recorrente switch
+    document.getElementById('despesaRecorrente').addEventListener('change', function () {
+        const grupo = document.getElementById('grupoCamposRecorrencia');
+        const labelValor = document.getElementById('labelValor');
+        if (this.checked) {
+            document.getElementById('despesaParcelada').checked = false;
+            document.getElementById('grupoCamposParcelamento').style.display = 'none';
+            grupo.style.display = 'flex';
+            labelValor.textContent = 'Valor mensal';
+        } else {
+            grupo.style.display = 'none';
+            labelValor.textContent = 'Valor';
+        }
     });
 
     document.getElementById('despesaValor').addEventListener('input', atualizarValorParcelaCalculada);
@@ -585,6 +607,7 @@ export function inicializarForm() {
 
         const id = document.getElementById('despesaId').value;
         const parcelada = document.getElementById('despesaParcelada').checked;
+        const recorrente = document.getElementById('despesaRecorrente').checked;
         const valorInformado = parseDecimal(document.getElementById('despesaValor').value);
 
         const body = new URLSearchParams();
@@ -617,12 +640,19 @@ export function inicializarForm() {
 
         if (!modoEdicao && parcelada) {
             body.append('parcelada', 'true');
+            body.append('recorrente', 'false');
             body.append('qtdParcelas', document.getElementById('despesaQtdParcelas').value);
             body.append('valorTotalCompra', valorInformado.toFixed(2));
             const n = parseInt(document.getElementById('despesaQtdParcelas').value, 10) || 1;
             body.append('valor', (valorInformado / n).toFixed(2));
+        } else if (!modoEdicao && recorrente) {
+            body.append('recorrente', 'true');
+            body.append('parcelada', 'false');
+            body.append('qtdMesesRecorrencia', document.getElementById('despesaQtdMesesRecorrencia').value || '12');
+            body.append('valor', valorInformado.toFixed(2));
         } else {
             body.append('parcelada', 'false');
+            body.append('recorrente', 'false');
             body.append('valor', valorInformado.toFixed(2));
         }
 

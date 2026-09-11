@@ -23,31 +23,31 @@ public class DespesaFormDTO {
 
     private Long id;
 
-    @NotBlank(message = "{msg.despesa.campo.obrigatorio}")
-    @Pattern(regexp = "^[0-9]{4}-(0[1-9]|1[0-2])$", message = "{msg.despesa.competencia.invalida}")
+    @NotBlank(message = "{despesa.validacao.competencia.obrigatoria}")
+    @Pattern(regexp = "^[0-9]{4}-(0[1-9]|1[0-2])$", message = "{despesa.validacao.competencia.formato}")
     private String competencia;
 
-    @NotBlank(message = "{msg.despesa.campo.obrigatorio}")
-    @Size(max = 100, message = "{msg.despesa.nome.tamanho}")
+    @NotBlank(message = "{despesa.validacao.nome.obrigatorio}")
+    @Size(max = 100, message = "{despesa.validacao.nome.tamanho}")
     private String nome;
 
-    @Size(max = 512, message = "{msg.despesa.descricao.tamanho}")
+    @Size(max = 512, message = "{despesa.validacao.descricao.tamanho}")
     private String descricao;
 
-    @NotNull(message = "{msg.despesa.campo.obrigatorio}")
-    @DecimalMin(value = "0.01", message = "{msg.despesa.valor.positivo}")
+    @NotNull(message = "{despesa.validacao.valor.obrigatorio}")
+    @DecimalMin(value = "0.01", message = "{despesa.validacao.valor.positivo}")
     private BigDecimal valor;
 
     private BigDecimal valorTotalCompra;
 
-    @NotNull(message = "{msg.despesa.campo.obrigatorio}")
+    @NotNull(message = "{despesa.validacao.dataLancamento.obrigatoria}")
     private LocalDate dataLancamento;
 
     private LocalDate dataVencimento;
 
     private LocalDate dataPagamento;
 
-    @NotBlank(message = "{msg.despesa.campo.obrigatorio}")
+    @NotBlank(message = "{despesa.validacao.formaPagamento.obrigatoria}")
     private String formaPagamento;
 
     private Long contaId;
@@ -63,6 +63,10 @@ public class DespesaFormDTO {
     private boolean parcelada = false;
 
     private Integer qtdParcelas;
+
+    private boolean recorrente = false;
+
+    private Integer qtdMesesRecorrencia;
 
     private List<DespesaRateioDTO> rateio = new ArrayList<>();
 }

@@ -375,4 +375,76 @@ class DespesaServiceTest {
         assertTrue(resultado.isEmpty());
         verifyNoInteractions(usuarioRepository);
     }
+
+    @Test
+    @DisplayName("RN25 - Inserir despesa recorrente gera série com mesmo valor integral em cada mês")
+    void inserir_despesaRecorrente_deveGerarSerieComMesmoValorIntegral() {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L)));
+
+        List<Despesa> salvas = new ArrayList<>();
+        when(despesaRepository.save(any(Despesa.class))).thenAnswer(inv -> {
+            Despesa d = inv.getArgument(0);
+            if (d.getId() == null) {
+                d.setId((long) (salvas.size() + 1));
+            }
+            salvas.add(d);
+            return d;
+        });
+
+        DespesaFormDTO dto = dtoSimples(10L);
+        dto.setValor(new BigDecimal("1500.00"));
+        dto.setCompetencia("2026-09");
+        dto.setRecorrente(true);
+        dto.setQtdMesesRecorrencia(12);
+
+        Despesa mae = despesaService.inserir(dto, 1L, "autor", false);
+
+        assertEquals(12, salvas.size());
+        assertTrue(mae.isRecorrente());
+        assertNull(mae.getRecorrentePai());
+        assertEquals(new BigDecimal("1500.00"), mae.getValor());
+        assertEquals(YearMonth.of(2026, 9), mae.getCompetencia());
+
+        // Verificar 2ª ocorrência
+        Despesa f2 = salvas.get(1);
+        assertTrue(f2.isRecorrente());
+        assertEquals(mae, f2.getRecorrentePai());
+        assertEquals(new BigDecimal("1500.00"), f2.getValor());
+        assertEquals(YearMonth.of(2026, 10), f2.getCompetencia());
+        assertEquals(StatusPagamento.NAO, f2.getStatusPagamento());
+
+        // Verificar 12ª ocorrência
+        Despesa f12 = salvas.get(11);
+        assertTrue(f12.isRecorrente());
+        assertEquals(mae, f12.getRecorrentePai());
+        assertEquals(new BigDecimal("1500.00"), f12.getValor());
+        assertEquals(YearMonth.of(2027, 8), f12.getCompetencia());
+    }
+
+    @Test
+    @DisplayName("RN25 - Excluir despesa-mãe recorrente deve excluir em lote todas as ocorrências")
+    void excluir_despesaRecorrenteMae_deveExcluirTodaSerie() {
+        Despesa mae = new Despesa();
+        mae.setId(100L);
+        mae.setOrigem(OrigemLancamento.MANUAL);
+        mae.setRecorrente(true);
+        mae.setRecorrentePai(null);
+
+        Despesa filha = new Despesa();
+        filha.setId(101L);
+        filha.setOrigem(OrigemLancamento.MANUAL);
+        filha.setRecorrente(true);
+        filha.setRecorrentePai(mae);
+
+        when(despesaRepository.buscarPorIdEUsuario(100L, 1L)).thenReturn(Optional.of(mae));
+        when(despesaRepository.buscarOcorrenciasRecorrentes(100L)).thenReturn(List.of(mae, filha));
+
+        despesaService.excluir(100L, 1L, "autor");
+
+        assertNotNull(mae.getDataExclusao());
+        assertEquals("autor", mae.getExcluidoPor());
+        assertNotNull(filha.getDataExclusao());
+        assertEquals("autor", filha.getExcluidoPor());
+        verify(despesaRepository, times(2)).save(any(Despesa.class));
+    }
 }

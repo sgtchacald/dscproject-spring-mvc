@@ -32,6 +32,7 @@
 | 1.3 | 07/09/2026 | Diego dos Santos Cordeiro | `PERMISSOES` ganha `PERM_MODULO` (agrupa o seletor de perfil) e `PERM_FL_ORFA` (permissão sem correspondente no catálogo do código). Convenção do `PERM_CODIGO` fixada como **domínio-primeiro** (`USUARIOS_LISTAR`, `PERFIS_MANTER`). Sem mudança nas três tabelas de RBAC além dessas colunas. Origem nos documentos `01 - manter-usuario` e `02 - manter-perfil-permissao` |
 | 1.4 | 08/09/2026 | Diego dos Santos Cordeiro | Duas mudanças: (a) `INSTITUICOES_FINANCEIRAS` ganha `INFI_FL_SISTEMA` (QUADRO_DESCRITIVO_4 e DDL_4) — padroniza a proteção da carga inicial com `CATE_FL_SISTEMA`; (b) nova tabela `PARAMETROS_GLOBAIS` (QUADRO_DESCRITIVO_28, prefixo `PAGL_`, tabela-raiz sem FK), semeada por um loader no código na inicialização — mesmo padrão do catálogo de permissões; `PAGL_TIPO_DADO` com domínio `STRING`/`INTEGER`/`DECIMAL`/`BOOLEAN`/`JSON` e `CHECK`. Total passa de 26 para **27 tabelas**. Origem no documento `03 - manter-parametro-global` |
 | 1.5 | 11/09/2026 | Diego dos Santos Cordeiro | Agenda de Contatos Privada e Rateio Extra-Sistema: (a) nova tabela `CONTATOS` (QUADRO_DESCRITIVO_29, prefixo `CONT_`), vinculada ao usuário dono (`USU_ID_DONO`), com tipo `EXTERNO` (pessoas fora da plataforma com dados de acerto/Pix) e `SISTEMA` (conexão com outros usuários da plataforma via convite aceito); (b) atualização de `DESPESAS_USUARIO` (QUADRO_DESCRITIVO_11), substituindo a FK para `USUARIOS (USU_ID)` pela FK para `CONTATOS (CONT_ID)`, tratando co-participantes uniformemente como contatos do dono da despesa e eliminando o vazamento de dados de usuários na busca de rateio. Total passa de 27 para **28 tabelas**. Origem nos documentos `09 - manter-despesa` e `16 - manter-contato` |
+| 1.6 | 11/09/2026 | Diego dos Santos Cordeiro | Despesas Recorrentes: suporte a despesas fixas periódicas (aluguel, condomínio, assinaturas, etc.) em `DESPESAS` (QUADRO_DESCRITIVO_10 e DDL_10) com a adição das colunas `DESP_FL_RECORRENTE` (booleano indicando recorrência) e `DESP_ID_RECORRENTE_PAI` (auto-relacionamento com a despesa-mãe da série periódica). Origem no documento `09 - manter-despesa` |
 
 ---
 
@@ -645,7 +646,9 @@ CREATE INDEX idx_receitas_conta       ON RECEITAS (CTA_ID);
 | 19 | CARTÃO | Campo: CACR_ID<br>Tipo: BIGINT<br>Obrigatório: NÃO<br>Chave: FK → CARTOES_CREDITO (CACR_ID) | NOVO. Nulo = à vista/débito/dinheiro. |
 | 20 | FATURA | Campo: FTCA_ID<br>Tipo: BIGINT<br>Obrigatório: NÃO<br>Chave: FK → FATURAS_CARTAO (FTCA_ID) | NOVO. Fatura em que a compra entrou. |
 | 21 | CATEGORIA | Campo: CATE_ID<br>Tipo: BIGINT<br>Obrigatório: NÃO<br>Chave: FK → CATEGORIAS (CATE_ID) | ALTERADO. Era enum. |
-| 22-27 | AUDITORIA | Ver [QUADRO_DESCRITIVO_1](#quadro-descritivo-1) | NOVO |
+| 22 | RECORRENTE | Campo: DESP_FL_RECORRENTE<br>Tipo: BOOLEAN<br>Obrigatório: SIM<br>Default: FALSE | NOVO. Indica se a despesa faz parte de uma série recorrente (despesa fixa mensal projetada). |
+| 23 | RECORRÊNCIA PAI | Campo: DESP_ID_RECORRENTE_PAI<br>Tipo: BIGINT<br>Obrigatório: NÃO<br>Chave: FK → DESPESAS (DESP_ID) | NOVO. Identificador da despesa-mãe geradora da série periódica. |
+| 24-29 | AUDITORIA | Ver [QUADRO_DESCRITIVO_1](#quadro-descritivo-1) | NOVO |
 
 > **ALTERAÇÃO NA ESTRUTURA DO BANCO DE DADOS**
 
@@ -664,6 +667,8 @@ CREATE TABLE DESPESAS (
     DESP_FL_PARCELADA           BOOLEAN         NOT NULL DEFAULT FALSE,
     DESP_NRO_PARCELA            SMALLINT        NULL,
     DESP_QTD_PARCELAS           SMALLINT        NULL,
+    DESP_FL_RECORRENTE          BOOLEAN         NOT NULL DEFAULT FALSE,
+    DESP_ID_RECORRENTE_PAI      BIGINT          NULL,
     DESP_MEIO_PAGAMENTO         VARCHAR(20)     NULL,
     DESP_IND_STATUS_PAGAMENTO   VARCHAR(20)     NULL,
     DESP_FL_PAGAMENTO_FATURA    BOOLEAN         NOT NULL DEFAULT FALSE,
@@ -681,6 +686,7 @@ CREATE TABLE DESPESAS (
     audit_excluido_por      VARCHAR(400)    NULL,
     CONSTRAINT pk_despesas                  PRIMARY KEY (DESP_ID),
     CONSTRAINT fk_despesas_parcela_pai      FOREIGN KEY (DESP_ID_PARCELA_PAI) REFERENCES DESPESAS (DESP_ID),
+    CONSTRAINT fk_despesas_recorrente_pai   FOREIGN KEY (DESP_ID_RECORRENTE_PAI) REFERENCES DESPESAS (DESP_ID),
     CONSTRAINT fk_despesas_conta            FOREIGN KEY (CTA_ID)  REFERENCES CONTAS (CTA_ID),
     CONSTRAINT fk_despesas_cartao           FOREIGN KEY (CACR_ID) REFERENCES CARTOES_CREDITO (CACR_ID),
     CONSTRAINT fk_despesas_fatura           FOREIGN KEY (FTCA_ID) REFERENCES FATURAS_CARTAO (FTCA_ID),
@@ -691,11 +697,12 @@ CREATE TABLE DESPESAS (
     CONSTRAINT ck_despesas_origem           CHECK (DESP_ORIGEM IN ('MANUAL', 'OPEN_FINANCE', 'IMPORTACAO'))
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
-CREATE INDEX idx_despesas_competencia  ON DESPESAS (DESP_COMPETENCIA);
-CREATE INDEX idx_despesas_conta        ON DESPESAS (CTA_ID);
-CREATE INDEX idx_despesas_cartao       ON DESPESAS (CACR_ID);
-CREATE INDEX idx_despesas_fatura       ON DESPESAS (FTCA_ID);
-CREATE INDEX idx_despesas_parcela_pai  ON DESPESAS (DESP_ID_PARCELA_PAI);
+CREATE INDEX idx_despesas_competencia    ON DESPESAS (DESP_COMPETENCIA);
+CREATE INDEX idx_despesas_conta          ON DESPESAS (CTA_ID);
+CREATE INDEX idx_despesas_cartao         ON DESPESAS (CACR_ID);
+CREATE INDEX idx_despesas_fatura         ON DESPESAS (FTCA_ID);
+CREATE INDEX idx_despesas_parcela_pai    ON DESPESAS (DESP_ID_PARCELA_PAI);
+CREATE INDEX idx_despesas_recorrente_pai ON DESPESAS (DESP_ID_RECORRENTE_PAI);
 ```
 
 ---

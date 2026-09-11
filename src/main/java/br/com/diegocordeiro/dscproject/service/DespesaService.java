@@ -150,6 +150,8 @@ public class DespesaService {
             mae.setDataPagamento(dataPagamento);
             mae.setCategoria(categoria);
             mae.setOrigem(OrigemLancamento.MANUAL);
+            mae.setRecorrente(false);
+            mae.setRecorrentePai(null);
             mae.setCriadoPor(loginAutor);
             mae.setAlteradoPor(loginAutor);
 
@@ -176,6 +178,8 @@ public class DespesaService {
                 filha.setNroParcela(i);
                 filha.setQtdParcelas(n);
                 filha.setParcelaPai(mae);
+                filha.setRecorrente(false);
+                filha.setRecorrentePai(null);
                 filha.setConta(conta);
                 filha.setCartao(cartao);
                 filha.setMeioPagamento(meioPagamento);
@@ -188,6 +192,70 @@ public class DespesaService {
 
                 filha = despesaRepository.save(filha);
                 salvarRateios(filha, dto.getRateio(), i, n, podeRatear, loginAutor);
+            }
+
+            return mae;
+        } else if (dto.isRecorrente()) {
+            int meses = dto.getQtdMesesRecorrencia() != null ? dto.getQtdMesesRecorrencia() : 12;
+
+            Despesa mae = new Despesa();
+            mae.setNome(dto.getNome());
+            mae.setDescricao(dto.getDescricao());
+            mae.setDataLancamento(dto.getDataLancamento());
+            mae.setDataVencimento(dto.getDataVencimento());
+            mae.setCompetencia(competencia);
+            mae.setValor(dto.getValor());
+            mae.setValorTotalCompra(null);
+            mae.setParcelada(false);
+            mae.setNroParcela(null);
+            mae.setQtdParcelas(null);
+            mae.setParcelaPai(null);
+            mae.setRecorrente(true);
+            mae.setRecorrentePai(null);
+            mae.setConta(conta);
+            mae.setCartao(cartao);
+            mae.setMeioPagamento(meioPagamento);
+            mae.setStatusPagamento(statusPagamento);
+            mae.setDataPagamento(dataPagamento);
+            mae.setCategoria(categoria);
+            mae.setOrigem(OrigemLancamento.MANUAL);
+            mae.setCriadoPor(loginAutor);
+            mae.setAlteradoPor(loginAutor);
+
+            mae = despesaRepository.save(mae);
+            salvarRateios(mae, dto.getRateio(), 1, 1, podeRatear, loginAutor);
+
+            StatusPagamento statusFilhas = "CARTAO".equals(forma) ? StatusPagamento.NAO_SE_APLICA : StatusPagamento.NAO;
+
+            for (int i = 2; i <= meses; i++) {
+                Despesa filha = new Despesa();
+                filha.setNome(dto.getNome());
+                filha.setDescricao(dto.getDescricao());
+                filha.setDataLancamento(dto.getDataLancamento());
+                if (dto.getDataVencimento() != null) {
+                    filha.setDataVencimento(dto.getDataVencimento().plusMonths(i - 1));
+                }
+                filha.setCompetencia(competencia.plusMonths(i - 1));
+                filha.setValor(dto.getValor());
+                filha.setValorTotalCompra(null);
+                filha.setParcelada(false);
+                filha.setNroParcela(null);
+                filha.setQtdParcelas(null);
+                filha.setParcelaPai(null);
+                filha.setRecorrente(true);
+                filha.setRecorrentePai(mae);
+                filha.setConta(conta);
+                filha.setCartao(cartao);
+                filha.setMeioPagamento(meioPagamento);
+                filha.setStatusPagamento(statusFilhas);
+                filha.setDataPagamento(null);
+                filha.setCategoria(categoria);
+                filha.setOrigem(OrigemLancamento.MANUAL);
+                filha.setCriadoPor(loginAutor);
+                filha.setAlteradoPor(loginAutor);
+
+                filha = despesaRepository.save(filha);
+                salvarRateios(filha, dto.getRateio(), 1, 1, podeRatear, loginAutor);
             }
 
             return mae;
@@ -204,6 +272,8 @@ public class DespesaService {
             d.setNroParcela(null);
             d.setQtdParcelas(null);
             d.setParcelaPai(null);
+            d.setRecorrente(false);
+            d.setRecorrentePai(null);
             d.setConta(conta);
             d.setCartao(cartao);
             d.setMeioPagamento(meioPagamento);
@@ -402,6 +472,18 @@ public class DespesaService {
                     despesaUsuarioRepository.save(du);
                 }
                 despesaRepository.save(p);
+            }
+        } else if (d.isRecorrente() && d.getRecorrentePai() == null) {
+            List<Despesa> serie = despesaRepository.buscarOcorrenciasRecorrentes(d.getId());
+            for (Despesa r : serie) {
+                r.setDataExclusao(agora);
+                r.setExcluidoPor(loginAutor);
+                for (DespesaUsuario du : r.getRateios()) {
+                    du.setDataExclusao(agora);
+                    du.setExcluidoPor(loginAutor);
+                    despesaUsuarioRepository.save(du);
+                }
+                despesaRepository.save(r);
             }
         } else {
             d.setDataExclusao(agora);

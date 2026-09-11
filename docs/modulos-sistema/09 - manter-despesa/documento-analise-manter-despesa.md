@@ -3,7 +3,7 @@
 
 **Gerado em:** 08/09/2026  
 **Atualizado em:** 11/09/2026  
-**Versão:** 1.1  
+**Versão:** 1.2  
 **Status:** Analisado  
 **Projeto:** `dscproject-spring-mvc` (geração 2)  
 
@@ -28,6 +28,7 @@
 |---|---|---|---|
 | 1.0 | 08/09/2026 | Diego dos Santos Cordeiro | Criação do documento. CRUD das **despesas do próprio usuário** (tela "Finanças > Despesas") para a geração 2 — sucessor do CRUD REST de `Despesa` da geração 1 (`dsc-backend`), agora sobre a tabela `DESPESAS` ([QUADRO_DESCRITIVO_10 do Documento 0](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-10)) e a associativa de rateio `DESPESAS_USUARIO` ([QUADRO_DESCRITIVO_11](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-11)). Cobre os dois pontos de complexidade do módulo: **parcelamento** (série de `DESPESAS` ligadas por `DESP_ID_PARCELA_PAI`, melhoria F) e **rateio entre usuários** (`DESPESAS_USUARIO`, recurso de plano pago via `DESPESA_RATEAR_MULTIUSUARIO`). Introduz a forma de pagamento (`DESP_MEIO_PAGAMENTO`), o vínculo com cartão de crédito (`CACR_ID`), a origem do lançamento (`DESP_ORIGEM`), a baixa de pagamento individual e em lote, e o escopo *row-level* por usuário derivado da conta **ou** do cartão. Remove os enums `DESP_TIPO_TRANSACAO` e `DESP_TIPO_RECEITA_DESPESA` da geração 1 (categoria passa a ser `CATE_ID`). Este documento **referencia** os QUADRO_DESCRITIVO do Documento 0 e **não introduz tabela nova**. |
 | 1.1 | 11/09/2026 | Diego dos Santos Cordeiro | Evolução do Rateio para Agenda de Contatos Privada e Contatos Extra-Sistema: substituição da busca global de usuários pela seleção a partir da agenda de contatos do próprio usuário (`CONTATOS`, [QUADRO_DESCRITIVO_29 do Documento 0](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-29)). Permite rateio com pessoas fora da plataforma (contatos extra-sistema com dados de acerto/Pix) e com outros usuários da plataforma conectados via convite aceito. Elimina vulnerabilidade de exposição de dados da base global de usuários (LGPD/isolamento) e fecha o item "A Confirmar" da Seção 17. Atualização dos requisitos RF05, RF06, novos RF15/RF16, regras RN15 a RN20, mensagens MSG19/MSG19b, seletor SB06, endpoints EDP03/EDP04/EDP05/EDP09/EDP10/EDP11 e consultas C7/C8. |
+| 1.2 | 11/09/2026 | Diego dos Santos Cordeiro | Despesas Recorrentes: inclusão do requisito RF17 e regra de negócio RN25 para cadastro e projeção em lote de despesas fixas periódicas (aluguel, condomínio, assinaturas, internet) com valor integral em cada mês, suporte a exclusão em lote da série periódica pela mãe, mútua exclusão com compra parcelada e réplica de rateio nas ocorrências projetadas. |
 
 ---
 
@@ -147,6 +148,7 @@ Este documento cobre:
 | <a id="rf14"></a>RF14 | O sistema deve ocultar a seção de rateio e recusar operações de rateio para o usuário que não tem a permissão efetiva `DESPESA_RATEAR_MULTIUSUARIO`. | Alta | Analisado |
 | <a id="rf15"></a>RF15 | O sistema deve restringir a seleção de co-participantes do rateio exclusivamente aos contatos com status `ATIVO` pertencentes à agenda privada do usuário autenticado, sem expor a base global de usuários do sistema. | Alta | Analisado |
 | <a id="rf16"></a>RF16 | O sistema deve disponibilizar atalho no modal de despesa para cadastro rápido de contato extra-sistema (com nome, e-mail/telefone e chave PIX para acerto), inserindo-o automaticamente na fatia de rateio sem sair da tela. | Média | Analisado |
+| <a id="rf17"></a>RF17 | O sistema deve permitir marcar a despesa como recorrente (despesa fixa mensal), definindo a quantidade de meses a projetar (mínimo 2, máximo 36, padrão 12 meses), gerando a série de ocorrências com o mesmo valor integral em cada mês, sendo mutuamente exclusiva com a compra parcelada. | Alta | Analisado |
 
 ### 3.2 Requisitos Não Funcionais
 
@@ -209,7 +211,7 @@ Toda a estrutura está no **Documento 0** (`00 - analise-geral`). Este documento
 
 | Tabela | Onde | Papel nesta tela |
 |---|---|---|
-| `DESPESAS` | Documento 0 — [QUADRO_DESCRITIVO_10](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-10) | CRUD + parcelamento (auto-relacionamento `DESP_ID_PARCELA_PAI`) + baixa de pagamento, sempre no escopo do `USU_ID` da conta **ou** do cartão |
+| `DESPESAS` | Documento 0 — [QUADRO_DESCRITIVO_10](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-10) | CRUD + parcelamento (auto-relacionamento `DESP_ID_PARCELA_PAI`) + recorrência (`DESP_FL_RECORRENTE`, auto-relacionamento `DESP_ID_RECORRENTE_PAI`) + baixa de pagamento, sempre no escopo do `USU_ID` da conta **ou** do cartão |
 | `DESPESAS_USUARIO` | Documento 0 — [QUADRO_DESCRITIVO_11](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-11) | Rateio: uma linha por (`DESP_ID`, `CONT_ID`); fatia, status e data de acerto |
 | `CONTATOS` | Documento 0 — [QUADRO_DESCRITIVO_29](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-29) | Somente leitura e cadastro rápido: agenda de contatos privados do dono da despesa (contatos extra-sistema e conexões via convite aceito) |
 | `CONTAS` | Documento 0 — [QUADRO_DESCRITIVO_5](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-5) | Somente leitura: âncora de dono (`CONTAS.USU_ID`) e combobox de conta (endpoint do documento `06`) |
@@ -219,7 +221,7 @@ Toda a estrutura está no **Documento 0** (`00 - analise-geral`). Este documento
 | `USUARIOS` | Documento 0 — [QUADRO_DESCRITIVO_2](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-2) | Somente leitura: dono da despesa (via `CONTAS`/`CARTOES_CREDITO`) |
 | `PERMISSOES` | Documento 0 — [QUADRO_DESCRITIVO_26](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-26) | Contexto: `DESPESA_RATEAR_MULTIUSUARIO` com `PERM_FL_CONCEDIVEL_POR_PLANO = TRUE` ([RN15](#rn15)) |
 
-> Nenhum `ALTER TABLE` neste documento. As tabelas `DESPESAS`, `DESPESAS_USUARIO` e `CONTATOS`, a FK de auto-relacionamento `DESP_ID_PARCELA_PAI`, a FK `CONT_ID` em `DESPESAS_USUARIO`, as FKs `CTA_ID` / `CACR_ID` / `FTCA_ID` / `CATE_ID` (todas anuláveis) e o `UNIQUE (DESP_ID, CONT_ID)` já existem no Documento 0 ([DDL_10](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-10), [DDL_11](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-11) e [DDL_29](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-29)). A obrigatoriedade de conta-XOR-cartão na aplicação ([RN03](#rn03)) é validada no serviço — o schema fica como está.
+> Nenhum `ALTER TABLE` neste documento. As tabelas `DESPESAS`, `DESPESAS_USUARIO` e `CONTATOS`, as FKs de auto-relacionamento `DESP_ID_PARCELA_PAI` e `DESP_ID_RECORRENTE_PAI`, a FK `CONT_ID` em `DESPESAS_USUARIO`, as FKs `CTA_ID` / `CACR_ID` / `FTCA_ID` / `CATE_ID` (todas anuláveis) e o `UNIQUE (DESP_ID, CONT_ID)` já existem no Documento 0 ([DDL_10](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-10), [DDL_11](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-11) e [DDL_29](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-29)). A obrigatoriedade de conta-XOR-cartão na aplicação ([RN03](#rn03)) é validada no serviço — o schema fica como está.
 
 ### 6.1 Diagrama ER
 
@@ -231,7 +233,7 @@ Subconjunto do DER do Documento 0: `DESPESAS` (com o auto-relacionamento `DESP_I
 
 | TABELA PRINCIPAL | TABELA DE AUDITORIA | CAMPOS AUDITADOS |
 |---|---|---|
-| DESPESAS | DESPESAS_aud | Competência, nome, descrição, valor, valor total da compra, datas (lançamento, vencimento, pagamento), flags de parcelada e de pagamento de fatura, número e quantidade de parcelas, parcela-pai, meio de pagamento, status de pagamento, origem, conta, cartão, fatura e categoria. Registra criação, edição, parcelamento, baixa de pagamento e exclusão lógica |
+| DESPESAS | DESPESAS_aud | Competência, nome, descrição, valor, valor total da compra, datas (lançamento, vencimento, pagamento), flags de parcelada, recorrente e de pagamento de fatura, número e quantidade de parcelas, parcela-pai, recorrência-pai, meio de pagamento, status de pagamento, origem, conta, cartão, fatura e categoria. Registra criação, edição, parcelamento, recorrência, baixa de pagamento e exclusão lógica |
 | DESPESAS_USUARIO | DESPESAS_USUARIO_aud | Valor da fatia, status de pagamento, data de acerto, despesa e contato. Registra inclusão no rateio, alteração de fatia, acerto e remoção |
 
 ### 6.3 Procedures / Views / Triggers / Functions
@@ -454,6 +456,7 @@ Protótipo navegável: `prototipo/manter-despesa-prototipo.html`. Wireframes edi
 | <a id="rn22"></a>RN22 | **Meio de pagamento — derivação.** O serviço deriva `DESP_MEIO_PAGAMENTO` da forma de pagamento: "Cartão de crédito" → `CREDITO`; "Dinheiro" (conta `CARTEIRA`) → `DINHEIRO`; "Conta à vista" → o valor informado no campo Meio de pagamento ([ID15](#qdd3-15)), *default* `DEBITO`, entre `DEBITO` / `PIX` / `BOLETO` / `TRANSFERENCIA`. Nas duas primeiras, qualquer valor divergente no corpo é ignorado. Se `DESP_MEIO_PAGAMENTO` deve permanecer derivado ou virar campo totalmente livre é item "A Confirmar" (Seção 17). |
 | <a id="rn23"></a>RN23 | **Compra no cartão — fronteira com a fatura.** Quando `CACR_ID` está preenchido, o serviço fixa `DESP_MEIO_PAGAMENTO = CREDITO` e `DESP_IND_STATUS_PAGAMENTO = NAO_SE_APLICA` (parâmetro `DESPESA_COMPRA_CARTAO_STATUS_NAO_SE_APLICA`), e a ação "Registrar pagamento" não se aplica ([RT11](#rt11)). O **vínculo com a fatura** (`DESP.FTCA_ID`), o fechamento e o cálculo do total da fatura são do documento `11 - manter-fatura-cartao` (Documento 0, Observação 15) — nesta tela `FTCA_ID` fica nulo. O pagamento da fatura em si é uma `TransacaoBancaria` com `TRBA_FL_PAGAMENTO_FATURA` (documento `10`, Documento 0, Observação 16). |
 | <a id="rn24"></a>RN24 | **`DESP_FL_PAGAMENTO_FATURA` — caso de borda.** É o caminho alternativo de registrar o pagamento de uma fatura **como despesa** em vez de transação (Documento 0, Observação 16). A v1.0 **não** oferece esse lançamento pelo fluxo da tela; toda despesa criada aqui nasce com `DESP_FL_PAGAMENTO_FATURA = FALSE`. O tratamento dessas despesas no total por categoria é do documento `13 - dashboard`. |
+| <a id="rn25"></a>RN25 | **Despesa recorrente — geração, replicação e exclusão.** Quando `recorrente = true`, o endpoint de inserção ([EDP04](#edp04)) recebe a flag de recorrência e a quantidade de meses a projetar (`qtdMesesRecorrencia`, inteiro entre 2 e 36, *default* 12). (1) **Mútua exclusão:** `recorrente` e `parcelada` não podem ser simultaneamente verdadeiras — rejeita a requisição se ambas forem informadas. (2) **Valor integral:** diferente da parcelada (onde o total é dividido pelas parcelas), cada ocorrência da despesa recorrente recebe o valor integral informado (`DESP_VALOR`). (3) **Geração da série:** a primeira ocorrência é a despesa-mãe (`DESP_FL_RECORRENTE = TRUE`, `DESP_ID_RECORRENTE_PAI = NULL`), herdando o status de pagamento informado pelo usuário. As ocorrências 2..N são geradas com `DESP_FL_RECORRENTE = TRUE`, `DESP_ID_RECORRENTE_PAI = {id da mãe}`, `DESP_IND_STATUS_PAGAMENTO = NAO` (ou `NAO_SE_APLICA` para cartão), avançando 1 mês na competência e na data de vencimento a cada mês. (4) **Replicação de rateio:** caso haja rateio configurado, ele é replicado com os mesmos valores integrais em todas as N ocorrências. (5) **Exclusão:** a exclusão da despesa-mãe recorrente ([EDP06](#edp06)) exclui logicamente toda a série periódica e os respectivos rateios; a exclusão de uma ocorrência filha exclui apenas a ocorrência selecionada. |
 
 ---
 
@@ -819,6 +822,13 @@ Então o sistema deve cadastrar o contato em `CONTATOS` com `CONT_TIPO = 'EXTERN
 Dado que existem outros usuários cadastrados na plataforma que não fazem parte da minha agenda de contatos.
 Quando eu buscar por um termo no campo de rateio ([EDP10](#edp10)).
 Então o sistema deve retornar somente contatos da minha própria agenda (`CONTATOS.USU_ID_DONO`), garantindo a privacidade e sem expor a base global de usuários do sistema ([RN19](#rn19)).
+
+### 16.32 Criação e exclusão de despesa recorrente
+
+Dado que estou autenticado e preencho uma despesa fixa "Aluguel" no valor de R$ 1.500,00 com competência "09/2026".
+Quando eu marcar a opção "Despesa recorrente", informar 12 meses e salvar.
+Então o sistema deve criar 12 despesas mensais consecutivas de R$ 1.500,00 cada (de 09/2026 a 08/2027), vinculando as ocorrências 2 a 12 à primeira ocorrência como despesa-mãe (`DESP_ID_RECORRENTE_PAI`).
+E quando eu excluir a primeira ocorrência (despesa-mãe), o sistema deve excluir logicamente toda a série recorrente projetada.
 
 ---
 

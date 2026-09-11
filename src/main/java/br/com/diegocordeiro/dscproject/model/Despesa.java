@@ -85,6 +85,13 @@ public class Despesa extends LancamentoFinanceiro {
     @JoinColumn(name = "DESP_ID_PARCELA_PAI")
     private Despesa parcelaPai;
 
+    @Column(name = "DESP_FL_RECORRENTE", nullable = false)
+    private boolean recorrente = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "DESP_ID_RECORRENTE_PAI")
+    private Despesa recorrentePai;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CACR_ID")
     private CartaoCredito cartao;

@@ -49,18 +49,29 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-12 mb-3">
                         <label class="form-label" for="filtroCategoria" th:text="#{despesa.filtro.campo.categoria.label}">Categoria</label>
                         <select class="form-select" id="filtroCategoria">
                             <option value="" th:text="#{despesa.filtro.campo.categoria.todas}">Todas as categorias</option>
                         </select>
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label" for="filtroParcelada" th:text="#{despesa.filtro.campo.parcelada.label}">Parcelada</label>
                         <select class="form-select" id="filtroParcelada">
                             <option value="" th:text="#{despesa.filtro.campo.parcelada.todas}">Todas</option>
                             <option value="SIM" th:text="#{despesa.filtro.campo.parcelada.sim}">Sim</option>
                             <option value="NAO" th:text="#{despesa.filtro.campo.parcelada.nao}">Não</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="filtroRecorrente" th:text="#{despesa.filtro.campo.recorrente.label}">Recorrente</label>
+                        <select class="form-select" id="filtroRecorrente">
+                            <option value="" th:text="#{despesa.filtro.campo.recorrente.todas}">Todas</option>
+                            <option value="SIM" th:text="#{despesa.filtro.campo.recorrente.sim}">Sim</option>
+                            <option value="NAO" th:text="#{despesa.filtro.campo.recorrente.nao}">Não</option>
                         </select>
                     </div>
                 </div>

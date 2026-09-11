@@ -58,6 +58,9 @@ function filtrar(lista) {
         if (f.parcelada === 'SIM' && !d.parcelada) return false;
         if (f.parcelada === 'NAO' && d.parcelada) return false;
 
+        if (f.recorrente === 'SIM' && !d.recorrente) return false;
+        if (f.recorrente === 'NAO' && d.recorrente) return false;
+
         return true;
     });
 }
@@ -161,6 +164,10 @@ function render() {
                 ? `<span class="badge bg-teal-lt ms-1">${d.nroParcela || 1}/${d.qtdParcelas || 1}x</span>`
                 : '';
 
+            const recorrenteBadge = d.recorrente
+                ? `<span class="badge bg-cyan-lt ms-1" title="Despesa Recorrente"><i class="ph ph-arrows-clockwise me-1"></i>Fixa</span>`
+                : '';
+
             const descHtml = d.descricao ? `<br><small class="text-muted">${d.descricao}</small>` : '';
 
             // Apenas despesas com status NAO podem ser baixadas em lote
@@ -198,6 +205,7 @@ function render() {
                     acaoHtml += `<button type="button" class="btn btn-action text-danger" data-acao="excluir"
                         data-id="${d.id}" data-nome="${d.nome}" data-parcelada="${d.parcelada}"
                         data-nro="${d.nroParcela}" data-qtd="${d.qtdParcelas}"
+                        data-recorrente="${d.recorrente}" data-recorrente-pai="${d.idRecorrentePai || ''}"
                         title="Excluir despesa" aria-label="Excluir despesa">
                         <i class="ph ph-trash" aria-hidden="true"></i>
                     </button>`;
@@ -215,7 +223,7 @@ function render() {
             tr.innerHTML = `
                 <td>${checkHtml}</td>
                 <td>${formatarCompetencia(d.competencia)}</td>
-                <td><strong>${d.nome}</strong>${parcelaBadge}${descHtml}</td>
+                <td><strong>${d.nome}</strong>${parcelaBadge}${recorrenteBadge}${descHtml}</td>
                 <td>${categoriaHtml}</td>
                 <td>${badgeForma(d)}</td>
                 <td class="text-end fw-bold">${formatarMoeda(d.valor)}</td>
@@ -284,13 +292,15 @@ function inicializarAcoes() {
         const parcelada = btn.dataset.parcelada === 'true';
         const nro = Number(btn.dataset.nro);
         const qtd = Number(btn.dataset.qtd);
+        const recorrente = btn.dataset.recorrente === 'true';
+        const idRecorrentePai = btn.dataset.recorrentePai ? Number(btn.dataset.recorrentePai) : null;
 
         if (acao === 'editar' || acao === 'ratear') {
             abrirEdicao(id);
         } else if (acao === 'pagamento') {
             abrirPagamento(id, valor);
         } else if (acao === 'excluir') {
-            excluir(id, nome, parcelada, nro, qtd);
+            excluir(id, nome, parcelada, nro, qtd, recorrente, idRecorrentePai);
         }
     });
 }

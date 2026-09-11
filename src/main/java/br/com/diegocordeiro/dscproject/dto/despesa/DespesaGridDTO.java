@@ -26,6 +26,8 @@ public class DespesaGridDTO {
     private Integer nroParcela;
     private Integer qtdParcelas;
     private Long idParcelaPai;
+    private boolean recorrente;
+    private Long idRecorrentePai;
     private MeioPagamento meioPagamento;
     private StatusPagamento statusPagamento;
     private LocalDate dataLancamento;
@@ -53,6 +55,8 @@ public class DespesaGridDTO {
         this.nroParcela = d.getNroParcela();
         this.qtdParcelas = d.getQtdParcelas();
         this.idParcelaPai = d.getParcelaPai() != null ? d.getParcelaPai().getId() : null;
+        this.recorrente = d.isRecorrente();
+        this.idRecorrentePai = d.getRecorrentePai() != null ? d.getRecorrentePai().getId() : null;
         this.meioPagamento = d.getMeioPagamento();
         this.statusPagamento = d.getStatusPagamento();
         this.dataLancamento = d.getDataLancamento();

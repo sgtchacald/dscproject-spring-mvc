@@ -118,6 +118,9 @@ public class DespesaController {
         String mensagemRetorno;
         if (salva.isParcelada()) {
             mensagemRetorno = messageSource.getMessage("msg.despesa.parcelada.sucesso", new Object[]{salva.getQtdParcelas()}, locale);
+        } else if (salva.isRecorrente()) {
+            int meses = dto.getQtdMesesRecorrencia() != null ? dto.getQtdMesesRecorrencia() : 12;
+            mensagemRetorno = messageSource.getMessage("msg.despesa.recorrente.sucesso", new Object[]{meses}, locale);
         } else {
             mensagemRetorno = mensagem("msg.despesa.cadastrada", locale);
         }

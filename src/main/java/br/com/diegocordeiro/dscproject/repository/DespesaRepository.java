@@ -44,6 +44,14 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long> {
     List<Despesa> buscarParcelasDaSerie(@Param("maeId") Long maeId);
 
     @Query("""
+        SELECT d FROM Despesa d
+        WHERE (d.id = :maeId OR d.recorrentePai.id = :maeId)
+          AND d.dataExclusao IS NULL
+        ORDER BY d.competencia ASC
+        """)
+    List<Despesa> buscarOcorrenciasRecorrentes(@Param("maeId") Long maeId);
+
+    @Query("""
         SELECT COUNT(d) FROM Despesa d
         LEFT JOIN d.conta c
         LEFT JOIN d.cartao cc

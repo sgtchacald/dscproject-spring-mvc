@@ -76,6 +76,7 @@ public class DespesaValidator implements Validator {
 
         validarStatusPagamento(dto, errors);
         validarParcelamento(dto, errors);
+        validarRecorrencia(dto, errors);
         validarRateio(dto, errors);
     }
 
@@ -177,6 +178,21 @@ public class DespesaValidator implements Validator {
             if (qtd == null || qtd < 2 || qtd > 72) {
                 errors.rejectValue("qtdParcelas", "Invalid.despesaFormDTO.qtdParcelas",
                         messageSource.getMessage("msg.despesa.parcelas.intervalo", new Object[]{72}, locale));
+            }
+        }
+    }
+
+    private void validarRecorrencia(DespesaFormDTO dto, Errors errors) {
+        if (dto.isParcelada() && dto.isRecorrente()) {
+            errors.rejectValue("recorrente", "Invalid.despesaFormDTO.recorrente",
+                    messageSource.getMessage("msg.despesa.recorrente-parcelada.incompativel", null, locale));
+            return;
+        }
+        if (dto.isRecorrente()) {
+            Integer meses = dto.getQtdMesesRecorrencia();
+            if (meses == null || meses < 2 || meses > 36) {
+                errors.rejectValue("qtdMesesRecorrencia", "Invalid.despesaFormDTO.qtdMesesRecorrencia",
+                        messageSource.getMessage("msg.despesa.recorrencia.meses.intervalo", null, locale));
             }
         }
     }

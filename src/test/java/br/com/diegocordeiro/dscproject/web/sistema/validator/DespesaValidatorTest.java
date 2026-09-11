@@ -348,4 +348,49 @@ class DespesaValidatorTest {
         validator(1L, false).validate(dto, errors);
         assertFalse(errors.hasFieldErrors("contaId"));
     }
+
+    @Test
+    @DisplayName("RN25 - Despesa recorrente válida deve passar na validação")
+    void validate_recorrenteValida_devePassar() {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L, TipoConta.CORRENTE)));
+
+        DespesaFormDTO dto = dtoValido();
+        dto.setRecorrente(true);
+        dto.setQtdMesesRecorrencia(12);
+
+        Errors errors = new BeanPropertyBindingResult(dto, "despesaFormDTO");
+        validator(1L, false).validate(dto, errors);
+        assertFalse(errors.hasFieldErrors("recorrente"));
+        assertFalse(errors.hasFieldErrors("qtdMesesRecorrencia"));
+    }
+
+    @Test
+    @DisplayName("RN25 - Despesa não pode ser parcelada e recorrente ao mesmo tempo")
+    void validate_recorrenteEParceladaJuntas_deveRejeitar() {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L, TipoConta.CORRENTE)));
+
+        DespesaFormDTO dto = dtoValido();
+        dto.setParcelada(true);
+        dto.setQtdParcelas(3);
+        dto.setRecorrente(true);
+        dto.setQtdMesesRecorrencia(12);
+
+        Errors errors = new BeanPropertyBindingResult(dto, "despesaFormDTO");
+        validator(1L, false).validate(dto, errors);
+        assertTrue(errors.hasFieldErrors("recorrente"));
+    }
+
+    @Test
+    @DisplayName("RN25 - Despesa recorrente com meses fora do intervalo (2 a 36) deve rejeitar")
+    void validate_recorrenteMesesInvalido_deveRejeitar() {
+        when(contaRepository.findByIdAndUsuarioIdAndDataExclusaoIsNull(10L, 1L)).thenReturn(Optional.of(contaAtiva(10L, 1L, TipoConta.CORRENTE)));
+
+        DespesaFormDTO dto = dtoValido();
+        dto.setRecorrente(true);
+        dto.setQtdMesesRecorrencia(1);
+
+        Errors errors = new BeanPropertyBindingResult(dto, "despesaFormDTO");
+        validator(1L, false).validate(dto, errors);
+        assertTrue(errors.hasFieldErrors("qtdMesesRecorrencia"));
+    }
 }
