@@ -158,7 +158,9 @@ Este documento cobre:
 
 ## 4. Casos de Uso
 
-[Inserir o diagrama de casos de uso — `prototipo/manter-despesa-casos-uso.drawio` + `images/manter-despesa-casos-uso.png` — quando gerado.]
+![Casos de Uso - Manter Despesa](images/manter-despesa-casos-uso.png)
+
+Fonte: `prototipo/manter-despesa-casos-uso.drawio` (editável) e `prototipo/_diagrama-casos-uso.html` (render). `ADMIN` ([PERF01](#perf01)) e `USER` ([PERF02](#perf02)) têm o mesmo acesso; cada um opera só sobre as próprias despesas ([RN02](#rn02)). CAUS06 e CAUS07 exigem, além do perfil, a permissão `DESPESA_RATEAR_MULTIUSUARIO` ([RN15](#rn15)).
 
 | CÓDIGO | NOME | ATOR PRINCIPAL | DESCRIÇÃO |
 |---|---|---|---|
@@ -215,7 +217,9 @@ Toda a estrutura está no **Documento 0** (`00 - analise-geral`). Este documento
 
 ### 6.1 Diagrama ER
 
-[Inserir `images/manter-despesa-der.png` quando gerado — subconjunto do DER do Documento 0: `DESPESAS` (com o auto-relacionamento `DESP_ID_PARCELA_PAI`), `DESPESAS_USUARIO`, `CONTAS`, `CARTOES_CREDITO`, `CATEGORIAS`, `FATURAS_CARTAO` e `USUARIOS`. Fonte: `prototipo/manter-despesa-der.drawio`.]
+![DER - Manter Despesa](images/manter-despesa-der.png)
+
+Subconjunto do DER do Documento 0: `DESPESAS` (com o auto-relacionamento `DESP_ID_PARCELA_PAI`), `DESPESAS_USUARIO`, `CONTAS`, `CARTOES_CREDITO`, `CATEGORIAS`, `FATURAS_CARTAO` e `USUARIOS`. Este documento não cria tabela nova nem faz `ALTER TABLE`. Fonte: `prototipo/manter-despesa-der.drawio` (editável) e `prototipo/_diagrama-der.html` (render).
 
 ### 6.2 Auditoria de Tabelas
 
@@ -236,11 +240,11 @@ Nenhuma para `DESPESAS` / `DESPESAS_USUARIO` (Documento 0, Seção 6.4 — sem *
 
 ## 7. Protótipos de Interface
 
-Protótipo navegável e wireframes: `prototipo/manter-despesa-prototipo.html` e `prototipo/manter-despesa-prototipo.drawio` (a gerar). Os números em destaque nas telas correspondem aos IDs dos itens do respectivo QUADRO_DESCRITIVO.
+Protótipo navegável: `prototipo/manter-despesa-prototipo.html`. Wireframes editáveis: `prototipo/manter-despesa-prototipo.drawio` (5 páginas, 7.1 a 7.5). PNGs regeráveis por `prototipo/render-pngs.py` (Playwright). Os números em destaque nas telas correspondem aos IDs dos itens do respectivo QUADRO_DESCRITIVO.
 
 ### <a id="quadro-descritivo-1"></a>7.1 Tela: Despesas (Listagem) — QUADRO_DESCRITIVO_1
 
-[Inserir `images/md-tela-1.png` quando gerado.]
+![Despesas - Listagem](images/md-tela-1.png)
 
 > OBSERVAÇÕES: Tela acessada via 'Finanças > Despesas'. Restrita a quem tem [PERM01](#perm01). Grid client-side, carregado apenas com as despesas do usuário autenticado ([EDP02](#edp02) → [C1](#c1)). Cada parcela de uma compra parcelada é uma linha. O filtro é acionado por um modal (botão "Filtrar"). A seleção múltipla habilita a baixa em lote.
 
@@ -273,7 +277,7 @@ Protótipo navegável e wireframes: `prototipo/manter-despesa-prototipo.html` e 
 
 ### <a id="quadro-descritivo-2"></a>7.2 Modal: Filtrar Despesas — QUADRO_DESCRITIVO_2
 
-[Inserir `images/md-tela-2.png` quando gerado.]
+![Modal Filtrar Despesas](images/md-tela-2.png)
 
 > OBSERVAÇÕES: Todos os campos são opcionais. O filtro é aplicado em memória sobre a lista já carregada ([RT02](#rt02)).
 
@@ -292,7 +296,7 @@ Protótipo navegável e wireframes: `prototipo/manter-despesa-prototipo.html` e 
 
 ### <a id="quadro-descritivo-3"></a>7.3 Modal: Cadastro / Edição de Despesa — QUADRO_DESCRITIVO_3
 
-[Inserir `images/md-tela-3.png` quando gerado.]
+![Modal Cadastro / Edição de Despesa](images/md-tela-3.png)
 
 > OBSERVAÇÕES: Modal único de cadastro e edição, restrito a [PERM02](#perm02). Organizado em quatro seções: **Dados básicos**, **Forma de pagamento**, **Parcelamento** e **Rateio**. A seção Parcelamento fica oculta no modo edição de uma parcela existente ([RT09](#rt09)). A seção Rateio só aparece para quem tem [PERM03](#perm03) ([RT10](#rt10)). Ao editar uma despesa importada do Open Finance, os campos Forma de pagamento e Origem ficam desabilitados e o aviso ([ID24](#qdd3-24)) é exibido ([RN08](#rn08)).
 
@@ -327,7 +331,7 @@ Protótipo navegável e wireframes: `prototipo/manter-despesa-prototipo.html` e 
 
 ### <a id="quadro-descritivo-4"></a>7.4 Modal: Registrar Pagamento — QUADRO_DESCRITIVO_4
 
-[Inserir `images/md-tela-4.png` quando gerado.]
+![Modal Registrar Pagamento](images/md-tela-4.png)
 
 > OBSERVAÇÕES: Acionado pelo ícone "Registrar pagamento" do grid ([ID23](#qdd1-23)), restrito a [PERM02](#perm02). Marca `DESP_IND_STATUS_PAGAMENTO = SIM` e grava `DESP_DT_PAGAMENTO`. Oculto para despesas já pagas ou com status `NAO_SE_APLICA`.
 
@@ -341,7 +345,7 @@ Protótipo navegável e wireframes: `prototipo/manter-despesa-prototipo.html` e 
 
 ### <a id="quadro-descritivo-5"></a>7.5 Modal: Confirmar Pagamento em Lote — QUADRO_DESCRITIVO_5
 
-[Inserir `images/md-tela-5.png` quando gerado.]
+![Modal Confirmar Pagamento em Lote](images/md-tela-5.png)
 
 > OBSERVAÇÕES: Acionado pelo botão "Registrar pagamento" da barra ([ID6](#qdd1-6)) quando há linhas selecionadas. Espelha `pagarDespesas` da geração 1.
 
@@ -842,7 +846,7 @@ Descrição: Levantamento a partir do Documento 0 ([QUADRO_DESCRITIVO_10](../00%
 
 ## 18. Anexos
 
-- **Pendência (v1.0):** gerar o diagrama de casos de uso (`prototipo/manter-despesa-casos-uso.drawio` + PNG), o DER do subconjunto (`prototipo/manter-despesa-der.drawio` + `images/manter-despesa-der.png`), os wireframes das cinco telas/modais (`prototipo/manter-despesa-prototipo.drawio` + `images/md-tela-*.png`) e o protótipo navegável (`prototipo/manter-despesa-prototipo.html`).
+- **Protótipo e diagramas (v1.0):** gerados. Casos de uso (`prototipo/manter-despesa-casos-uso.drawio` + `images/manter-despesa-casos-uso.png`), DER do subconjunto (`prototipo/manter-despesa-der.drawio` + `images/manter-despesa-der.png`), wireframes das cinco telas/modais (`prototipo/manter-despesa-prototipo.drawio` + `images/md-tela-1..5.png`) e protótipo navegável (`prototipo/manter-despesa-prototipo.html`). PNGs regeráveis por `prototipo/render-pngs.py` (Playwright); diagramas `.drawio` por `prototipo/gen-diagramas.py`.
 - Documento 0 — Fundação: `../00 - analise-geral/documento-0-fundacao.md` ([QUADRO_DESCRITIVO_2](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-2), [QUADRO_DESCRITIVO_3](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-3), [QUADRO_DESCRITIVO_5](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-5), [QUADRO_DESCRITIVO_6](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-6), [QUADRO_DESCRITIVO_8](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-8), [QUADRO_DESCRITIVO_10](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-10), [QUADRO_DESCRITIVO_11](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-11), [QUADRO_DESCRITIVO_26](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-26); Seções 7.2, 7.3 e 7.4; Observações 8, 9, 12, 15, 16, 18, 24).
 - Documento `04 - manter-categoria`: `../04 - manter-categoria/documento-analise-manter-categoria.md` — endpoint de opções de categoria (`GET /categorias/opcoes?aplicaA=DESPESA`).
 - Documento `06 - manter-conta`: `../06 - manter-conta/documento-analise-manter-conta.md` — endpoint de opções de conta (`GET /contas/opcoes`), conta `CARTEIRA`, padrão de escopo *row-level*.
