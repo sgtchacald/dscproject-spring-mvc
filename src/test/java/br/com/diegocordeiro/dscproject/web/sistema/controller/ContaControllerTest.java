@@ -88,6 +88,20 @@ class ContaControllerTest {
     }
 
     @Test
+    @DisplayName("Botão Cancelar dos modais de conta e de ajuste de saldo é vermelho (btn-danger)")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_LISTAR")
+    void listar_botoesCancelarDosModais_devemSerBtnDanger() throws Exception {
+        String html = mockMvc.perform(get("/contas/listar"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        long qtdCancelarVermelho = java.util.regex.Pattern.compile("class=\"btn btn-danger\" data-bs-dismiss=\"modal\"")
+                .matcher(html).results().count();
+
+        org.junit.jupiter.api.Assertions.assertEquals(2, qtdCancelarVermelho);
+    }
+
+    @Test
     @DisplayName("SB01 - O combobox de tipo de conta vem do enum TipoConta, não de <option> fixa no HTML")
     @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_LISTAR")
     void listar_deveRenderizarOsQuatroTiposDeContaDoEnum() throws Exception {
