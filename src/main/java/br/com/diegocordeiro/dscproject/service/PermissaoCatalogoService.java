@@ -1,27 +1,28 @@
 package br.com.diegocordeiro.dscproject.service;
 
+import br.com.diegocordeiro.dscproject.catalogo.DescobridorDeCatalogo;
+import br.com.diegocordeiro.dscproject.catalogo.SincronizadorDeCatalogo;
 import br.com.diegocordeiro.dscproject.dto.permissao.PermissaoCatalogoDTO;
-import br.com.diegocordeiro.dscproject.dto.permissao.SincronizacaoCatalogoDTO;
-import br.com.diegocordeiro.dscproject.permissao.CatalogoPermissoes;
-import br.com.diegocordeiro.dscproject.permissao.PermissaoDefinida;
 import br.com.diegocordeiro.dscproject.model.Permissao;
+import br.com.diegocordeiro.dscproject.permissao.PermissaoDefinida;
 import br.com.diegocordeiro.dscproject.repository.PermissaoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Catálogo de permissões: leitura para a tela e sincronização de {@code PERMISSOES}
  * com o catálogo do código. A tela nunca cria nem apaga permissão — só o
- * sincronizador escreve nesta tabela, e ele nunca remove uma linha.
+ * sincronizador escreve nesta tabela, e ele nunca remove uma linha. O algoritmo
+ * de sincronização mora em {@link SincronizadorDeCatalogo}; aqui só a ligação com
+ * o pacote {@code permissao} e o repositório.
  */
 @Service
-public class PermissaoCatalogoService {
+public class PermissaoCatalogoService extends SincronizadorDeCatalogo<PermissaoDefinida, Permissao> {
+
+    private static final String PACOTE_PERMISSOES = "br.com.diegocordeiro.dscproject.permissao";
 
     private final PermissaoRepository permissaoRepository;
 
@@ -36,46 +37,25 @@ public class PermissaoCatalogoService {
             .toList();
     }
 
-    /**
-     * Insere em {@code PERMISSOES} as permissões do código que faltam, marca como
-     * órfã as que existem na tabela mas não no código, e desmarca a flag das que
-     * voltaram ao código. Nunca apaga uma linha (vínculos históricos).
-     */
-    @Transactional
-    public SincronizacaoCatalogoDTO sincronizar() {
+    @Override
+    protected List<PermissaoDefinida> itensDoCodigo() {
+        return DescobridorDeCatalogo.noPacote(PACOTE_PERMISSOES, PermissaoDefinida.class);
+    }
 
-        List<PermissaoDefinida> catalogo = CatalogoPermissoes.todas();
+    @Override
+    protected JpaRepository<Permissao, ?> repositorio() {
+        return permissaoRepository;
+    }
 
-        Set<String> codigosDoCodigo = catalogo.stream()
-            .map(PermissaoDefinida::getCodigo)
-            .collect(Collectors.toSet());
+    @Override
+    protected Permissao novaLinha(PermissaoDefinida definicao) {
+        return new Permissao(definicao.getCodigo(), definicao.getNome(), definicao.getDescricao(), definicao.getModulo());
+    }
 
-        Map<String, Permissao> existentes = permissaoRepository.findAll().stream()
-            .collect(Collectors.toMap(Permissao::getCodigo, Function.identity()));
-
-        int inseridas = 0;
-        for (PermissaoDefinida definicao : catalogo) {
-            Permissao permissao = existentes.get(definicao.getCodigo());
-            if (permissao == null) {
-                permissaoRepository.save(new Permissao(
-                    definicao.getCodigo(), definicao.getNome(), definicao.getDescricao(), definicao.getModulo()));
-                inseridas++;
-            } else {
-                permissao.setNome(definicao.getNome());
-                permissao.setDescricao(definicao.getDescricao());
-                permissao.setModulo(definicao.getModulo());
-                permissao.setOrfa(false);
-            }
-        }
-
-        int orfas = 0;
-        for (Permissao permissao : existentes.values()) {
-            if (!codigosDoCodigo.contains(permissao.getCodigo()) && !permissao.isOrfa()) {
-                permissao.setOrfa(true);
-                orfas++;
-            }
-        }
-
-        return new SincronizacaoCatalogoDTO(inseridas, orfas);
+    @Override
+    protected void copiarMetadados(PermissaoDefinida definicao, Permissao linha) {
+        linha.setNome(definicao.getNome());
+        linha.setDescricao(definicao.getDescricao());
+        linha.setModulo(definicao.getModulo());
     }
 }

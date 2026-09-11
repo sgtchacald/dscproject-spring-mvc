@@ -1,7 +1,7 @@
 package br.com.diegocordeiro.dscproject.web.sistema.controller;
 
 import br.com.diegocordeiro.dscproject.dto.permissao.PermissaoCatalogoDTO;
-import br.com.diegocordeiro.dscproject.dto.permissao.SincronizacaoCatalogoDTO;
+import br.com.diegocordeiro.dscproject.dto.catalogo.SincronizacaoCatalogoDTO;
 import br.com.diegocordeiro.dscproject.service.PermissaoCatalogoService;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;

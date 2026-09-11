@@ -1,27 +1,27 @@
 package br.com.diegocordeiro.dscproject.service;
 
-import br.com.diegocordeiro.dscproject.dto.permissao.SincronizacaoCatalogoDTO;
+import br.com.diegocordeiro.dscproject.catalogo.DescobridorDeCatalogo;
+import br.com.diegocordeiro.dscproject.catalogo.SincronizadorDeCatalogo;
 import br.com.diegocordeiro.dscproject.model.ParametroGlobal;
-import br.com.diegocordeiro.dscproject.parametro.CatalogoParametros;
 import br.com.diegocordeiro.dscproject.parametro.ParametroDefinido;
 import br.com.diegocordeiro.dscproject.repository.ParametroGlobalRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Sincroniza a tabela {@code PARAMETROS_GLOBAIS} com o catálogo de parâmetros do
  * código. A tela nunca cria nem apaga parâmetro — só o sincronizador escreve a
  * existência de uma linha, e ele nunca remove uma (histórico de revisões +
- * leituras antigas por código). Mesmo desenho do {@code PermissaoCatalogoService}.
+ * leituras antigas por código). O algoritmo mora em {@link SincronizadorDeCatalogo};
+ * aqui só a ligação com o pacote {@code parametro} e o repositório, e a regra de
+ * que {@code PAGL_VALOR} pertence ao operador — nunca sobrescrito na sincronização.
  */
 @Service
-public class ParametroCatalogoService {
+public class ParametroCatalogoService extends SincronizadorDeCatalogo<ParametroDefinido, ParametroGlobal> {
+
+    private static final String PACOTE_PARAMETROS = "br.com.diegocordeiro.dscproject.parametro";
 
     private final ParametroGlobalRepository parametroGlobalRepository;
 
@@ -29,49 +29,28 @@ public class ParametroCatalogoService {
         this.parametroGlobalRepository = parametroGlobalRepository;
     }
 
-    /**
-     * Insere os parâmetros do código que faltam (com {@code valor = valorDefault}),
-     * atualiza nome/descrição/módulo/tipo/default dos existentes <b>sem tocar no
-     * valor corrente</b>, marca como órfão o que sumiu do código e desmarca o que
-     * voltou. Nunca apaga uma linha.
-     */
-    @Transactional
-    public SincronizacaoCatalogoDTO sincronizar() {
+    @Override
+    protected List<ParametroDefinido> itensDoCodigo() {
+        return DescobridorDeCatalogo.noPacote(PACOTE_PARAMETROS, ParametroDefinido.class);
+    }
 
-        List<ParametroDefinido> catalogo = CatalogoParametros.todos();
+    @Override
+    protected JpaRepository<ParametroGlobal, ?> repositorio() {
+        return parametroGlobalRepository;
+    }
 
-        Set<String> codigosDoCodigo = catalogo.stream()
-            .map(ParametroDefinido::getCodigo)
-            .collect(Collectors.toSet());
+    @Override
+    protected ParametroGlobal novaLinha(ParametroDefinido definicao) {
+        return new ParametroGlobal(definicao);
+    }
 
-        Map<String, ParametroGlobal> existentes = parametroGlobalRepository.findAll().stream()
-            .collect(Collectors.toMap(ParametroGlobal::getCodigo, Function.identity()));
-
-        int inseridos = 0;
-        for (ParametroDefinido definicao : catalogo) {
-            ParametroGlobal parametro = existentes.get(definicao.getCodigo());
-            if (parametro == null) {
-                parametroGlobalRepository.save(new ParametroGlobal(definicao));
-                inseridos++;
-            } else {
-                parametro.setNome(definicao.getNome());
-                parametro.setDescricao(definicao.getDescricao());
-                parametro.setModulo(definicao.getModulo());
-                parametro.setTipoDado(definicao.getTipo());
-                parametro.setValorDefault(definicao.getValorDefault());
-                parametro.setOrfa(false);
-                // PAGL_VALOR pertence ao operador — nunca sobrescrito aqui
-            }
-        }
-
-        int orfaos = 0;
-        for (ParametroGlobal parametro : existentes.values()) {
-            if (!codigosDoCodigo.contains(parametro.getCodigo()) && !parametro.isOrfa()) {
-                parametro.setOrfa(true);
-                orfaos++;
-            }
-        }
-
-        return new SincronizacaoCatalogoDTO(inseridos, orfaos);
+    @Override
+    protected void copiarMetadados(ParametroDefinido definicao, ParametroGlobal linha) {
+        linha.setNome(definicao.getNome());
+        linha.setDescricao(definicao.getDescricao());
+        linha.setModulo(definicao.getModulo());
+        linha.setTipoDado(definicao.getTipo());
+        linha.setValorDefault(definicao.getValorDefault());
+        // PAGL_VALOR pertence ao operador — nunca sobrescrito aqui
     }
 }

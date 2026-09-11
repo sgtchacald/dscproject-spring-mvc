@@ -1,5 +1,6 @@
 package br.com.diegocordeiro.dscproject.model;
 
+import br.com.diegocordeiro.dscproject.catalogo.LinhaCatalogo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,7 +22,7 @@ import org.hibernate.envers.Audited;
 @Entity
 @Audited
 @Table(name = "PERMISSOES")
-public class Permissao extends AbstractAuditoria {
+public class Permissao extends AbstractAuditoria implements LinhaCatalogo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

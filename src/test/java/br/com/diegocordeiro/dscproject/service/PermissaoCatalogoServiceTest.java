@@ -1,7 +1,8 @@
 package br.com.diegocordeiro.dscproject.service;
 
-import br.com.diegocordeiro.dscproject.dto.permissao.SincronizacaoCatalogoDTO;
-import br.com.diegocordeiro.dscproject.permissao.CatalogoPermissoes;
+import br.com.diegocordeiro.dscproject.catalogo.DescobridorDeCatalogo;
+import br.com.diegocordeiro.dscproject.dto.catalogo.SincronizacaoCatalogoDTO;
+import br.com.diegocordeiro.dscproject.permissao.PermissaoDefinida;
 import br.com.diegocordeiro.dscproject.model.Permissao;
 import br.com.diegocordeiro.dscproject.repository.PermissaoRepository;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,10 @@ class PermissaoCatalogoServiceTest {
     @InjectMocks
     private PermissaoCatalogoService service;
 
+    private static List<PermissaoDefinida> permissoesDoCodigo() {
+        return DescobridorDeCatalogo.noPacote("br.com.diegocordeiro.dscproject.permissao", PermissaoDefinida.class);
+    }
+
     private static Permissao permissao(String codigo, String modulo, boolean orfa) {
         Permissao p = new Permissao(codigo, codigo, null, modulo);
         p.setOrfa(orfa);
@@ -42,7 +47,7 @@ class PermissaoCatalogoServiceTest {
 
         SincronizacaoCatalogoDTO resultado = service.sincronizar();
 
-        int totalCodigo = CatalogoPermissoes.todas().size();
+        int totalCodigo = permissoesDoCodigo().size();
         assertThat(resultado.inseridas()).isEqualTo(totalCodigo);
         assertThat(resultado.orfas()).isZero();
         verify(permissaoRepository, org.mockito.Mockito.times(totalCodigo)).save(any(Permissao.class));
@@ -53,7 +58,7 @@ class PermissaoCatalogoServiceTest {
     @Test
     void sincronizar_permissaoNovaNoCodigo_eInserida() {
         List<Permissao> tabela = new ArrayList<>();
-        CatalogoPermissoes.todas().forEach(d -> {
+        permissoesDoCodigo().forEach(d -> {
             if (!d.getCodigo().equals("PERFIS_SINCRONIZAR_CATALOGO")) {
                 tabela.add(permissao(d.getCodigo(), d.getModulo(), false));
             }
@@ -71,7 +76,7 @@ class PermissaoCatalogoServiceTest {
     @Test
     void sincronizar_permissaoSoNaTabela_ficaMarcadaComoOrfa() {
         List<Permissao> tabela = new ArrayList<>();
-        CatalogoPermissoes.todas().forEach(d -> tabela.add(permissao(d.getCodigo(), d.getModulo(), false)));
+        permissoesDoCodigo().forEach(d -> tabela.add(permissao(d.getCodigo(), d.getModulo(), false)));
         Permissao antiga = permissao("RECURSO_ANTIGO", "Usuários", false);
         tabela.add(antiga);
         when(permissaoRepository.findAll()).thenReturn(tabela);
@@ -88,7 +93,7 @@ class PermissaoCatalogoServiceTest {
         List<Permissao> tabela = new ArrayList<>();
         Permissao voltou = permissao("PERFIS_LISTAR", "Perfis e Permissões", true);
         tabela.add(voltou);
-        CatalogoPermissoes.todas().forEach(d -> {
+        permissoesDoCodigo().forEach(d -> {
             if (!d.getCodigo().equals("PERFIS_LISTAR")) {
                 tabela.add(permissao(d.getCodigo(), d.getModulo(), false));
             }
