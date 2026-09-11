@@ -192,6 +192,35 @@ class ContaControllerTest {
     }
 
     @Test
+    @DisplayName("RF03 / RT10 / SB03 - Moeda escolhida no formulário chega ao Service")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_MANTER")
+    void inserir_comMoedaEscolhida_deveRepassarAoService() throws Exception {
+        when(contaRepository.contarPorUsuarioEDescricao(1L, "Conta em Dólar", null)).thenReturn(0L);
+
+        InstituicaoFinanceira inst = new InstituicaoFinanceira();
+        inst.setId(5L);
+        inst.setAtivo(true);
+        when(instituicaoFinanceiraRepository.findByIdAndDataExclusaoIsNull(5L)).thenReturn(Optional.of(inst));
+
+        when(contaService.inserir(any(), eq(1L), eq("user_teste"))).thenReturn(new Conta());
+
+        mockMvc.perform(post("/contas/inserir")
+                        .with(csrf())
+                        .param("descricao", "Conta em Dólar")
+                        .param("instituicaoId", "5")
+                        .param("tipo", "INVESTIMENTO")
+                        .param("moeda", "USD")
+                        .param("saldoInicial", "5000.00")
+                        .param("consideraSaldo", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true));
+
+        var captor = org.mockito.ArgumentCaptor.forClass(br.com.diegocordeiro.dscproject.dto.conta.ContaFormDTO.class);
+        verify(contaService).inserir(captor.capture(), eq(1L), eq("user_teste"));
+        org.junit.jupiter.api.Assertions.assertEquals("USD", captor.getValue().getMoeda());
+    }
+
+    @Test
     @DisplayName("Inserir conta com descrição duplicada retorna 422")
     @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_MANTER")
     void inserir_quandoDescricaoDuplicada_deveRetornar422() throws Exception {
