@@ -36,3 +36,20 @@ td.celula-valor.cursor-pointer:hover {
 .dropdown-item .ph.dropdown-item-icon {
     margin-inline-end: 0.5rem;
 }
+
+/* Sidebar: o item de menu não tem largura própria (herda a do menu, que é fixa) —
+   o nome quebra em vez de estourar por baixo do conteúdo quando é comprido. */
+.navbar-vertical .dropdown-item {
+    white-space: normal;
+    align-items: flex-start;
+}
+
+.navbar-vertical .dropdown-item .ph.dropdown-item-icon {
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+.navbar-vertical .nav-link-title {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
