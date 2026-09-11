@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="modal modal-blur fade" id="modalPagamento" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="formPagamento" novalidate>
+                <input type="hidden" id="pagamentoDespesaId">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:text="#{despesa.pagamento.titulo}">Registrar pagamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alertaFormPagamento" class="alert alert-danger" style="display:none;" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label" th:text="#{despesa.pagamento.valor.label}">Valor da despesa</label>
+                        <div class="form-control-plaintext fw-bold" id="pagamentoValorExibicao">R$ 0,00</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required" for="pagamentoData" th:text="#{despesa.pagamento.dataPagamento.label}">Data de pagamento</label>
+                        <input type="date" class="form-control" id="pagamentoData" name="dataPagamento" required>
+                        <div class="invalid-feedback" id="erroPagamentoData"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" th:text="#{despesa.pagamento.botao.cancelar}">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarPagamento" th:text="#{despesa.pagamento.botao.registrar}">Registrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

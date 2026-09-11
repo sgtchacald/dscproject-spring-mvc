@@ -88,6 +88,33 @@ class ContaControllerTest {
     }
 
     @Test
+    @DisplayName("Botão Cancelar dos modais de conta e de ajuste de saldo é vermelho (btn-danger)")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_LISTAR")
+    void listar_botoesCancelarDosModais_devemSerBtnDanger() throws Exception {
+        String html = mockMvc.perform(get("/contas/listar"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        long qtdCancelarVermelho = java.util.regex.Pattern.compile("class=\"btn btn-danger\" data-bs-dismiss=\"modal\"")
+                .matcher(html).results().count();
+
+        org.junit.jupiter.api.Assertions.assertEquals(2, qtdCancelarVermelho);
+    }
+
+    @Test
+    @DisplayName("SB01 - O combobox de tipo de conta vem do enum TipoConta, não de <option> fixa no HTML")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_LISTAR")
+    void listar_deveRenderizarOsQuatroTiposDeContaDoEnum() throws Exception {
+        mockMvc.perform(get("/contas/listar"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.allOf(
+                        org.hamcrest.Matchers.containsString("value=\"CORRENTE\""),
+                        org.hamcrest.Matchers.containsString("value=\"POUPANCA\""),
+                        org.hamcrest.Matchers.containsString("value=\"INVESTIMENTO\""),
+                        org.hamcrest.Matchers.containsString("value=\"CARTEIRA\""))));
+    }
+
+    @Test
     @DisplayName("Bloquear acesso de usuário sem permissão à listagem de contas")
     @WithMockUser(username = "user_teste", authorities = "ROLE_USER")
     void listar_semPermissao_deveRetornar403() throws Exception {
@@ -176,6 +203,35 @@ class ContaControllerTest {
                 .andExpect(jsonPath("$.sucesso").value(true));
 
         verify(contaService).inserir(any(), eq(1L), eq("user_teste"));
+    }
+
+    @Test
+    @DisplayName("RF03 / RT10 / SB03 - Moeda escolhida no formulário chega ao Service")
+    @WithMockUser(username = "user_teste", authorities = "PERM_CONTAS_MANTER")
+    void inserir_comMoedaEscolhida_deveRepassarAoService() throws Exception {
+        when(contaRepository.contarPorUsuarioEDescricao(1L, "Conta em Dólar", null)).thenReturn(0L);
+
+        InstituicaoFinanceira inst = new InstituicaoFinanceira();
+        inst.setId(5L);
+        inst.setAtivo(true);
+        when(instituicaoFinanceiraRepository.findByIdAndDataExclusaoIsNull(5L)).thenReturn(Optional.of(inst));
+
+        when(contaService.inserir(any(), eq(1L), eq("user_teste"))).thenReturn(new Conta());
+
+        mockMvc.perform(post("/contas/inserir")
+                        .with(csrf())
+                        .param("descricao", "Conta em Dólar")
+                        .param("instituicaoId", "5")
+                        .param("tipo", "INVESTIMENTO")
+                        .param("moeda", "USD")
+                        .param("saldoInicial", "5000.00")
+                        .param("consideraSaldo", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true));
+
+        var captor = org.mockito.ArgumentCaptor.forClass(br.com.diegocordeiro.dscproject.dto.conta.ContaFormDTO.class);
+        verify(contaService).inserir(captor.capture(), eq(1L), eq("user_teste"));
+        org.junit.jupiter.api.Assertions.assertEquals("USD", captor.getValue().getMoeda());
     }
 
     @Test

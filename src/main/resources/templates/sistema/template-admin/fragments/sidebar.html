@@ -28,8 +28,9 @@
                     </a>
                 </li>
 
-                <li class="nav-item dropdown" sec:authorize="hasAuthority('PERM_CONTAS_LISTAR')"
-                    th:with="grupoAtivo=${#strings.startsWith(uri, '/contas/')}"
+                <li class="nav-item dropdown"
+                    sec:authorize="hasAuthority('PERM_CONTAS_LISTAR') or hasAuthority('PERM_RECEITAS_LISTAR') or hasAuthority('PERM_DESPESAS_LISTAR') or hasAuthority('PERM_CATEGORIAS_LISTAR') or hasAuthority('PERM_INSTITUICOES_LISTAR') or hasAuthority('PERM_CARTOES_LISTAR')"
+                    th:with="grupoAtivo=${#strings.startsWith(uri, '/contas/') or #strings.startsWith(uri, '/receitas/') or #strings.startsWith(uri, '/despesas/') or #strings.startsWith(uri, '/categorias/') or #strings.startsWith(uri, '/instituicoes-financeiras/') or #strings.startsWith(uri, '/cartoes/')}"
                     th:classappend="${grupoAtivo} ? 'active'">
                     <a class="nav-link dropdown-toggle" href="#navbar-financas" data-bs-toggle="dropdown"
                        data-bs-auto-close="false" role="button" aria-expanded="false"
@@ -40,18 +41,76 @@
                         <span class="nav-link-title" th:text="#{menu.financas}">Finanças</span>
                     </a>
                     <div class="dropdown-menu" th:classappend="${grupoAtivo} ? 'show'">
+                        <a class="dropdown-item" th:href="@{/instituicoes-financeiras/listar}"
+                           sec:authorize="hasAuthority('PERM_INSTITUICOES_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/instituicoes-financeiras/')} ? 'active'">
+                            <i class="ph ph-bank dropdown-item-icon" aria-hidden="true"></i>
+                            <span th:text="#{menu.instituicoes-financeiras}">Instituições Financeiras</span>
+                        </a>
+                        <a class="dropdown-item" th:href="@{/categorias/listar}"
+                           sec:authorize="hasAuthority('PERM_CATEGORIAS_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/categorias/')} ? 'active'">
+                            <i class="ph ph-tag dropdown-item-icon" aria-hidden="true"></i>
+                            <span th:text="#{menu.categorias}">Categorias</span>
+                        </a>
                         <a class="dropdown-item" th:href="@{/contas/listar}"
                            sec:authorize="hasAuthority('PERM_CONTAS_LISTAR')"
                            th:classappend="${#strings.startsWith(uri, '/contas/')} ? 'active'">
                             <i class="ph ph-credit-card dropdown-item-icon" aria-hidden="true"></i>
                             <span th:text="#{menu.contas}">Minhas Contas</span>
                         </a>
+                        <a class="dropdown-item" th:href="@{/cartoes/listar}"
+                           sec:authorize="hasAuthority('PERM_CARTOES_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/cartoes/')} ? 'active'">
+                            <i class="ph ph-credit-card dropdown-item-icon" aria-hidden="true"></i>
+                            <span th:text="#{menu.cartoes}">Cartões</span>
+                        </a>
+                        <a class="dropdown-item" th:href="@{/receitas/listar}"
+                           sec:authorize="hasAuthority('PERM_RECEITAS_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/receitas/')} ? 'active'">
+                            <i class="ph ph-hand-coins dropdown-item-icon" aria-hidden="true"></i>
+                            <span th:text="#{menu.receitas}">Receitas</span>
+                        </a>
+                        <a class="dropdown-item" th:href="@{/despesas/listar}"
+                           sec:authorize="hasAuthority('PERM_DESPESAS_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/despesas/')} ? 'active'">
+                            <i class="ph ph-receipt dropdown-item-icon" aria-hidden="true"></i>
+                            <span th:text="#{menu.despesas}">Despesas</span>
+                        </a>
                     </div>
                 </li>
 
                 <li class="nav-item dropdown"
-                    sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR') or hasAuthority('PERM_PERFIS_LISTAR') or hasAuthority('PERM_PARAMETROS_LISTAR') or hasAuthority('PERM_CATEGORIAS_LISTAR') or hasAuthority('PERM_CATEGORIAS_PROVEDOR_LISTAR') or hasAuthority('PERM_INSTITUICOES_LISTAR') or hasAuthority('PERM_INSTITUICOES_PROVEDOR_LISTAR')"
-                    th:with="grupoAtivo=${#strings.startsWith(uri, '/usuarios/') or #strings.startsWith(uri, '/perfis/') or #strings.startsWith(uri, '/parametros/') or #strings.startsWith(uri, '/categorias/') or #strings.startsWith(uri, '/categorias-provedor/') or #strings.startsWith(uri, '/instituicoes-financeiras/') or #strings.startsWith(uri, '/instituicoes-provedor/')}"
+                    sec:authorize="hasAuthority('PERM_CATEGORIAS_PROVEDOR_LISTAR') or hasAuthority('PERM_INSTITUICOES_PROVEDOR_LISTAR')"
+                    th:with="grupoAtivo=${#strings.startsWith(uri, '/categorias-provedor/') or #strings.startsWith(uri, '/instituicoes-provedor/')}"
+                    th:classappend="${grupoAtivo} ? 'active'">
+                    <a class="nav-link dropdown-toggle" href="#navbar-open-finance" data-bs-toggle="dropdown"
+                       data-bs-auto-close="false" role="button" aria-expanded="false"
+                       th:classappend="${grupoAtivo} ? 'show'" th:attr="aria-expanded=${grupoAtivo}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <i class="ph ph-arrows-left-right" aria-hidden="true"></i>
+                        </span>
+                        <span class="nav-link-title" th:text="#{menu.open-finance}">Open Finance</span>
+                    </a>
+                    <div class="dropdown-menu" th:classappend="${grupoAtivo} ? 'show'">
+                        <a class="dropdown-item" th:href="@{/instituicoes-provedor/listar}"
+                           sec:authorize="hasAuthority('PERM_INSTITUICOES_PROVEDOR_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/instituicoes-provedor/')} ? 'active'">
+                            <i class="ph ph-plugs-connected dropdown-item-icon" aria-hidden="true"></i>
+                            <span th:text="#{menu.instituicoes-provedor}">Instituições por Provedor</span>
+                        </a>
+                        <a class="dropdown-item" th:href="@{/categorias-provedor/listar}"
+                           sec:authorize="hasAuthority('PERM_CATEGORIAS_PROVEDOR_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/categorias-provedor/')} ? 'active'">
+                            <i class="ph ph-link dropdown-item-icon" aria-hidden="true"></i>
+                            <span th:text="#{menu.categorias-provedor}">Categorias por Provedor</span>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown"
+                    sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR') or hasAuthority('PERM_PERFIS_LISTAR') or hasAuthority('PERM_PARAMETROS_LISTAR')"
+                    th:with="grupoAtivo=${#strings.startsWith(uri, '/usuarios/') or #strings.startsWith(uri, '/perfis/') or #strings.startsWith(uri, '/parametros/')}"
                     th:classappend="${grupoAtivo} ? 'active'">
                     <a class="nav-link dropdown-toggle" href="#navbar-admin" data-bs-toggle="dropdown"
                        data-bs-auto-close="false" role="button" aria-expanded="false"
@@ -62,11 +121,11 @@
                         <span class="nav-link-title">Administração</span>
                     </a>
                     <div class="dropdown-menu" th:classappend="${grupoAtivo} ? 'show'">
-                        <a class="dropdown-item" th:href="@{/usuarios/listar}"
-                           sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR')"
-                           th:classappend="${#strings.startsWith(uri, '/usuarios/')} ? 'active'">
-                            <i class="ph ph-users dropdown-item-icon" aria-hidden="true"></i>
-                            <span th:text="#{menu.usuarios}">Usuários</span>
+                        <a class="dropdown-item" th:href="@{/parametros/listar}"
+                           sec:authorize="hasAuthority('PERM_PARAMETROS_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/parametros/')} ? 'active'">
+                            <i class="ph ph-sliders-horizontal dropdown-item-icon" aria-hidden="true"></i>
+                            <span th:text="#{menu.parametros-globais}">Parâmetros Globais</span>
                         </a>
                         <a class="dropdown-item" th:href="@{/perfis/listar}"
                            sec:authorize="hasAuthority('PERM_PERFIS_LISTAR')"
@@ -74,35 +133,11 @@
                             <i class="ph ph-shield-check dropdown-item-icon" aria-hidden="true"></i>
                             <span th:text="#{menu.perfis-permissoes}">Perfis e Permissões</span>
                         </a>
-                        <a class="dropdown-item" th:href="@{/parametros/listar}"
-                           sec:authorize="hasAuthority('PERM_PARAMETROS_LISTAR')"
-                           th:classappend="${#strings.startsWith(uri, '/parametros/')} ? 'active'">
-                            <i class="ph ph-sliders-horizontal dropdown-item-icon" aria-hidden="true"></i>
-                            <span th:text="#{menu.parametros-globais}">Parâmetros Globais</span>
-                        </a>
-                        <a class="dropdown-item" th:href="@{/categorias/listar}"
-                           sec:authorize="hasAuthority('PERM_CATEGORIAS_LISTAR')"
-                           th:classappend="${#strings.startsWith(uri, '/categorias/')} ? 'active'">
-                            <i class="ph ph-tag dropdown-item-icon" aria-hidden="true"></i>
-                            <span th:text="#{menu.categorias}">Categorias</span>
-                        </a>
-                        <a class="dropdown-item" th:href="@{/categorias-provedor/listar}"
-                           sec:authorize="hasAuthority('PERM_CATEGORIAS_PROVEDOR_LISTAR')"
-                           th:classappend="${#strings.startsWith(uri, '/categorias-provedor/')} ? 'active'">
-                            <i class="ph ph-link dropdown-item-icon" aria-hidden="true"></i>
-                            <span th:text="#{menu.categorias-provedor}">Categorias por Provedor</span>
-                        </a>
-                        <a class="dropdown-item" th:href="@{/instituicoes-financeiras/listar}"
-                           sec:authorize="hasAuthority('PERM_INSTITUICOES_LISTAR')"
-                           th:classappend="${#strings.startsWith(uri, '/instituicoes-financeiras/')} ? 'active'">
-                            <i class="ph ph-bank dropdown-item-icon" aria-hidden="true"></i>
-                            <span th:text="#{menu.instituicoes-financeiras}">Instituições Financeiras</span>
-                        </a>
-                        <a class="dropdown-item" th:href="@{/instituicoes-provedor/listar}"
-                           sec:authorize="hasAuthority('PERM_INSTITUICOES_PROVEDOR_LISTAR')"
-                           th:classappend="${#strings.startsWith(uri, '/instituicoes-provedor/')} ? 'active'">
-                            <i class="ph ph-plugs-connected dropdown-item-icon" aria-hidden="true"></i>
-                            <span th:text="#{menu.instituicoes-provedor}">Instituições por Provedor</span>
+                        <a class="dropdown-item" th:href="@{/usuarios/listar}"
+                           sec:authorize="hasAuthority('PERM_USUARIOS_LISTAR')"
+                           th:classappend="${#strings.startsWith(uri, '/usuarios/')} ? 'active'">
+                            <i class="ph ph-users dropdown-item-icon" aria-hidden="true"></i>
+                            <span th:text="#{menu.usuarios}">Usuários</span>
                         </a>
                     </div>
                 </li>
@@ -126,6 +161,10 @@
             </ul>
         </div>
     </div>
+
+    <div class="sidebar-resize-handle d-none d-lg-block" id="sidebarResizeHandle"
+         role="separator" aria-orientation="vertical" aria-label="Redimensionar menu lateral"
+         title="Arraste para redimensionar" tabindex="0"></div>
 </aside>
 
 </body>

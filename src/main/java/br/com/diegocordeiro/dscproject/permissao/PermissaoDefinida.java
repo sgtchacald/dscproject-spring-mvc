@@ -15,4 +15,8 @@ public interface PermissaoDefinida extends ItemCatalogo {
     default String getAuthority() {
         return PREFIXO_AUTHORITY + getCodigo();
     }
+
+    default boolean isConcedivelPorPlano() {
+        return false;
+    }
 }

@@ -1,4 +1,4 @@
-package br.com.diegocordeiro.dscproject.config;
+package br.com.diegocordeiro.dscproject.config.runner;
 
 import br.com.diegocordeiro.dscproject.enums.Genero;
 import br.com.diegocordeiro.dscproject.model.Perfil;
@@ -86,8 +86,13 @@ public class CargaInicialRunner implements ApplicationRunner {
 
         for (Permissao permissao : permissaoRepository.findAll()) {
             if (!permissao.isOrfa()) {
-                vincular(admin, permissao);
-                if ("CONTAS_LISTAR".equals(permissao.getCodigo()) || "CONTAS_MANTER".equals(permissao.getCodigo())) {
+                if (!"DESPESA_RATEAR_MULTIUSUARIO".equals(permissao.getCodigo())) {
+                    vincular(admin, permissao);
+                }
+                if ("CONTAS_LISTAR".equals(permissao.getCodigo()) || "CONTAS_MANTER".equals(permissao.getCodigo())
+                        || "CARTOES_LISTAR".equals(permissao.getCodigo()) || "CARTOES_MANTER".equals(permissao.getCodigo())
+                        || "RECEITAS_LISTAR".equals(permissao.getCodigo()) || "RECEITAS_MANTER".equals(permissao.getCodigo())
+                        || "DESPESAS_LISTAR".equals(permissao.getCodigo()) || "DESPESAS_MANTER".equals(permissao.getCodigo())) {
                     vincular(user, permissao);
                 }
             }

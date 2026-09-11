@@ -19,10 +19,7 @@
                         <label class="form-label" for="filtroTipo" th:text="#{conta.filtro.tipo.label}">Tipo de Conta</label>
                         <select class="form-select" id="filtroTipo">
                             <option value="" th:text="#{conta.filtro.todos}">Todos</option>
-                            <option value="CORRENTE" th:text="#{conta.tipo.corrente}">Conta Corrente</option>
-                            <option value="POUPANCA" th:text="#{conta.tipo.poupanca}">Poupança</option>
-                            <option value="INVESTIMENTO" th:text="#{conta.tipo.investimento}">Investimento</option>
-                            <option value="CARTEIRA" th:text="#{conta.tipo.carteira}">Carteira (Dinheiro Físico)</option>
+                            <option th:each="t : ${tipos}" th:value="${t.codigo}" th:text="${t.descricao}">Corrente</option>
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">

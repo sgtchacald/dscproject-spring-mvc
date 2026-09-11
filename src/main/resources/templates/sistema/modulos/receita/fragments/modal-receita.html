@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="modal" class="modal modal-blur fade" id="modalReceita" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="formReceita" novalidate>
+                <input type="hidden" id="receitaId" name="id">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloModalReceita" th:text="#{receita.form.titulo.novo}">Nova receita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alertaFormReceita" class="alert alert-danger" style="display:none;" role="alert"></div>
+
+                    <div class="alert alert-info align-items-center mb-3" id="avisoReceitaImportada" style="display:none;" role="alert">
+                        <i class="ph ph-info alert-icon me-2" aria-hidden="true"></i>
+                        <span th:text="#{receita.form.aviso.openFinance}">Esta receita foi importada do Open Finance. A conta e a origem não podem ser alteradas, e ela não pode ser excluída por esta tela.</span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required" for="receitaCompetencia" th:text="#{receita.form.campo.competencia.label}">Competência</label>
+                            <input type="month" class="form-control" id="receitaCompetencia" name="competencia" required>
+                            <div class="invalid-feedback" id="erroCompetencia"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required" for="receitaContaId" th:text="#{receita.form.campo.conta.label}">Conta</label>
+                            <select class="form-select" id="receitaContaId" name="contaId" required>
+                            </select>
+                            <div class="invalid-feedback" id="erroContaId"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="receitaCategoriaId" th:text="#{receita.form.campo.categoria.label}">Categoria</label>
+                        <select class="form-select" id="receitaCategoriaId" name="categoriaId">
+                            <option value="" th:text="#{receita.form.campo.categoria.semCategoria}">Sem categoria</option>
+                        </select>
+                        <div class="invalid-feedback" id="erroCategoriaId"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required" for="receitaNome" th:text="#{receita.form.campo.nome.label}">Nome</label>
+                        <input type="text" class="form-control" id="receitaNome" name="nome" maxlength="100"
+                               th:placeholder="#{receita.form.campo.nome.placeholder}" required>
+                        <div class="invalid-feedback" id="erroNome"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="receitaDescricao" th:text="#{receita.form.campo.descricao.label}">Descrição</label>
+                        <textarea class="form-control" id="receitaDescricao" name="descricao" maxlength="512" rows="2"></textarea>
+                        <div class="invalid-feedback" id="erroDescricao"></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required" for="receitaValor" th:text="#{receita.form.campo.valor.label}">Valor</label>
+                            <input type="text" class="form-control" id="receitaValor" name="valor"
+                                   th:placeholder="#{receita.form.campo.valor.placeholder}" required>
+                            <div class="invalid-feedback" id="erroValor"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required" for="receitaDataLancamento" th:text="#{receita.form.campo.dataLancamento.label}">Data de lançamento</label>
+                            <input type="date" class="form-control" id="receitaDataLancamento" name="dataLancamento" required>
+                            <div class="invalid-feedback" id="erroDataLancamento"></div>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mb-3">
+                        <div class="col-auto">
+                            <label class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="receitaRecebido" name="recebido">
+                                <span class="form-check-label" th:text="#{receita.form.campo.recebido.label}">Recebido</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="grupoDataRecebimento" style="display:none;">
+                        <label class="form-label required" for="receitaDataRecebimento" th:text="#{receita.form.campo.dataRecebimento.label}">Data de recebimento</label>
+                        <input type="date" class="form-control" id="receitaDataRecebimento" name="dataRecebimento">
+                        <div class="invalid-feedback" id="erroDataRecebimento"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" th:text="#{receita.form.botao.cancelar}">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarReceita" th:text="#{receita.form.botao.salvar}">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

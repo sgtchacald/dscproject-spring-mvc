@@ -1,0 +1,69 @@
+<title>Casos de Uso — Manter Receita</title>
+<style>
+  :root{color-scheme:light}
+  *{box-sizing:border-box}
+  body{margin:0;background:#f7f9fb;font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#1b2430}
+  #diagram{width:1180px;padding:26px 30px 30px}
+  h1{font-size:15px;margin:0 0 16px}
+  svg{display:block;width:1120px;height:700px}
+  .frame{fill:none;stroke:#d8dee6}
+  .frame-t{fill:#69747f;font-size:12px;font-weight:700}
+  .uc{fill:#fff;stroke:#1f6fd0}
+  .uc-t{fill:#1b2430;font-size:11px}
+  .lk{stroke:#69747f;stroke-width:1.1}
+  .act-t{fill:#1b2430;font-size:11px;font-weight:600}
+  .foot{fill:#69747f;font-size:10px}
+</style>
+<div id="diagram">
+  <h1>Casos de Uso — Manter Receita</h1>
+  <svg viewBox="0 0 1120 700">
+    <rect class="frame" x="360" y="36" width="520" height="620" rx="2"/>
+    <text class="frame-t" x="380" y="58">Manter Receita — tela "Receitas"</text>
+
+    <!-- atores -->
+    <g transform="translate(120,210)">
+      <circle cx="18" cy="10" r="9" fill="none" stroke="#1b2430"/>
+      <line x1="18" y1="19" x2="18" y2="44" stroke="#1b2430"/>
+      <line x1="4" y1="28" x2="32" y2="28" stroke="#1b2430"/>
+      <line x1="18" y1="44" x2="6" y2="64" stroke="#1b2430"/>
+      <line x1="18" y1="44" x2="30" y2="64" stroke="#1b2430"/>
+      <text class="act-t" x="18" y="82" text-anchor="middle">ADMIN (PERF01)</text>
+    </g>
+    <g transform="translate(120,430)">
+      <circle cx="18" cy="10" r="9" fill="none" stroke="#1b2430"/>
+      <line x1="18" y1="19" x2="18" y2="44" stroke="#1b2430"/>
+      <line x1="4" y1="28" x2="32" y2="28" stroke="#1b2430"/>
+      <line x1="18" y1="44" x2="6" y2="64" stroke="#1b2430"/>
+      <line x1="18" y1="44" x2="30" y2="64" stroke="#1b2430"/>
+      <text class="act-t" x="18" y="82" text-anchor="middle">USER (PERF02)</text>
+    </g>
+
+    <!-- ligações: ambos os perfis têm o mesmo acesso -->
+    <g class="lk">
+      <line x1="150" y1="245" x2="475" y2="92"/>
+      <line x1="150" y1="245" x2="475" y2="192"/>
+      <line x1="150" y1="245" x2="475" y2="292"/>
+      <line x1="150" y1="245" x2="475" y2="392"/>
+      <line x1="150" y1="245" x2="475" y2="492"/>
+      <line x1="150" y1="245" x2="475" y2="592"/>
+      <line x1="150" y1="465" x2="475" y2="92"/>
+      <line x1="150" y1="465" x2="475" y2="192"/>
+      <line x1="150" y1="465" x2="475" y2="292"/>
+      <line x1="150" y1="465" x2="475" y2="392"/>
+      <line x1="150" y1="465" x2="475" y2="492"/>
+      <line x1="150" y1="465" x2="475" y2="592"/>
+    </g>
+
+    <!-- casos de uso -->
+    <g>
+      <ellipse class="uc" cx="620" cy="92"  rx="140" ry="25"/><text class="uc-t" x="620" y="96" text-anchor="middle">CAUS01 — Listar Minhas Receitas</text>
+      <ellipse class="uc" cx="620" cy="192" rx="140" ry="25"/><text class="uc-t" x="620" y="196" text-anchor="middle">CAUS02 — Filtrar Receitas</text>
+      <ellipse class="uc" cx="620" cy="292" rx="140" ry="25"/><text class="uc-t" x="620" y="296" text-anchor="middle">CAUS03 — Cadastrar Receita</text>
+      <ellipse class="uc" cx="620" cy="392" rx="140" ry="25"/><text class="uc-t" x="620" y="396" text-anchor="middle">CAUS04 — Editar Receita</text>
+      <ellipse class="uc" cx="620" cy="492" rx="145" ry="27"/><text class="uc-t" x="620" y="496" text-anchor="middle">CAUS05 — Registrar Recebimento</text>
+      <ellipse class="uc" cx="620" cy="592" rx="140" ry="25"/><text class="uc-t" x="620" y="596" text-anchor="middle">CAUS06 — Excluir Receita</text>
+    </g>
+
+    <text class="foot" x="620" y="654" text-anchor="middle">ADMIN e USER têm o mesmo acesso; cada um opera só sobre as próprias receitas (RN02). CAUS06 não se aplica a receitas importadas do Open Finance (RN08).</text>
+  </svg>
+</div>
