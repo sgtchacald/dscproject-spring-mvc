@@ -1,4 +1,4 @@
-package br.com.diegocordeiro.dscproject.catalogo;
+package br.com.diegocordeiro.dscproject.config.catalogo;
 
 /**
  * Linha da tabela que espelha um catálogo do código ({@code PERMISSOES},

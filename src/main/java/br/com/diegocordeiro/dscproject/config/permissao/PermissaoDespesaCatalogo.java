@@ -1,4 +1,4 @@
-package br.com.diegocordeiro.dscproject.permissao;
+package br.com.diegocordeiro.dscproject.config.permissao;
 
 public enum PermissaoDespesaCatalogo implements PermissaoDefinida {
 

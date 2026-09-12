@@ -1,31 +1,32 @@
-package br.com.diegocordeiro.dscproject.parametro;
+package br.com.diegocordeiro.dscproject.config.parametro;
 
 import br.com.diegocordeiro.dscproject.enums.TipoParametro;
 
 /**
- * Catálogo, no código, dos parâmetros do módulo Categorias.
+ * Catálogo, no código, dos parâmetros do próprio módulo Parâmetros Globais.
+ * São os itens que condicionam o comportamento da própria tela de parâmetros.
  * A carga inicial reflete estas entradas na tabela {@code PARAMETROS_GLOBAIS}.
  */
-public enum ParametrosCategoriaCatalogo implements ParametroDefinido {
+public enum ParametrosGlobaisCatalogo implements ParametroDefinido {
 
-    CATEGORIA_EXCLUSAO_BLOQUEIA_EM_USO(
-        "Exclusão de categoria bloqueia em uso",
-        "Se verdadeiro, impede excluir uma categoria referenciada por lançamentos (só permite desativar). Se falso, a exclusão é permitida e os lançamentos afetados têm a categoria anulada.",
+    PARAMETROS_SYNC_CATALOGO_NA_INICIALIZACAO(
+        "Sincronizar catálogo na inicialização",
+        "Quando verdadeiro, o sincronizador do catálogo de parâmetros (código -> tabela) roda a cada subida da aplicação.",
         TipoParametro.BOOLEAN, "true"),
 
-    CATEGORIA_COMBOBOX_CACHE(
-        "Cache do combobox de categorias",
-        "Quando verdadeiro, a lista de categorias ativas para novos lançamentos é cacheada em memória e invalidada nas alterações do catálogo.",
+    PARAMETROS_VALOR_CACHE(
+        "Cache do valor de parâmetro",
+        "Quando verdadeiro, o valor lido por buscarValorPorCodigo pode ser cacheado em memória e invalidado nas gravações desta tela.",
         TipoParametro.BOOLEAN, "true");
 
-    public static final String MODULO = "Categorias";
+    public static final String MODULO = "Parâmetros Globais";
 
     private final String nome;
     private final String descricao;
     private final TipoParametro tipo;
     private final String valorDefault;
 
-    ParametrosCategoriaCatalogo(String nome, String descricao, TipoParametro tipo, String valorDefault) {
+    ParametrosGlobaisCatalogo(String nome, String descricao, TipoParametro tipo, String valorDefault) {
         this.nome = nome;
         this.descricao = descricao;
         this.tipo = tipo;

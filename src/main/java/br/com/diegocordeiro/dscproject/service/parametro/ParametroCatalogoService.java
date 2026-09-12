@@ -1,9 +1,9 @@
 package br.com.diegocordeiro.dscproject.service.parametro;
 
-import br.com.diegocordeiro.dscproject.catalogo.DescobridorDeCatalogo;
-import br.com.diegocordeiro.dscproject.catalogo.SincronizadorDeCatalogo;
+import br.com.diegocordeiro.dscproject.config.catalogo.DescobridorDeCatalogo;
+import br.com.diegocordeiro.dscproject.config.catalogo.SincronizadorDeCatalogo;
 import br.com.diegocordeiro.dscproject.model.parametro.ParametroGlobal;
-import br.com.diegocordeiro.dscproject.parametro.ParametroDefinido;
+import br.com.diegocordeiro.dscproject.config.parametro.ParametroDefinido;
 import br.com.diegocordeiro.dscproject.repository.parametro.ParametroGlobalRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import java.util.List;
 @Service
 public class ParametroCatalogoService extends SincronizadorDeCatalogo<ParametroDefinido, ParametroGlobal> {
 
-    private static final String PACOTE_PARAMETROS = "br.com.diegocordeiro.dscproject.parametro";
+    private static final String PACOTE_PARAMETROS = "br.com.diegocordeiro.dscproject.config.parametro";
 
     private final ParametroGlobalRepository parametroGlobalRepository;
 

@@ -6,7 +6,7 @@ import br.com.diegocordeiro.dscproject.dto.categoria.CategoriaGridDTO;
 import br.com.diegocordeiro.dscproject.dto.categoria.CategoriaOpcaoDTO;
 import br.com.diegocordeiro.dscproject.enums.AplicaA;
 import br.com.diegocordeiro.dscproject.model.categoria.Categoria;
-import br.com.diegocordeiro.dscproject.parametro.ParametrosCategoriaCatalogo;
+import br.com.diegocordeiro.dscproject.config.parametro.ParametrosCategoriaCatalogo;
 import br.com.diegocordeiro.dscproject.repository.categoria.CategoriaRepository;
 import br.com.diegocordeiro.dscproject.repository.parametro.ParametroGlobalRepository;
 import br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException;

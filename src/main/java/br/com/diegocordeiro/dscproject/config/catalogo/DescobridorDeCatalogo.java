@@ -1,5 +1,6 @@
-package br.com.diegocordeiro.dscproject.catalogo;
+package br.com.diegocordeiro.dscproject.config.catalogo;
 
+import br.com.diegocordeiro.dscproject.config.permissao.PermissaoDefinida;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 /**
  * Varre um pacote e devolve todas as constantes dos {@code enum}s que implementam
- * um tipo de catálogo (ex.: {@link br.com.diegocordeiro.dscproject.permissao.PermissaoDefinida}).
+ * um tipo de catálogo (ex.: {@link PermissaoDefinida}).
  * Substitui o agregador estático escrito à mão: adicionar um módulo é só criar o
  * enum dele no pacote — nada mais precisa ser editado.
  */

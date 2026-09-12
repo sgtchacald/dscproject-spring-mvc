@@ -1,4 +1,4 @@
-package br.com.diegocordeiro.dscproject.permissao;
+package br.com.diegocordeiro.dscproject.config.permissao;
 
 /**
  * Catálogo, no código, das permissões do módulo Instituições Financeiras.

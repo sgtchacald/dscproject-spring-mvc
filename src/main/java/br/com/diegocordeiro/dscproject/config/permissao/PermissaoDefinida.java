@@ -1,6 +1,6 @@
-package br.com.diegocordeiro.dscproject.permissao;
+package br.com.diegocordeiro.dscproject.config.permissao;
 
-import br.com.diegocordeiro.dscproject.catalogo.ItemCatalogo;
+import br.com.diegocordeiro.dscproject.config.catalogo.ItemCatalogo;
 
 /**
  * Entrada do catálogo de permissões definido no código. Cada enum de módulo

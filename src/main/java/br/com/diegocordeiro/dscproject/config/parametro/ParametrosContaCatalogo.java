@@ -1,32 +1,36 @@
-package br.com.diegocordeiro.dscproject.parametro;
+package br.com.diegocordeiro.dscproject.config.parametro;
 
 import br.com.diegocordeiro.dscproject.enums.TipoParametro;
 
 /**
- * Catálogo, no código, dos parâmetros do próprio módulo Parâmetros Globais.
- * São os itens que condicionam o comportamento da própria tela de parâmetros.
+ * Catálogo, no código, dos parâmetros do módulo Contas.
  * A carga inicial reflete estas entradas na tabela {@code PARAMETROS_GLOBAIS}.
  */
-public enum ParametrosGlobaisCatalogo implements ParametroDefinido {
+public enum ParametrosContaCatalogo implements ParametroDefinido {
 
-    PARAMETROS_SYNC_CATALOGO_NA_INICIALIZACAO(
-        "Sincronizar catálogo na inicialização",
-        "Quando verdadeiro, o sincronizador do catálogo de parâmetros (código -> tabela) roda a cada subida da aplicação.",
+    CONTA_EXCLUSAO_BLOQUEIA_EM_USO(
+        "Exclusão de conta bloqueia em uso",
+        "Se verdadeiro, impede excluir uma conta referenciada por lançamentos (só desativar). Se falso, a exclusão é permitida e os lançamentos com FK nullable ficam com CTA_ID nulo.",
         TipoParametro.BOOLEAN, "true"),
 
-    PARAMETROS_VALOR_CACHE(
-        "Cache do valor de parâmetro",
-        "Quando verdadeiro, o valor lido por buscarValorPorCodigo pode ser cacheado em memória e invalidado nas gravações desta tela.",
+    CONTA_MOEDA_PADRAO(
+        "Moeda padrão de conta",
+        "Moeda pré-selecionada no cadastro de nova conta.",
+        TipoParametro.STRING, "BRL"),
+
+    CONTA_COMBOBOX_CACHE(
+        "Cache do combobox de contas",
+        "Se verdadeiro, a lista de contas ativas é cacheada por usuário e invalidada nas gravações de contas.",
         TipoParametro.BOOLEAN, "true");
 
-    public static final String MODULO = "Parâmetros Globais";
+    public static final String MODULO = "Contas";
 
     private final String nome;
     private final String descricao;
     private final TipoParametro tipo;
     private final String valorDefault;
 
-    ParametrosGlobaisCatalogo(String nome, String descricao, TipoParametro tipo, String valorDefault) {
+    ParametrosContaCatalogo(String nome, String descricao, TipoParametro tipo, String valorDefault) {
         this.nome = nome;
         this.descricao = descricao;
         this.tipo = tipo;

@@ -11,7 +11,7 @@ import br.com.diegocordeiro.dscproject.dto.despesa.DespesaRateioAcertoDTO;
 import br.com.diegocordeiro.dscproject.dto.despesa.UsuarioRateioDTO;
 import br.com.diegocordeiro.dscproject.model.despesa.Despesa;
 import br.com.diegocordeiro.dscproject.model.usuario.Usuario;
-import br.com.diegocordeiro.dscproject.permissao.PermissaoDespesaCatalogo;
+import br.com.diegocordeiro.dscproject.config.permissao.PermissaoDespesaCatalogo;
 import br.com.diegocordeiro.dscproject.repository.cartao.CartaoCreditoRepository;
 import br.com.diegocordeiro.dscproject.repository.categoria.CategoriaRepository;
 import br.com.diegocordeiro.dscproject.repository.conta.ContaRepository;

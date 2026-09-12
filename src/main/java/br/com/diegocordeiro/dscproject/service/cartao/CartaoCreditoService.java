@@ -8,7 +8,7 @@ import br.com.diegocordeiro.dscproject.enums.BandeiraCartao;
 import br.com.diegocordeiro.dscproject.model.cartao.CartaoCredito;
 import br.com.diegocordeiro.dscproject.model.conta.Conta;
 import br.com.diegocordeiro.dscproject.model.usuario.Usuario;
-import br.com.diegocordeiro.dscproject.parametro.ParametrosCartaoCatalogo;
+import br.com.diegocordeiro.dscproject.config.parametro.ParametrosCartaoCatalogo;
 import br.com.diegocordeiro.dscproject.repository.cartao.CartaoCreditoRepository;
 import br.com.diegocordeiro.dscproject.repository.conta.ContaRepository;
 import br.com.diegocordeiro.dscproject.repository.parametro.ParametroGlobalRepository;

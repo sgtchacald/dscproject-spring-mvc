@@ -8,7 +8,7 @@ import br.com.diegocordeiro.dscproject.dto.conta.ContaOpcaoDTO;
 import br.com.diegocordeiro.dscproject.model.conta.Conta;
 import br.com.diegocordeiro.dscproject.model.instituicaofinanceira.InstituicaoFinanceira;
 import br.com.diegocordeiro.dscproject.model.usuario.Usuario;
-import br.com.diegocordeiro.dscproject.parametro.ParametrosContaCatalogo;
+import br.com.diegocordeiro.dscproject.config.parametro.ParametrosContaCatalogo;
 import br.com.diegocordeiro.dscproject.repository.conta.ContaRepository;
 import br.com.diegocordeiro.dscproject.repository.instituicaofinanceira.InstituicaoFinanceiraRepository;
 import br.com.diegocordeiro.dscproject.repository.parametro.ParametroGlobalRepository;

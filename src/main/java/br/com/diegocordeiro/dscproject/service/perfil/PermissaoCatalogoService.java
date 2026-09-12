@@ -1,10 +1,10 @@
 package br.com.diegocordeiro.dscproject.service.perfil;
 
-import br.com.diegocordeiro.dscproject.catalogo.DescobridorDeCatalogo;
-import br.com.diegocordeiro.dscproject.catalogo.SincronizadorDeCatalogo;
+import br.com.diegocordeiro.dscproject.config.catalogo.DescobridorDeCatalogo;
+import br.com.diegocordeiro.dscproject.config.catalogo.SincronizadorDeCatalogo;
 import br.com.diegocordeiro.dscproject.dto.permissao.PermissaoCatalogoDTO;
 import br.com.diegocordeiro.dscproject.model.perfil.Permissao;
-import br.com.diegocordeiro.dscproject.permissao.PermissaoDefinida;
+import br.com.diegocordeiro.dscproject.config.permissao.PermissaoDefinida;
 import br.com.diegocordeiro.dscproject.repository.perfil.PermissaoRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import java.util.List;
 @Service
 public class PermissaoCatalogoService extends SincronizadorDeCatalogo<PermissaoDefinida, Permissao> {
 
-    private static final String PACOTE_PERMISSOES = "br.com.diegocordeiro.dscproject.permissao";
+    private static final String PACOTE_PERMISSOES = "br.com.diegocordeiro.dscproject.config.permissao";
 
     private final PermissaoRepository permissaoRepository;
 

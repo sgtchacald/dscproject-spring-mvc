@@ -1,9 +1,9 @@
 package br.com.diegocordeiro.dscproject.model.parametro;
 
 import br.com.diegocordeiro.dscproject.model.comum.AbstractAuditoria;
-import br.com.diegocordeiro.dscproject.catalogo.LinhaCatalogo;
+import br.com.diegocordeiro.dscproject.config.catalogo.LinhaCatalogo;
 import br.com.diegocordeiro.dscproject.enums.TipoParametro;
-import br.com.diegocordeiro.dscproject.parametro.ParametroDefinido;
+import br.com.diegocordeiro.dscproject.config.parametro.ParametroDefinido;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

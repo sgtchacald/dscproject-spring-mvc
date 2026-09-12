@@ -1,4 +1,4 @@
-package br.com.diegocordeiro.dscproject.catalogo;
+package br.com.diegocordeiro.dscproject.config.catalogo;
 
 /**
  * Entrada de um catálogo definido no código — a fonte da verdade que o

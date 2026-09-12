@@ -1,4 +1,4 @@
-package br.com.diegocordeiro.dscproject.parametro;
+package br.com.diegocordeiro.dscproject.config.parametro;
 
 import br.com.diegocordeiro.dscproject.enums.TipoParametro;
 import tools.jackson.databind.json.JsonMapper;

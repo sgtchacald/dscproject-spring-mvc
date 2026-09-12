@@ -1,8 +1,8 @@
 package br.com.diegocordeiro.dscproject.service.perfil;
 
-import br.com.diegocordeiro.dscproject.catalogo.DescobridorDeCatalogo;
+import br.com.diegocordeiro.dscproject.config.catalogo.DescobridorDeCatalogo;
 import br.com.diegocordeiro.dscproject.dto.catalogo.SincronizacaoCatalogoDTO;
-import br.com.diegocordeiro.dscproject.permissao.PermissaoDefinida;
+import br.com.diegocordeiro.dscproject.config.permissao.PermissaoDefinida;
 import br.com.diegocordeiro.dscproject.model.perfil.Permissao;
 import br.com.diegocordeiro.dscproject.repository.perfil.PermissaoRepository;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ class PermissaoCatalogoServiceTest {
     private PermissaoCatalogoService service;
 
     private static List<PermissaoDefinida> permissoesDoCodigo() {
-        return DescobridorDeCatalogo.noPacote("br.com.diegocordeiro.dscproject.permissao", PermissaoDefinida.class);
+        return DescobridorDeCatalogo.noPacote("br.com.diegocordeiro.dscproject.config.permissao", PermissaoDefinida.class);
     }
 
     private static Permissao permissao(String codigo, String modulo, boolean orfa) {

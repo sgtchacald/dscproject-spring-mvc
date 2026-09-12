@@ -5,7 +5,7 @@ import br.com.diegocordeiro.dscproject.dto.parametro.ParametroGlobalListaDTO;
 import br.com.diegocordeiro.dscproject.dto.parametro.ParametroValorFormDTO;
 import br.com.diegocordeiro.dscproject.dto.parametro.RevisaoParametroDTO;
 import br.com.diegocordeiro.dscproject.model.parametro.ParametroGlobal;
-import br.com.diegocordeiro.dscproject.parametro.ParametroValorValidador;
+import br.com.diegocordeiro.dscproject.config.parametro.ParametroValorValidador;
 import br.com.diegocordeiro.dscproject.repository.parametro.ParametroGlobalRepository;
 import br.com.diegocordeiro.dscproject.service.exceptions.RegistroNaoEncontradoException;
 import br.com.diegocordeiro.dscproject.service.exceptions.RegraNegocioException;

@@ -1,31 +1,31 @@
-package br.com.diegocordeiro.dscproject.parametro;
+package br.com.diegocordeiro.dscproject.config.parametro;
 
 import br.com.diegocordeiro.dscproject.enums.TipoParametro;
 
 /**
- * Catálogo, no código, dos parâmetros do módulo Cartões de Crédito.
+ * Catálogo, no código, dos parâmetros do módulo Instituições Financeiras.
  * A carga inicial reflete estas entradas na tabela {@code PARAMETROS_GLOBAIS}.
  */
-public enum ParametrosCartaoCatalogo implements ParametroDefinido {
+public enum ParametrosInstituicaoCatalogo implements ParametroDefinido {
 
-    CARTAO_EXCLUSAO_BLOQUEIA_EM_USO(
-        "Exclusão de cartão bloqueia em uso",
-        "Se verdadeiro, impede excluir um cartão referenciado por despesas (só desativar). Se falso, a exclusão é permitida e as despesas afetadas ficam com CACR_ID nulo. O bloqueio por faturas é sempre aplicado, independentemente deste parâmetro.",
+    INSTITUICAO_EXCLUSAO_BLOQUEIA_EM_USO(
+        "Exclusão de instituição bloqueia em uso",
+        "Se verdadeiro, impede excluir uma instituição referenciada por contas, investimentos ou conexões de Open Finance (só desativar). Se falso, anula as FKs nos registros que o permitirem.",
         TipoParametro.BOOLEAN, "true"),
 
-    CARTAO_COMBOBOX_CACHE(
-        "Cache do combobox de cartões",
-        "Se verdadeiro, a lista de cartões ativos do usuário para o combobox de despesa é cacheada por usuário e invalidada nas gravações de cartões daquele usuário.",
+    INSTITUICAO_COMBOBOX_CACHE(
+        "Cache do combobox de instituições",
+        "Quando verdadeiro, a lista de instituições ativas é cacheada em memória e invalidada nas alterações do catálogo.",
         TipoParametro.BOOLEAN, "true");
 
-    public static final String MODULO = "Cartões de Crédito";
+    public static final String MODULO = "Instituições Financeiras";
 
     private final String nome;
     private final String descricao;
     private final TipoParametro tipo;
     private final String valorDefault;
 
-    ParametrosCartaoCatalogo(String nome, String descricao, TipoParametro tipo, String valorDefault) {
+    ParametrosInstituicaoCatalogo(String nome, String descricao, TipoParametro tipo, String valorDefault) {
         this.nome = nome;
         this.descricao = descricao;
         this.tipo = tipo;

@@ -1,10 +1,10 @@
 package br.com.diegocordeiro.dscproject.service.parametro;
 
-import br.com.diegocordeiro.dscproject.catalogo.DescobridorDeCatalogo;
+import br.com.diegocordeiro.dscproject.config.catalogo.DescobridorDeCatalogo;
 import br.com.diegocordeiro.dscproject.dto.catalogo.SincronizacaoCatalogoDTO;
 import br.com.diegocordeiro.dscproject.enums.TipoParametro;
 import br.com.diegocordeiro.dscproject.model.parametro.ParametroGlobal;
-import br.com.diegocordeiro.dscproject.parametro.ParametroDefinido;
+import br.com.diegocordeiro.dscproject.config.parametro.ParametroDefinido;
 import br.com.diegocordeiro.dscproject.repository.parametro.ParametroGlobalRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +32,7 @@ class ParametroCatalogoServiceTest {
     private ParametroCatalogoService service;
 
     private static List<ParametroDefinido> parametrosDoCodigo() {
-        return DescobridorDeCatalogo.noPacote("br.com.diegocordeiro.dscproject.parametro", ParametroDefinido.class);
+        return DescobridorDeCatalogo.noPacote("br.com.diegocordeiro.dscproject.config.parametro", ParametroDefinido.class);
     }
 
     private static ParametroGlobal parametro(String codigo, String valor, boolean orfa) {

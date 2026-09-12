@@ -1,7 +1,7 @@
 package br.com.diegocordeiro.dscproject.model.perfil;
 
 import br.com.diegocordeiro.dscproject.model.comum.AbstractAuditoria;
-import br.com.diegocordeiro.dscproject.catalogo.LinhaCatalogo;
+import br.com.diegocordeiro.dscproject.config.catalogo.LinhaCatalogo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

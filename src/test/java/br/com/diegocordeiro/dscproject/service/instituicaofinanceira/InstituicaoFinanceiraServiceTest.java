@@ -5,8 +5,6 @@ import br.com.diegocordeiro.dscproject.dto.instituicaofinanceira.InstituicaoFina
 import br.com.diegocordeiro.dscproject.enums.TipoInstituicaoFinanceira;
 import br.com.diegocordeiro.dscproject.model.instituicaofinanceira.InstituicaoFinanceira;
 import br.com.diegocordeiro.dscproject.model.instituicaofinanceira.OpfiInstituicaoProvedor;
-import br.com.diegocordeiro.dscproject.model.parametro.ParametroGlobal;
-import br.com.diegocordeiro.dscproject.parametro.ParametrosInstituicaoCatalogo;
 import br.com.diegocordeiro.dscproject.repository.instituicaofinanceira.InstituicaoFinanceiraRepository;
 import br.com.diegocordeiro.dscproject.repository.instituicaofinanceira.OpfiInstituicaoProvedorRepository;
 import br.com.diegocordeiro.dscproject.repository.parametro.ParametroGlobalRepository;
