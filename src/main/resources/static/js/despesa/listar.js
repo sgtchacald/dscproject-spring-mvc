@@ -468,12 +468,14 @@ function inicializarImportacaoFatura() {
                 ]);
                 const selCartao = document.getElementById('importarCartaoId');
                 if (selCartao) {
-                    selCartao.innerHTML = '<option value="">Selecione...</option>' +
+                    const placeholder = selCartao.options[0]?.text || 'Selecione o cartão...';
+                    selCartao.innerHTML = `<option value="">${placeholder}</option>` +
                         cartoes.map(c => `<option value="${c.id}">${c.descricao || c.nome}</option>`).join('');
                 }
                 const selCat = document.getElementById('importarCategoriaId');
                 if (selCat) {
-                    selCat.innerHTML = '<option value="">Sem categoria</option>' +
+                    const placeholder = selCat.options[0]?.text || 'Sem categoria';
+                    selCat.innerHTML = `<option value="">${placeholder}</option>` +
                         categorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
                 }
             } catch (err) {
