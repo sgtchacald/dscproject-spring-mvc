@@ -509,4 +509,29 @@ class DespesaServiceTest {
         assertEquals("autor", atualizada.getAlteradoPor());
         verify(despesaRepository).save(d);
     }
+
+    @Test
+    @DisplayName("RN32 - Atualizar competência com formato inválido lança RegraNegocioException")
+    void atualizarCompetencia_comCompetenciaInvalida_deveLancarExcecao() {
+        assertThrows(RegraNegocioException.class, () -> despesaService.atualizarCompetencia(10L, null, 1L, "autor"));
+        assertThrows(RegraNegocioException.class, () -> despesaService.atualizarCompetencia(10L, "", 1L, "autor"));
+        assertThrows(RegraNegocioException.class, () -> despesaService.atualizarCompetencia(10L, "invalido", 1L, "autor"));
+        assertThrows(RegraNegocioException.class, () -> despesaService.atualizarCompetencia(10L, "2026/08", 1L, "autor"));
+    }
+
+    @Test
+    @DisplayName("RN32 - Atualizar competência com sucesso")
+    void atualizarCompetencia_comSucesso_deveAtualizar() {
+        Despesa d = new Despesa();
+        d.setId(10L);
+        d.setCompetencia(YearMonth.of(2026, 8));
+        when(despesaRepository.buscarPorIdEUsuario(10L, 1L)).thenReturn(Optional.of(d));
+        when(despesaRepository.save(any(Despesa.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Despesa atualizada = despesaService.atualizarCompetencia(10L, "2026-10", 1L, "autor");
+
+        assertEquals(YearMonth.of(2026, 10), atualizada.getCompetencia());
+        assertEquals("autor", atualizada.getAlteradoPor());
+        verify(despesaRepository).save(d);
+    }
 }

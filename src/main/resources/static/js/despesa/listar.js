@@ -48,6 +48,8 @@ function filtrar(lista) {
     const buscaNorm = semAcento(f.busca);
 
     return lista.filter(d => {
+        if (d.excluido) return false;
+
         if (buscaNorm) {
             const nomeNorm = semAcento(d.nome);
             const descNorm = semAcento(d.descricao);
@@ -76,34 +78,70 @@ function filtrar(lista) {
 function ordenar(lista) {
     const { col, asc } = ordenacao;
     return lista.slice().sort((a, b) => {
-        let va = a[col];
-        let vb = b[col];
+        let cmp = 0;
 
         if (col === 'categoria') {
-            va = a.categoriaNome || '';
-            vb = b.categoriaNome || '';
+            const va = a.categoriaNome || '';
+            const vb = b.categoriaNome || '';
+            cmp = va.localeCompare(vb, 'pt-BR');
         } else if (col === 'forma') {
-            va = a.formaPagamento || '';
-            vb = b.formaPagamento || '';
+            const va = a.formaPagamento || '';
+            const vb = b.formaPagamento || '';
+            cmp = va.localeCompare(vb, 'pt-BR');
         } else if (col === 'valor') {
-            va = a.valor != null ? Number(a.valor) : 0;
-            vb = b.valor != null ? Number(b.valor) : 0;
-            return asc ? va - vb : vb - va;
+            const va = a.valor != null ? Number(a.valor) : 0;
+            const vb = b.valor != null ? Number(b.valor) : 0;
+            cmp = va - vb;
         } else if (col === 'status') {
-            va = situacaoCodigo(a);
-            vb = situacaoCodigo(b);
+            const va = situacaoCodigo(a);
+            const vb = situacaoCodigo(b);
+            cmp = va.localeCompare(vb, 'pt-BR');
+        } else if (col === 'rateio') {
+            const va = a.qtdCoParticipantes != null ? Number(a.qtdCoParticipantes) : 0;
+            const vb = b.qtdCoParticipantes != null ? Number(b.qtdCoParticipantes) : 0;
+            cmp = va - vb;
+        } else {
+            let va = a[col];
+            let vb = b[col];
+            if (va == null) va = '';
+            if (vb == null) vb = '';
+            if (typeof va === 'number' && typeof vb === 'number') {
+                cmp = va - vb;
+            } else {
+                cmp = String(va).localeCompare(String(vb), 'pt-BR');
+            }
         }
 
-        if (va == null) va = '';
-        if (vb == null) vb = '';
-
-        if (typeof va === 'string') {
-            const res = va.localeCompare(vb, 'pt-BR');
-            return asc ? res : -res;
+        if (cmp !== 0) {
+            return asc ? cmp : -cmp;
         }
 
-        if (va === vb) return 0;
-        return (va > vb ? 1 : -1) * (asc ? 1 : -1);
+        // --- Desempate determinístico (para parcelas e registros com campos iguais) ---
+        // 1. Número da parcela
+        const parcelaA = a.nroParcela || 0;
+        const parcelaB = b.nroParcela || 0;
+        if (parcelaA !== parcelaB) {
+            return asc ? parcelaA - parcelaB : parcelaB - parcelaA;
+        }
+
+        // 2. Competência
+        const compA = a.competencia || '';
+        const compB = b.competencia || '';
+        const compCmp = compA.localeCompare(compB);
+        if (compCmp !== 0) {
+            return asc ? compCmp : -compCmp;
+        }
+
+        // 3. Vencimento
+        const vencA = a.dataVencimento || '';
+        const vencB = b.dataVencimento || '';
+        const vencCmp = vencA.localeCompare(vencB);
+        if (vencCmp !== 0) {
+            return asc ? vencCmp : -vencCmp;
+        }
+
+        // 4. Identificador único
+        return (a.id || 0) - (b.id || 0);
     });
 }
 
@@ -178,6 +216,7 @@ function atualizarTotalizador(filtradas) {
 }
 
 function render() {
+    atualizarCabecalhoOrdenacao();
     const filtradas = filtrar(todas);
     const lista = ordenar(filtradas);
     corpo.innerHTML = '';
@@ -265,13 +304,17 @@ function render() {
                     : '<td class="text-center text-muted">—</td>';
             }
 
+            const podeEditarCompetencia = podeEditar() && !d.excluido;
+            const classeCompetencia = podeEditarCompetencia ? 'cursor-pointer celula-competencia' : '';
+            const titleCompetencia = podeEditarCompetencia ? 'Clique para editar a competência' : '';
+
             const podeEditarValor = podeEditar() && !d.excluido;
             const classeValor = podeEditarValor ? 'text-end fw-bold cursor-pointer celula-valor' : 'text-end fw-bold';
             const titleValor = podeEditarValor ? 'Clique para editar o valor' : '';
 
             tr.innerHTML = `
                 <td>${checkHtml}</td>
-                <td>${formatarCompetencia(d.competencia)}</td>
+                <td class="${classeCompetencia}" data-id="${d.id}" title="${titleCompetencia}">${formatarCompetencia(d.competencia)}</td>
                 <td><strong>${d.nome}</strong>${parcelaBadge}${recorrenteBadge}${descHtml}</td>
                 <td>${categoriaHtml}</td>
                 <td>${badgeForma(d)}</td>
@@ -360,6 +403,89 @@ function inicializarEdicaoInline() {
             } catch (err) {
                 toast('Erro de comunicação ao atualizar valor.', true);
                 celula.innerHTML = formatarMoeda(d.valor);
+            }
+        }
+
+        input.addEventListener('keydown', function (evt) {
+            if (evt.key === 'Enter') {
+                evt.preventDefault();
+                salvar();
+            } else if (evt.key === 'Escape') {
+                evt.preventDefault();
+                restaurar();
+            }
+        });
+
+        input.addEventListener('blur', function () {
+            salvar();
+        });
+    });
+}
+
+function inicializarEdicaoInlineCompetencia() {
+    corpo.addEventListener('click', function (e) {
+        const celula = e.target.closest('td.celula-competencia');
+        if (!celula || celula.querySelector('input')) return;
+
+        const id = Number(celula.dataset.id);
+        const d = todas.find(item => item.id === id);
+        if (!d) return;
+
+        const competenciaOriginal = d.competencia || '';
+        const input = document.createElement('input');
+        input.type = 'month';
+        input.className = 'form-control form-control-sm';
+        input.style.minWidth = '130px';
+        input.style.maxWidth = '160px';
+        input.style.display = 'inline-block';
+        input.value = competenciaOriginal;
+
+        celula.innerHTML = '';
+        celula.appendChild(input);
+        input.focus();
+
+        let finalizado = false;
+
+        function restaurar() {
+            if (finalizado) return;
+            finalizado = true;
+            celula.innerHTML = formatarCompetencia(d.competencia);
+        }
+
+        async function salvar() {
+            if (finalizado) return;
+            finalizado = true;
+            const novaCompetencia = (input.value || '').trim();
+            if (!novaCompetencia || !/^\d{4}-\d{2}$/.test(novaCompetencia)) {
+                toast('A competência deve estar no formato AAAA-MM.', true);
+                celula.innerHTML = formatarCompetencia(d.competencia);
+                return;
+            }
+
+            if (novaCompetencia === d.competencia) {
+                celula.innerHTML = formatarCompetencia(d.competencia);
+                return;
+            }
+
+            try {
+                const urlBase = cfg().urlAtualizarCompetencia || cfg().urlAtualizarValor || `${cfg().urlBase || ''}/despesas`;
+                const url = `${urlBase}/${id}/competencia`;
+                const body = new URLSearchParams();
+                body.append('competencia', novaCompetencia);
+                const res = await enviar(url, 'PATCH', body);
+                if (res.sucesso) {
+                    d.competencia = novaCompetencia;
+                    toast(res.mensagem || 'Competência atualizada com sucesso.');
+                    celula.innerHTML = formatarCompetencia(novaCompetencia);
+                    render();
+                } else {
+                    const erroMsg = res.errosCampos?.competencia || res.mensagem || 'Erro ao atualizar competência.';
+                    toast(erroMsg, true);
+                    celula.innerHTML = formatarCompetencia(d.competencia);
+                }
+            } catch (err) {
+                toast('Erro de comunicação ao atualizar competência.', true);
+                celula.innerHTML = formatarCompetencia(d.competencia);
             }
         }
 
@@ -577,6 +703,20 @@ function inicializarAcoes() {
     });
 }
 
+function atualizarCabecalhoOrdenacao() {
+    document.querySelectorAll('#tabelaDespesas thead th.sortable').forEach(th => {
+        const col = th.dataset.col;
+        const iconeExistente = th.querySelector('.icone-ordenacao');
+        if (iconeExistente) iconeExistente.remove();
+
+        if (ordenacao.col === col) {
+            const icone = document.createElement('i');
+            icone.className = `icone-ordenacao ph ${ordenacao.asc ? 'ph-caret-up' : 'ph-caret-down'} ms-1`;
+            th.appendChild(icone);
+        }
+    });
+}
+
 function inicializarOrdenacao() {
     document.querySelectorAll('#tabelaDespesas thead th.sortable').forEach(th => {
         th.addEventListener('click', function () {
@@ -599,6 +739,7 @@ document.addEventListener('DOMContentLoaded', function () {
     inicializarDuplicacao();
     inicializarImportacaoFatura();
     inicializarEdicaoInline();
+    inicializarEdicaoInlineCompetencia();
     inicializarFiltro(() => render());
     inicializarOrdenacao();
     inicializarSelecaoMultipla();

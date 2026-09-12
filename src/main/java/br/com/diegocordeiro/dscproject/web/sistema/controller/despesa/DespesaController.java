@@ -48,6 +48,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -277,6 +279,34 @@ public class DespesaController {
                 "mensagem", mensagem("msg.despesa.valor-atualizado", locale),
                 "id", d.getId(),
                 "valor", d.getValor()));
+    }
+
+    @PatchMapping("/despesas/{id}/competencia")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> atualizarCompetencia(@PathVariable Long id, @RequestParam(value = "competencia", required = false) String competencia, Principal principal, Locale locale) {
+        if (competencia == null || competencia.isBlank()) {
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("sucesso", false);
+            body.put("errosCampos", Map.of("competencia", mensagem("msg.despesa.competencia-invalida", locale)));
+            body.put("errosNegocio", Map.of());
+            return ResponseEntity.unprocessableEntity().body(body);
+        }
+        try {
+            YearMonth.parse(competencia.trim());
+        } catch (DateTimeParseException e) {
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("sucesso", false);
+            body.put("errosCampos", Map.of("competencia", mensagem("msg.despesa.competencia-invalida", locale)));
+            body.put("errosNegocio", Map.of());
+            return ResponseEntity.unprocessableEntity().body(body);
+        }
+        Usuario usuario = obterUsuarioAutenticado(principal);
+        Despesa d = despesaService.atualizarCompetencia(id, competencia.trim(), usuario.getId(), usuario.getLogin());
+        return ResponseEntity.ok(Map.of(
+                "sucesso", true,
+                "mensagem", mensagem("msg.despesa.competencia-atualizada", locale),
+                "id", d.getId(),
+                "competencia", d.getCompetencia() != null ? d.getCompetencia().toString() : ""));
     }
 
     @PostMapping("/despesas/importar-extrato")

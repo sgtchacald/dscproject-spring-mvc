@@ -31,6 +31,7 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long> {
         LEFT JOIN FETCH d.categoria cat
         LEFT JOIN FETCH d.rateios r
         WHERE (c.usuario.id = :usuarioId OR cc.usuario.id = :usuarioId)
+          AND d.dataExclusao IS NULL
         ORDER BY d.competencia DESC, d.dataVencimento ASC, d.dataLancamento DESC
         """)
     List<Despesa> listarPorUsuario(@Param("usuarioId") Long usuarioId);

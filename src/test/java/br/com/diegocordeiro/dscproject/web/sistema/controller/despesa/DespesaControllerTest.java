@@ -409,6 +409,37 @@ class DespesaControllerTest {
     }
 
     @Test
+    @DisplayName("EDP15 / RN32 - Atualizar competência com formato inválido retorna 422")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_EDITAR")
+    void atualizarCompetencia_comCompetenciaInvalida_deveRetornar422() throws Exception {
+        mockMvc.perform(patch("/despesas/10/competencia")
+                        .param("competencia", "2026/08")
+                        .with(csrf()))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.sucesso").value(false))
+                .andExpect(jsonPath("$.errosCampos.competencia").exists());
+
+        verify(despesaService, never()).atualizarCompetencia(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("EDP15 / RN32 - Atualizar competência com sucesso retorna 200")
+    @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_EDITAR")
+    void atualizarCompetencia_comSucesso_deveRetornar200() throws Exception {
+        Despesa d = new Despesa();
+        d.setId(10L);
+        d.setCompetencia(YearMonth.of(2026, 10));
+        when(despesaService.atualizarCompetencia(10L, "2026-10", 1L, "user_teste")).thenReturn(d);
+
+        mockMvc.perform(patch("/despesas/10/competencia")
+                        .param("competencia", "2026-10")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sucesso").value(true))
+                .andExpect(jsonPath("$.competencia").value("2026-10"));
+    }
+
+    @Test
     @DisplayName("EDP14 / RN28 - Importar extrato com sucesso retorna 200")
     @WithMockUser(username = "user_teste", authorities = "PERM_DESPESAS_IMPORTAR")
     void importarExtrato_comSucesso_deveRetornar200() throws Exception {

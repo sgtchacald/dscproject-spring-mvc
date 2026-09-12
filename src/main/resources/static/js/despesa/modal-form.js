@@ -1,6 +1,7 @@
 import { getJson, enviar } from '../comum/http.js';
 import { toast, abrirModal, fecharModal } from '../comum/ui.js';
 import { definirValorMoeda } from '../comum/mascara.js';
+import { obterFiltroAtual } from './modal-filtro.js';
 
 export const EVENTO_ALTERADO = 'despesa:alterada';
 
@@ -245,9 +246,25 @@ export async function abrirNovo() {
     document.getElementById('btnFormaCartao').disabled = false;
     document.getElementById('btnFormaDinheiro').disabled = false;
 
-    const hoje = new Date().toISOString().slice(0, 10);
-    document.getElementById('despesaDataLancamento').value = hoje;
-    document.getElementById('despesaCompetencia').value = mesDaData(hoje);
+    const hoje = new Date();
+    const hojeIso = hoje.toISOString().slice(0, 10);
+    const filtroAtual = typeof obterFiltroAtual === 'function' ? obterFiltroAtual() : null;
+    const compFiltro = (filtroAtual && filtroAtual.competenciaInicio) ? filtroAtual.competenciaInicio : null;
+    const competenciaPadrao = compFiltro || mesDaData(hojeIso);
+
+    let dataLancamentoPadrao = hojeIso;
+    if (compFiltro && compFiltro !== mesDaData(hojeIso)) {
+        const [anoStr, mesStr] = compFiltro.split('-');
+        const ano = parseInt(anoStr, 10);
+        const mes = parseInt(mesStr, 10);
+        const diaAtual = hoje.getDate();
+        const ultimoDiaDoMes = new Date(ano, mes, 0).getDate();
+        const diaAjustado = Math.min(diaAtual, ultimoDiaDoMes);
+        dataLancamentoPadrao = `${compFiltro}-${String(diaAjustado).padStart(2, '0')}`;
+    }
+
+    document.getElementById('despesaDataLancamento').value = dataLancamentoPadrao;
+    document.getElementById('despesaCompetencia').value = competenciaPadrao;
 
     definirForma('CONTA');
 

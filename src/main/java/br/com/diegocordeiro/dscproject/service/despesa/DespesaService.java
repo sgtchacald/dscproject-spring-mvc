@@ -36,6 +36,7 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -605,6 +606,23 @@ public class DespesaService {
         }
         Despesa d = buscarPorIdEUsuario(id, usuarioId);
         d.setValor(novoValor);
+        d.setAlteradoPor(loginAutor);
+        return despesaRepository.save(d);
+    }
+
+    @Transactional
+    public Despesa atualizarCompetencia(Long id, String novaCompetenciaStr, Long usuarioId, String loginAutor) {
+        if (novaCompetenciaStr == null || novaCompetenciaStr.isBlank()) {
+            throw new RegraNegocioException("competencia", "msg.despesa.competencia-invalida");
+        }
+        YearMonth novaCompetencia;
+        try {
+            novaCompetencia = YearMonth.parse(novaCompetenciaStr.trim());
+        } catch (DateTimeParseException e) {
+            throw new RegraNegocioException("competencia", "msg.despesa.competencia-invalida");
+        }
+        Despesa d = buscarPorIdEUsuario(id, usuarioId);
+        d.setCompetencia(novaCompetencia);
         d.setAlteradoPor(loginAutor);
         return despesaRepository.save(d);
     }
