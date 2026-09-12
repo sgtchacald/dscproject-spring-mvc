@@ -80,7 +80,11 @@ function ordenar(lista) {
     return lista.slice().sort((a, b) => {
         let cmp = 0;
 
-        if (col === 'categoria') {
+        if (col === 'competencia') {
+            const compA = (a.competencia || '').trim();
+            const compB = (b.competencia || '').trim();
+            cmp = compA.localeCompare(compB);
+        } else if (col === 'categoria') {
             const va = a.categoriaNome || '';
             const vb = b.categoriaNome || '';
             cmp = va.localeCompare(vb, 'pt-BR');
@@ -92,14 +96,26 @@ function ordenar(lista) {
             const va = a.valor != null ? Number(a.valor) : 0;
             const vb = b.valor != null ? Number(b.valor) : 0;
             cmp = va - vb;
+        } else if (col === 'dataVencimento') {
+            const va = a.dataVencimento || '';
+            const vb = b.dataVencimento || '';
+            cmp = va.localeCompare(vb);
         } else if (col === 'status') {
             const va = situacaoCodigo(a);
             const vb = situacaoCodigo(b);
             cmp = va.localeCompare(vb, 'pt-BR');
+        } else if (col === 'dataPagamento') {
+            const va = a.dataPagamento || '';
+            const vb = b.dataPagamento || '';
+            cmp = va.localeCompare(vb);
         } else if (col === 'rateio') {
             const va = a.qtdCoParticipantes != null ? Number(a.qtdCoParticipantes) : 0;
             const vb = b.qtdCoParticipantes != null ? Number(b.qtdCoParticipantes) : 0;
             cmp = va - vb;
+        } else if (col === 'origem') {
+            const va = labelOrigem(a.origem) || '';
+            const vb = labelOrigem(b.origem) || '';
+            cmp = va.localeCompare(vb, 'pt-BR');
         } else {
             let va = a[col];
             let vb = b[col];
@@ -116,32 +132,94 @@ function ordenar(lista) {
             return asc ? cmp : -cmp;
         }
 
-        // --- Desempate determinístico (para parcelas e registros com campos iguais) ---
-        // 1. Número da parcela
-        const parcelaA = a.nroParcela || 0;
-        const parcelaB = b.nroParcela || 0;
-        if (parcelaA !== parcelaB) {
-            return asc ? parcelaA - parcelaB : parcelaB - parcelaA;
-        }
+        // --- Desempate determinístico ---
+        if (col === 'competencia') {
+            // 1. Data de Vencimento
+            const vencA = a.dataVencimento || '';
+            const vencB = b.dataVencimento || '';
+            const vencCmp = vencA.localeCompare(vencB);
+            if (vencCmp !== 0) {
+                return asc ? vencCmp : -vencCmp;
+            }
 
-        // 2. Competência
-        const compA = a.competencia || '';
-        const compB = b.competencia || '';
-        const compCmp = compA.localeCompare(compB);
-        if (compCmp !== 0) {
-            return asc ? compCmp : -compCmp;
-        }
+            // 2. Data de Lançamento
+            const lancA = a.dataLancamento || '';
+            const lancB = b.dataLancamento || '';
+            const lancCmp = lancA.localeCompare(lancB);
+            if (lancCmp !== 0) {
+                return asc ? lancCmp : -lancCmp;
+            }
 
-        // 3. Vencimento
-        const vencA = a.dataVencimento || '';
-        const vencB = b.dataVencimento || '';
-        const vencCmp = vencA.localeCompare(vencB);
-        if (vencCmp !== 0) {
-            return asc ? vencCmp : -vencCmp;
-        }
+            // 3. Nome
+            const nomeA = a.nome || '';
+            const nomeB = b.nome || '';
+            const nomeCmp = nomeA.localeCompare(nomeB, 'pt-BR');
+            if (nomeCmp !== 0) {
+                return asc ? nomeCmp : -nomeCmp;
+            }
 
-        // 4. Identificador único
-        return (a.id || 0) - (b.id || 0);
+            // 4. Número da parcela (se for a mesma compra parcelada)
+            const parcelaA = a.nroParcela || 0;
+            const parcelaB = b.nroParcela || 0;
+            if (parcelaA !== parcelaB) {
+                return asc ? parcelaA - parcelaB : parcelaB - parcelaA;
+            }
+
+            // 5. Identificador único
+            const idA = a.id || 0;
+            const idB = b.id || 0;
+            return asc ? idA - idB : idB - idA;
+        } else {
+            // 1. Número da parcela (se pertencerem à mesma compra parcelada)
+            const mesmaSerie = (a.parcelada || b.parcelada) && (
+                (a.idParcelaPai && a.idParcelaPai === b.idParcelaPai) ||
+                (a.nome && a.nome === b.nome)
+            );
+            if (mesmaSerie) {
+                const parcelaA = a.nroParcela || 0;
+                const parcelaB = b.nroParcela || 0;
+                if (parcelaA !== parcelaB) {
+                    return asc ? parcelaA - parcelaB : parcelaB - parcelaA;
+                }
+            }
+
+            // 2. Competência
+            const compA = (a.competencia || '').trim();
+            const compB = (b.competencia || '').trim();
+            const compCmp = compA.localeCompare(compB);
+            if (compCmp !== 0) {
+                return asc ? compCmp : -compCmp;
+            }
+
+            // 3. Data de Vencimento
+            const vencA = a.dataVencimento || '';
+            const vencB = b.dataVencimento || '';
+            const vencCmp = vencA.localeCompare(vencB);
+            if (vencCmp !== 0) {
+                return asc ? vencCmp : -vencCmp;
+            }
+
+            // 4. Data de Lançamento
+            const lancA = a.dataLancamento || '';
+            const lancB = b.dataLancamento || '';
+            const lancCmp = lancA.localeCompare(lancB);
+            if (lancCmp !== 0) {
+                return asc ? lancCmp : -lancCmp;
+            }
+
+            // 5. Nome
+            const nomeA = a.nome || '';
+            const nomeB = b.nome || '';
+            const nomeCmp = nomeA.localeCompare(nomeB, 'pt-BR');
+            if (nomeCmp !== 0) {
+                return asc ? nomeCmp : -nomeCmp;
+            }
+
+            // 6. Identificador único
+            const idA = a.id || 0;
+            const idB = b.id || 0;
+            return asc ? idA - idB : idB - idA;
+        }
     });
 }
 

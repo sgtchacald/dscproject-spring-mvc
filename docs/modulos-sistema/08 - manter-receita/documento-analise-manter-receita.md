@@ -2,7 +2,8 @@
 ## Módulo Receitas — USER / ADMIN — Manter Receita
 
 **Gerado em:** 08/09/2026
-**Versão:** 1.1
+**Atualizado em:** 12/09/2026
+**Versão:** 1.2
 **Status:** Desenvolvido
 **Projeto:** `dscproject-spring-mvc` (geração 2)
 
@@ -27,6 +28,7 @@
 |---|---|---|---|
 | 1.0 | 08/09/2026 | Diego dos Santos Cordeiro | Criação do documento. CRUD das **receitas do próprio usuário** (tela "Finanças > Receitas") para a geração 2 — sucessor do CRUD REST de `Receita` da geração 1 (`dsc-backend`), agora sobre a tabela `RECEITAS` ([QUADRO_DESCRITIVO_9 do Documento 0](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-9)). Introduz o conceito **prevista × recebida** (`RECE_FL_RECEBIDO` + `RECE_DT_RECEBIMENTO`), a competência como `YearMonth`, a origem do lançamento (`RECE_ORIGEM`) e o escopo *row-level* por usuário, derivado da conta. Remove os enums `RECE_TIPO_TRANSACAO` e `RECE_TIPO_RECEITA_DESPESA` da geração 1 (categoria passa a ser `CATE_ID`). Este documento **referencia** o QUADRO_DESCRITIVO do Documento 0 e **não introduz tabela nova** |
 | 1.1 | 11/09/2026 | Diego dos Santos Cordeiro | Desmembramento de `RECEITAS_MANTER` em `RECEITAS_INSERIR`, `RECEITAS_EDITAR`, `RECEITAS_EXCLUIR` e `RECEITAS_REGISTRAR_RECEBIMENTO`, proibição expressa de `MANTER`, definição de filtro inicial padrão em `mes_atual - 1`, aceitação irrestrita de competências passadas, totalizador condicional por competência única (`competenciaInicio == competenciaFim`), duplicação individual e em lote com preservação dos filtros ativos após operações e diretriz de máscara monetária client-side em tempo real (`pt-BR`, `R$ 0,00`). |
+| 1.2 | 12/09/2026 | Diego dos Santos Cordeiro | Ordenação estável e determinística no grid: adição da regra de tela RT17 documentando indicadores visuais de ordenação ativa (`ph-caret-up` e `ph-caret-down`) nos cabeçalhos e desempate determinístico bidirecional por data de lançamento, data de recebimento, nome e id único quando a competência for idêntica (como no filtro padrão de competência única) ou quando outras colunas possuírem valores iguais. |
 
 ---
 
@@ -338,6 +340,7 @@ Protótipo navegável e wireframes: `prototipo/manter-receita-prototipo.html` e 
 | <a id="rt14"></a>RT14 | O card totalizador ([ID3a](#qdd1-3a)) deve ser exibido **exclusivamente** quando o filtro de competência inicial for idêntico ao de competência final (`competenciaInicio == competenciaFim`). Havendo intervalo múltiplo ou ausência de competência, o card é ocultado. O totalizador exibe a soma de todas as receitas ativas listadas para a competência. |
 | <a id="rt15"></a>RT15 | Ao acionar a duplicação (ícone da linha [ID17](#qdd1-17) ou botão "Duplicar selecionadas" [ID5a](#qdd1-5a) com 1+ itens selecionados via checkbox [ID6a](#qdd1-6a)): solicitar confirmação; ao confirmar, enviar os IDs para [EDP08](#edp08) (exige [PERM02](#perm02) `RECEITAS_INSERIR`). Em sucesso, exibir [MSG15](#msg15), desmarcar as seleções e recarregar o grid preservando a página e filtros ativos ([RT16](#rt16)). |
 | <a id="rt16"></a>RT16 | Todas as operações de mutação (cadastro, edição, exclusão, recebimento e duplicação) devem atualizar o grid de dados mantendo os filtros em memória ativos e preservando a página atual de paginação do DataTables, garantindo continuidade ao fluxo de trabalho do usuário. |
+| <a id="rt17"></a>RT17 | **Ordenação Estável e Determinística no Grid:** Todas as colunas ordenáveis (`th.sortable`) devem possuir indicadores visuais de ordenação ativa (`ph-caret-up` para ascendente e `ph-caret-down` para descendente). A ordenação por Competência deve ordenar cronologicamente por `yyyy-MM` e, em caso de empate (como na visualização padrão de competência única), aplicar desempate determinístico respeitando a direção (`asc`/`desc`): pela data de lançamento (`dataLancamento`), pela data de recebimento (`dataRecebimento`), pelo nome da receita (`nome`) e pelo identificador único (`id`). Para ordenação por outras colunas, havendo empate, aplicar desempate por competência, data de lançamento, nome e identificador. |
 
 ---
 

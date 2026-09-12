@@ -73,35 +73,117 @@ function filtrar(lista) {
 function ordenar(lista) {
     const { col, asc } = ordenacao;
     return lista.slice().sort((a, b) => {
-        let va = a[col];
-        let vb = b[col];
+        let cmp = 0;
 
-        if (col === 'categoria') {
-            va = a.categoriaNome || '';
-            vb = b.categoriaNome || '';
+        if (col === 'competencia') {
+            const compA = (a.competencia || '').trim();
+            const compB = (b.competencia || '').trim();
+            cmp = compA.localeCompare(compB);
+        } else if (col === 'categoria') {
+            const va = a.categoriaNome || '';
+            const vb = b.categoriaNome || '';
+            cmp = va.localeCompare(vb, 'pt-BR');
         } else if (col === 'conta') {
-            va = a.contaDescricao || '';
-            vb = b.contaDescricao || '';
+            const va = a.contaDescricao || '';
+            const vb = b.contaDescricao || '';
+            cmp = va.localeCompare(vb, 'pt-BR');
         } else if (col === 'valor') {
-            va = a.valor != null ? Number(a.valor) : 0;
-            vb = b.valor != null ? Number(b.valor) : 0;
-            return asc ? va - vb : vb - va;
+            const va = a.valor != null ? Number(a.valor) : 0;
+            const vb = b.valor != null ? Number(b.valor) : 0;
+            cmp = va - vb;
         } else if (col === 'situacao') {
             const ordem = { PREVISTA: 0, RECEBIDA: 1, EXCLUIDA: 2 };
-            va = ordem[situacaoCodigo(a)];
-            vb = ordem[situacaoCodigo(b)];
+            const va = ordem[situacaoCodigo(a)] ?? 0;
+            const vb = ordem[situacaoCodigo(b)] ?? 0;
+            cmp = va - vb;
+        } else if (col === 'dataLancamento') {
+            const va = a.dataLancamento || '';
+            const vb = b.dataLancamento || '';
+            cmp = va.localeCompare(vb);
+        } else if (col === 'dataRecebimento') {
+            const va = a.dataRecebimento || '';
+            const vb = b.dataRecebimento || '';
+            cmp = va.localeCompare(vb);
+        } else if (col === 'origem') {
+            const va = labelOrigem(a.origem) || '';
+            const vb = labelOrigem(b.origem) || '';
+            cmp = va.localeCompare(vb, 'pt-BR');
+        } else {
+            let va = a[col];
+            let vb = b[col];
+            if (va == null) va = '';
+            if (vb == null) vb = '';
+            if (typeof va === 'number' && typeof vb === 'number') {
+                cmp = va - vb;
+            } else {
+                cmp = String(va).localeCompare(String(vb), 'pt-BR');
+            }
         }
 
-        if (va == null) va = '';
-        if (vb == null) vb = '';
-
-        if (typeof va === 'string') {
-            const res = va.localeCompare(vb, 'pt-BR');
-            return asc ? res : -res;
+        if (cmp !== 0) {
+            return asc ? cmp : -cmp;
         }
 
-        if (va === vb) return 0;
-        return (va > vb ? 1 : -1) * (asc ? 1 : -1);
+        // --- Desempate determinístico ---
+        if (col === 'competencia') {
+            // 1. Data de lançamento
+            const lancA = a.dataLancamento || '';
+            const lancB = b.dataLancamento || '';
+            const lancCmp = lancA.localeCompare(lancB);
+            if (lancCmp !== 0) {
+                return asc ? lancCmp : -lancCmp;
+            }
+
+            // 2. Data de recebimento
+            const recA = a.dataRecebimento || '';
+            const recB = b.dataRecebimento || '';
+            const recCmp = recA.localeCompare(recB);
+            if (recCmp !== 0) {
+                return asc ? recCmp : -recCmp;
+            }
+
+            // 3. Nome
+            const nomeA = a.nome || '';
+            const nomeB = b.nome || '';
+            const nomeCmp = nomeA.localeCompare(nomeB, 'pt-BR');
+            if (nomeCmp !== 0) {
+                return asc ? nomeCmp : -nomeCmp;
+            }
+
+            // 4. Identificador único
+            const idA = a.id || 0;
+            const idB = b.id || 0;
+            return asc ? idA - idB : idB - idA;
+        } else {
+            // 1. Competência
+            const compA = (a.competencia || '').trim();
+            const compB = (b.competencia || '').trim();
+            const compCmp = compA.localeCompare(compB);
+            if (compCmp !== 0) {
+                return asc ? compCmp : -compCmp;
+            }
+
+            // 2. Data de lançamento
+            const lancA = a.dataLancamento || '';
+            const lancB = b.dataLancamento || '';
+            const lancCmp = lancA.localeCompare(lancB);
+            if (lancCmp !== 0) {
+                return asc ? lancCmp : -lancCmp;
+            }
+
+            // 3. Nome
+            const nomeA = a.nome || '';
+            const nomeB = b.nome || '';
+            const nomeCmp = nomeA.localeCompare(nomeB, 'pt-BR');
+            if (nomeCmp !== 0) {
+                return asc ? nomeCmp : -nomeCmp;
+            }
+
+            // 4. Identificador único
+            const idA = a.id || 0;
+            const idB = b.id || 0;
+            return asc ? idA - idB : idB - idA;
+        }
     });
 }
 
@@ -129,10 +211,25 @@ function labelOrigem(origem) {
     return cfg().labelOrigemManual || 'Manual';
 }
 
+function atualizarCabecalhoOrdenacao() {
+    document.querySelectorAll('#tabelaReceitas thead th.sortable').forEach(th => {
+        const col = th.dataset.col;
+        const iconeExistente = th.querySelector('.icone-ordenacao');
+        if (iconeExistente) iconeExistente.remove();
+
+        if (ordenacao.col === col) {
+            const icone = document.createElement('i');
+            icone.className = `icone-ordenacao ph ${ordenacao.asc ? 'ph-caret-up' : 'ph-caret-down'} ms-1`;
+            th.appendChild(icone);
+        }
+    });
+}
+
 function render() {
     const filtradas = filtrar(todas);
     const lista = ordenar(filtradas);
     corpo.innerHTML = '';
+    atualizarCabecalhoOrdenacao();
 
     // Totalizador por competência única
     const f = obterFiltroAtual();
