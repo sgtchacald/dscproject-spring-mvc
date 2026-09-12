@@ -19,6 +19,7 @@ public class SecurityConfig {
     /** Rotas públicas — auto-cadastro, recuperação de senha, checagem em tempo real, estáticos. */
     private static final String[] PUBLICO_GET = {
         "/login",
+        "/error",
         "/usuarios/existe",
         "/usuarios/cadastrar-site",
         "/usuarios/recuperar-senha",
@@ -126,7 +127,9 @@ public class SecurityConfig {
                     .hasAuthority("PERM_INSTITUICOES_PROVEDOR_EXCLUIR")
 
                 // Contas do Usuário (Minhas Contas) — cada operação exige a sua permissão
-                .requestMatchers(HttpMethod.GET, "/contas/listar", "/contas/listar-dados", "/contas/opcoes")
+                .requestMatchers(HttpMethod.GET, "/contas/opcoes")
+                    .authenticated()
+                .requestMatchers(HttpMethod.GET, "/contas/listar", "/contas/listar-dados")
                     .hasAuthority("PERM_CONTAS_LISTAR")
                 .requestMatchers(HttpMethod.GET, "/contas/buscar/**")
                     .hasAuthority("PERM_CONTAS_EDITAR")
