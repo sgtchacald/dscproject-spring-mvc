@@ -114,12 +114,13 @@
 
     <div class="card">
         <div class="table-responsive">
-            <table class="table table-vcenter card-table" id="tabelaDespesas">
+            <table class="table table-vcenter card-table table-hover" id="tabelaDespesas">
                 <thead>
                 <tr>
                     <th class="w-1">
                         <input class="form-check-input" type="checkbox" id="chkTodos">
                     </th>
+                    <th data-col="ordem" class="sortable w-1 text-center" role="button" th:text="#{despesa.col.ordem}">Nº Ordem</th>
                     <th data-col="competencia" class="sortable" role="button" th:text="#{despesa.col.competencia}">Competência</th>
                     <th data-col="nome" class="sortable" role="button" th:text="#{despesa.col.nome}">Nome / Descrição</th>
                     <th data-col="categoria" class="sortable" role="button" th:text="#{despesa.col.categoria}">Categoria</th>

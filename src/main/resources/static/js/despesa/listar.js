@@ -26,15 +26,60 @@ const podePagar = () => !!document.querySelector('[data-perm="pagar"]');
 const podeImportar = () => !!document.querySelector('[data-perm="importar"]');
 const podeRatear = () => !!document.querySelector('[data-perm="ratear"]') || cfg().podeRatear === 'true';
 
+function restaurarOuInicializarOrdem() {
+    let savedIds = null;
+    try {
+        const raw = localStorage.getItem('dsc_despesas_ordem_ids');
+        if (raw) savedIds = JSON.parse(raw);
+    } catch (e) {
+        console.warn('Erro ao ler ordem do localStorage', e);
+    }
+
+    if (Array.isArray(savedIds) && savedIds.length > 0) {
+        const idIndexMap = new Map();
+        savedIds.forEach((id, idx) => idIndexMap.set(Number(id), idx));
+
+        todas.sort((a, b) => {
+            const hasA = idIndexMap.has(a.id);
+            const hasB = idIndexMap.has(b.id);
+            if (hasA && hasB) {
+                return idIndexMap.get(a.id) - idIndexMap.get(b.id);
+            }
+            if (!hasA && hasB) return -1;
+            if (hasA && !hasB) return 1;
+            return (b.id || 0) - (a.id || 0);
+        });
+    } else {
+        const ordenacaoOriginal = { ...ordenacao };
+        ordenacao = { col: 'competencia', asc: false };
+        todas = ordenar(todas);
+        ordenacao = ordenacaoOriginal;
+    }
+
+    todas.forEach((d, idx) => {
+        d.ordem = idx + 1;
+    });
+}
+
+function salvarOrdemLocalStorage() {
+    try {
+        const ids = todas.map(d => d.id);
+        localStorage.setItem('dsc_despesas_ordem_ids', JSON.stringify(ids));
+    } catch (e) {
+        console.warn('Erro ao salvar ordem no localStorage', e);
+    }
+}
+
 async function carregar() {
     try {
         todas = await getJson(cfg().urlDados);
+        restaurarOuInicializarOrdem();
         selecionadasMap.clear();
         atualizarBotoesLote();
         if (chkTodos) chkTodos.checked = false;
         render();
     } catch (e) {
-        corpo.innerHTML = '<tr><td colspan="12" class="text-center text-danger">Erro ao carregar despesas.</td></tr>';
+        corpo.innerHTML = '<tr><td colspan="13" class="text-center text-danger">Erro ao carregar despesas.</td></tr>';
     }
 }
 
@@ -80,7 +125,11 @@ function ordenar(lista) {
     return lista.slice().sort((a, b) => {
         let cmp = 0;
 
-        if (col === 'competencia') {
+        if (col === 'ordem') {
+            const va = a.ordem != null ? Number(a.ordem) : 0;
+            const vb = b.ordem != null ? Number(b.ordem) : 0;
+            cmp = va - vb;
+        } else if (col === 'competencia') {
             const compA = (a.competencia || '').trim();
             const compB = (b.competencia || '').trim();
             cmp = compA.localeCompare(compB);
@@ -133,7 +182,11 @@ function ordenar(lista) {
         }
 
         // --- Desempate determinístico ---
-        if (col === 'competencia') {
+        if (col === 'ordem') {
+            const idA = a.id || 0;
+            const idB = b.id || 0;
+            return asc ? idA - idB : idB - idA;
+        } else if (col === 'competencia') {
             // 1. Data de Vencimento
             const vencA = a.dataVencimento || '';
             const vencB = b.dataVencimento || '';
@@ -301,13 +354,15 @@ function render() {
 
     atualizarTotalizador(filtradas);
 
-    const colspan = podeRatear() ? 12 : 11;
+    const colspan = podeRatear() ? 13 : 12;
 
     if (lista.length === 0) {
         corpo.innerHTML = `<tr><td colspan="${colspan}" class="text-center text-secondary">${cfg().msgFiltroVazio}</td></tr>`;
     } else {
         lista.forEach(d => {
             const tr = document.createElement('tr');
+            tr.draggable = true;
+            tr.dataset.id = d.id;
 
             const categoriaHtml = d.categoriaNome
                 ? `<span class="badge bg-blue-lt">${d.categoriaNome}</span>`
@@ -392,6 +447,12 @@ function render() {
 
             tr.innerHTML = `
                 <td>${checkHtml}</td>
+                <td class="celula-ordem text-center cursor-grab" data-id="${d.id}" title="Arraste para reordenar">
+                    <div class="d-inline-flex align-items-center justify-content-center">
+                        <i class="ph ph-dots-six-vertical drag-handle me-1"></i>
+                        <span class="badge bg-secondary-lt fw-normal">${d.ordem}</span>
+                    </div>
+                </td>
                 <td class="${classeCompetencia}" data-id="${d.id}" title="${titleCompetencia}">${formatarCompetencia(d.competencia)}</td>
                 <td><strong>${d.nome}</strong>${parcelaBadge}${recorrenteBadge}${descHtml}</td>
                 <td>${categoriaHtml}</td>
@@ -810,6 +871,111 @@ function inicializarOrdenacao() {
     });
 }
 
+function reordenarItens(origemId, destinoId, antes) {
+    const idxOrigem = todas.findIndex(item => item.id === origemId);
+    const idxDestino = todas.findIndex(item => item.id === destinoId);
+    if (idxOrigem === -1 || idxDestino === -1) return;
+
+    const [item] = todas.splice(idxOrigem, 1);
+    let novoIdxDestino = todas.findIndex(item => item.id === destinoId);
+    if (!antes) {
+        novoIdxDestino++;
+    }
+    todas.splice(novoIdxDestino, 0, item);
+
+    todas.forEach((d, idx) => {
+        d.ordem = idx + 1;
+    });
+
+    salvarOrdemLocalStorage();
+    ordenacao = { col: 'ordem', asc: true };
+    render();
+    toast('Ordem das despesas atualizada com sucesso.');
+}
+
+let draggedId = null;
+let podeArrastar = false;
+
+function inicializarDragAndDrop() {
+    corpo.addEventListener('mousedown', function (e) {
+        if (e.target.closest('.drag-handle') || e.target.closest('.celula-ordem')) {
+            podeArrastar = true;
+        } else {
+            podeArrastar = false;
+        }
+    });
+
+    corpo.addEventListener('dragstart', function (e) {
+        const tr = e.target.closest('tr');
+        if (!tr || !podeArrastar) {
+            e.preventDefault();
+            return;
+        }
+        const id = Number(tr.dataset.id);
+        if (!id) {
+            e.preventDefault();
+            return;
+        }
+
+        draggedId = id;
+        tr.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(id));
+    });
+
+    corpo.addEventListener('dragover', function (e) {
+        if (!draggedId) return;
+        const tr = e.target.closest('tr');
+        if (!tr || Number(tr.dataset.id) === draggedId) return;
+
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+
+        const rect = tr.getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        if (e.clientY < midY) {
+            tr.classList.add('drag-over-top');
+            tr.classList.remove('drag-over-bottom');
+        } else {
+            tr.classList.add('drag-over-bottom');
+            tr.classList.remove('drag-over-top');
+        }
+    });
+
+    corpo.addEventListener('dragleave', function (e) {
+        const tr = e.target.closest('tr');
+        if (tr) {
+            tr.classList.remove('drag-over-top', 'drag-over-bottom');
+        }
+    });
+
+    corpo.addEventListener('drop', function (e) {
+        if (!draggedId) return;
+        const tr = e.target.closest('tr');
+        if (!tr) return;
+
+        e.preventDefault();
+        tr.classList.remove('drag-over-top', 'drag-over-bottom');
+
+        const destinoId = Number(tr.dataset.id);
+        if (!destinoId || destinoId === draggedId) return;
+
+        const rect = tr.getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        const antes = e.clientY < midY;
+
+        reordenarItens(draggedId, destinoId, antes);
+    });
+
+    corpo.addEventListener('dragend', function (e) {
+        podeArrastar = false;
+        draggedId = null;
+        corpo.querySelectorAll('tr').forEach(tr => {
+            tr.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     inicializarForm();
     inicializarPagamento();
@@ -820,6 +986,7 @@ document.addEventListener('DOMContentLoaded', function () {
     inicializarEdicaoInlineCompetencia();
     inicializarFiltro(() => render());
     inicializarOrdenacao();
+    inicializarDragAndDrop();
     inicializarSelecaoMultipla();
     inicializarAcoes();
 
