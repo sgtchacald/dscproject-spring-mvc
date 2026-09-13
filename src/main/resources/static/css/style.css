@@ -99,3 +99,14 @@ td.celula-valor.cursor-pointer:hover {
     background: rgba(var(--tblr-primary-rgb, 32, 107, 196), 0.5);
     outline: none;
 }
+
+/* Padronização do sistema: colunas de Ações sempre alinhadas à esquerda */
+th.col-acoes,
+td.col-acoes {
+    text-align: left !important;
+}
+
+td.col-acoes .d-flex,
+td.col-acoes .btn-list {
+    justify-content: flex-start !important;
+}

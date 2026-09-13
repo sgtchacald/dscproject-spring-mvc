@@ -3,7 +3,7 @@
 
 **Gerado em:** 06/09/2026  
 **Atualizado em:** 11/09/2026  
-**Versão:** 1.4  
+**Versão:** 1.5  
 **Status:** Homologado  
 **Projeto:** `dscproject-spring-mvc` (geração 2)  
 
@@ -32,6 +32,7 @@
 | 1.3 | 07/09/2026 | Diego dos Santos Cordeiro | Separa a troca de senha da edição cadastral: [EDP05](#edp05) não altera mais senha; nova ação dedicada no grid ([RT13](#rt13) / [EDP12](#edp12) / [QUADRO_DESCRITIVO_7](#quadro-descritivo-7)). Nova tela **Configurações da Conta** (self-service) — [QUADRO_DESCRITIVO_8](#quadro-descritivo-8), [EDP13](#edp13)/[EDP14](#edp14), [RN18](#rn18)/[RN19](#rn19), [RT14](#rt14) —, em que o usuário edita os próprios dados e a própria senha sem alterar o perfil. Novas [MSG21](#msg21) e [MSG22](#msg22); novos [RF12](#rf12)/[RF13](#rf13), [CAUS09](#caus09)/[CAUS10](#caus10). A Seção 6 (Banco de Dados) permanece inalterada |
 | 1.3.1 | 07/09/2026 | Diego dos Santos Cordeiro | Ajustes de revisão: o combobox de PERFIL ([SB01](#sb01), [QUADRO_DESCRITIVO_3](#quadro-descritivo-3) e [_4](#quadro-descritivo-4)) passa a carregar os registros da tabela `PERFIS`, não uma lista fixa. A tela Configurações da Conta ([QUADRO_DESCRITIVO_8](#quadro-descritivo-8)) é acessada ao **clicar no nome do usuário na sidebar**, não por item de menu próprio |
 | 1.4 | 11/09/2026 | Diego dos Santos Cordeiro | Redes Sociais do Usuário e Refinamentos de Layout: (a) nova aba "Redes Sociais" na tela Configurações da Conta (`/minha-conta`), com gerenciamento (CRUD) das redes sociais do próprio usuário (LinkedIn, GitHub, Facebook, Instagram, Twitter/X, YouTube, Outro); (b) exibição dinâmica dos ícones de redes sociais no footer e header do layout administrativo a partir das redes ativas do usuário logado; (c) criação da tabela associativa `USUARIOS_REDES_SOCIAIS` (QUADRO_DESCRITIVO_30 do Documento 0); (d) novos endpoints [EDP15](#edp15) a [EDP19](#edp19); novas regras de tela [RT15](#rt15) a [RT17](#rt17); novas regras de negócio [RN20](#rn20) a [RN23](#rn23); novas mensagens [MSG23](#msg23) a [MSG28](#msg28); novos [RF14](#rf14) a [RF16](#rf16) e [CAUS11](#caus11). |
+| 1.5 | 12/09/2026 | Diego dos Santos Cordeiro | Padronização visual do sistema: explicitação do alinhamento à esquerda para a coluna de Ações nos grids de Usuários (QUADRO_DESCRITIVO_2) e Redes Sociais (QUADRO_DESCRITIVO_8). |
 
 ---
 
@@ -282,7 +283,7 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 | <a id="qdd2-11"></a>11 | GÊNERO | Tipo: Coluna<br>Ordenação: Não | Exibe a descrição do gênero (Feminino/Masculino/Outro). |
 | <a id="qdd2-12"></a>12 | CRIADO EM | Tipo: Coluna (data)<br>Ordenação: Sim | Exibe [C1](#c1).criadoEm formatado dd/MM/yyyy. |
 | <a id="qdd2-13"></a>13 | SITUAÇÃO | Tipo: Coluna (badge)<br>Ordenação: Sim | Ativo (verde) quando `audit_data_exclusao` é nulo; Excluído (cinza) caso contrário. |
-| <a id="qdd2-14"></a>14 | AÇÃO | Tipo: Coluna | Ícones [ID15](#qdd2-15), [ID16](#qdd2-16), [ID17](#qdd2-17), [ID18](#qdd2-18). |
+| <a id="qdd2-14"></a>14 | AÇÃO | Tipo: Coluna (alinhada à esquerda) | Ícones [ID15](#qdd2-15), [ID16](#qdd2-16), [ID17](#qdd2-17), [ID18](#qdd2-18). |
 | <a id="qdd2-15"></a>15 | ÍCONE EDITAR | Tipo: Ícone<br>Ícone: edit<br>Tooltip: Editar usuário | Visível a quem tem [PERM03](#perm03). Ao clicar, executar [RT05](#rt05). Oculto para usuários excluídos. |
 | <a id="qdd2-16"></a>16 | ÍCONE EXCLUIR | Tipo: Ícone<br>Ícone: trash<br>Tooltip: Excluir usuário | Visível a quem tem [PERM04](#perm04). Ao clicar, executar [RT09](#rt09). Oculto para o próprio usuário logado e para usuários já excluídos. |
 | <a id="qdd2-17"></a>17 | ÍCONE HISTÓRICO | Tipo: Ícone<br>Ícone: history<br>Tooltip: Ver histórico | Visível a quem tem [PERM05](#perm05). Ao clicar, executar [RT10](#rt10). |
@@ -383,7 +384,7 @@ Protótipo navegável (HTML): `prototipo/manter-usuario-prototipo.html`. Wirefra
 | <a id="qdd8-11"></a>11 | CAMPO – NOVA SENHA | Tipo: Input Password<br>Mín.: 6<br>Obrigatório: Não | Vazio mantém a senha atual ([RN19](#rn19)). |
 | <a id="qdd8-12"></a>12 | CAMPO – CONFIRMAÇÃO DE NOVA SENHA | Tipo: Input Password<br>Obrigatório: quando Nova senha preenchida | Executar [RT14](#rt14). Não persiste. |
 | <a id="qdd8-13"></a>13 | BOTÃO SALVAR | Tipo: Botão<br>Texto: Salvar<br>Endpoint: [EDP14](#edp14) | Botão único das abas de dados e senha. Ao clicar, executar [RT14](#rt14). |
-| <a id="qdd8-14"></a>14 | LISTA / TABELA DE REDES SOCIAIS | Tipo: Grid / Tabela<br>Endpoint: [EDP15](#edp15) | Lista as redes cadastradas (colunas: Rede Social, URL, @Identificador, Ativo, Ações [Editar, Excluir]). |
+| <a id="qdd8-14"></a>14 | LISTA / TABELA DE REDES SOCIAIS | Tipo: Grid / Tabela<br>Endpoint: [EDP15](#edp15) | Lista as redes cadastradas (colunas: Rede Social, URL, @Identificador, Ativo, Ações [Editar, Excluir, alinhada à esquerda]). |
 | <a id="qdd8-15"></a>15 | BOTÃO ADICIONAR REDE SOCIAL | Tipo: Botão<br>Texto: Nova Rede Social | Abre o modal de cadastro de rede social. |
 | <a id="qdd8-16"></a>16 | MODAL FORMULÁRIO DE REDE SOCIAL | Tipo: Modal | Contém: Tipo de Rede Social (Combobox: LinkedIn, GitHub, Facebook, Instagram, Twitter/X, YouTube, Outro), URL do Perfil (Input Text, obrigatório), Identificador/Handle (Input Text, opcional), Ativo (Switch/Checkbox, default true). |
 | <a id="qdd8-17"></a>17 | BOTÕES DO MODAL DE REDE SOCIAL | Tipo: Botões<br>Salvar / Cancelar | Ao salvar, executa [RT16](#rt16) e chama [EDP16](#edp16) (criação) ou [EDP17](#edp17) (edição). |

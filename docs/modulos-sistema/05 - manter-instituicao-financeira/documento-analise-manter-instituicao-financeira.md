@@ -2,7 +2,7 @@
 ## Módulo Instituições Financeiras — ADMIN — Manter Instituição Financeira
 
 **Gerado em:** 08/09/2026
-**Versão:** 1.1
+**Versão:** 1.2
 **Status:** Desenvolvido
 **Projeto:** `dscproject-spring-mvc` (geração 2)
 
@@ -27,6 +27,7 @@
 |---|---|---|---|
 | 1.0 | 08/09/2026 | Diego dos Santos Cordeiro | Criação do documento. CRUD administrativo de Instituição Financeira (dá tela ao `InstituicaoFinanceiraController` REST da geração 1 e adiciona os campos novos `INFI_FL_ATIVO` e `INFI_FL_SISTEMA`; instituição de sistema protegida como a categoria de sistema do documento `04 - manter-categoria`) e a tela do mapa `OPFI_INSTITUICAO_PROVEDOR` (instituição + provedor de Open Finance → id do *connector* externo), usada na importação de contas. A estrutura das duas tabelas é a do Documento 0 ([QUADRO_DESCRITIVO_4](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-4) e [QUADRO_DESCRITIVO_14](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-14)) — este documento não introduz tabela nova |
 | 1.1 | 11/09/2026 | Diego dos Santos Cordeiro | Desmembramento de `INSTITUICOES_MANTER` em `INSTITUICOES_INSERIR`, `INSTITUICOES_EDITAR`, `INSTITUICOES_EXCLUIR` e `INSTITUICOES_DESATIVAR`, e de `INSTITUICOES_PROVEDOR_MANTER` em `INSTITUICOES_PROVEDOR_INSERIR`, `INSTITUICOES_PROVEDOR_EDITAR` e `INSTITUICOES_PROVEDOR_EXCLUIR`, em conformidade com as diretrizes de governança RBAC granular e Observação 28 do Documento 0. |
+| 1.2 | 12/09/2026 | Diego dos Santos Cordeiro | Padronização visual do sistema: explicitação do alinhamento à esquerda para a coluna de Ações nos grids de Instituições Financeiras (QUADRO_DESCRITIVO_1) e Instituições por Provedor (QUADRO_DESCRITIVO_4). |
 
 ---
 
@@ -233,7 +234,7 @@ Protótipo navegável: `prototipo/manter-instituicao-financeira-prototipo.html`.
 | <a id="qdd1-10"></a>10 | Nº DE USOS | Tipo: Coluna (número)<br>Ordenação: Sim | Exibe [C1](#c1).qtdUso — soma de contas, investimentos e conexões de Open Finance não excluídos que usam a instituição. |
 | <a id="qdd1-11"></a>11 | PROVEDORES MAPEADOS | Tipo: Coluna (número)<br>Ordenação: Sim | Exibe [C1](#c1).qtdProvedores — vínculos ativos em `OPFI_INSTITUICAO_PROVEDOR`. |
 | <a id="qdd1-12"></a>12 | SITUAÇÃO | Tipo: Coluna (badge)<br>Ordenação: Sim | "Ativa" (verde) quando `INFI_FL_ATIVO` e sem `audit_data_exclusao`; "Inativa" (cinza) quando `INFI_FL_ATIVO = FALSE`; "Excluída" quando há `audit_data_exclusao`. |
-| <a id="qdd1-13"></a>13 | AÇÃO | Tipo: Coluna<br>Ícones: Editar (ícone: edit, tooltip: Editar instituição), Excluir (ícone: trash, tooltip: Excluir instituição) | Ícone Editar visível com [PERM03](#perm03) → [RT05](#rt05). Ícone Excluir visível com [PERM04](#perm04) → [RT07](#rt07); oculto quando a instituição é de sistema ([C1](#c1).sistema) ou já está excluída. |
+| <a id="qdd1-13"></a>13 | AÇÃO | Tipo: Coluna (alinhada à esquerda)<br>Ícones: Editar (ícone: edit, tooltip: Editar instituição), Excluir (ícone: trash, tooltip: Excluir instituição) | Ícone Editar visível com [PERM03](#perm03) → [RT05](#rt05). Ícone Excluir visível com [PERM04](#perm04) → [RT07](#rt07); oculto quando a instituição é de sistema ([C1](#c1).sistema) ou já está excluída. |
 
 ### <a id="quadro-descritivo-2"></a>7.2 Modal: Filtrar Instituições — QUADRO_DESCRITIVO_2
 
@@ -285,7 +286,7 @@ Protótipo navegável: `prototipo/manter-instituicao-financeira-prototipo.html`.
 | <a id="qdd4-7"></a>7 | PROVEDOR | Tipo: Coluna<br>Ordenação: Sim | Exibe [C3](#c3).provedorNome. |
 | <a id="qdd4-8"></a>8 | INSTITUIÇÃO | Tipo: Coluna<br>Ordenação: Sim | Exibe [C3](#c3).instituicaoNome. |
 | <a id="qdd4-9"></a>9 | ID EXTERNO | Tipo: Coluna<br>Ordenação: Sim | Exibe [C3](#c3).idExterno — o id do *connector*/instituição no provedor. |
-| <a id="qdd4-10"></a>10 | AÇÃO | Tipo: Coluna | Visível a quem tem [PERM08](#perm08) ou [PERM09](#perm09). Ícone Editar (com [PERM08](#perm08)) → [RT10](#rt10); ícone Excluir (com [PERM09](#perm09)) → [RT12](#rt12). |
+| <a id="qdd4-10"></a>10 | AÇÃO | Tipo: Coluna (alinhada à esquerda) | Visível a quem tem [PERM08](#perm08) ou [PERM09](#perm09). Ícone Editar (com [PERM08](#perm08)) → [RT10](#rt10); ícone Excluir (com [PERM09](#perm09)) → [RT12](#rt12). |
 
 ### <a id="quadro-descritivo-5"></a>7.5 Modal: Cadastro / Edição de Vínculo Instituição × Provedor — QUADRO_DESCRITIVO_5
 

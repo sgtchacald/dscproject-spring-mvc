@@ -83,7 +83,7 @@ function render() {
                 <td><strong>${v.provedorNome}</strong></td>
                 <td>${v.instituicaoNome}</td>
                 <td><code>${v.idExterno}</code></td>
-                <td><div class="d-flex gap-1">${acaoHtml}</div></td>
+                <td class="col-acoes text-start"><div class="d-flex gap-1 justify-content-start">${acaoHtml}</div></td>
             `;
 
             corpo.appendChild(tr);

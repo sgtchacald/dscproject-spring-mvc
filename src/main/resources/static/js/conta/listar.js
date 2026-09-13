@@ -183,7 +183,7 @@ function render() {
                 <td class="text-center">${consideraSaldoHtml}</td>
                 <td class="text-end">${qtdUsoHtml}</td>
                 <td>${situacaoHtml}</td>
-                <td><div class="d-flex gap-1">${acaoHtml}</div></td>
+                <td class="col-acoes text-start"><div class="d-flex gap-1 justify-content-start">${acaoHtml}</div></td>
             `;
 
             corpo.appendChild(tr);

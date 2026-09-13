@@ -2,7 +2,7 @@
 ## Módulo Cartões de Crédito — USER — Manter Cartão de Crédito
 
 **Gerado em:** 08/09/2026
-**Versão:** 1.1
+**Versão:** 1.2
 **Status:** Desenvolvido
 **Projeto:** `dscproject-spring-mvc` (geração 2)
 
@@ -27,6 +27,7 @@
 |---|---|---|---|
 | 1.0 | 08/09/2026 | Diego dos Santos Cordeiro | Criação do documento. CRUD dos cartões de crédito **do usuário** (a tela "Meus Cartões"): descrição, bandeira, final do cartão, limite, dia de fechamento, dia de vencimento, conta de débito (opcional) e situação, com grid client-side, modal de filtro, modal de cadastro/edição e exclusão lógica. A estrutura da tabela é a do Documento 0 ([QUADRO_DESCRITIVO_6](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-6)) — este documento não introduz tabela nova. Depende do documento `06 - manter-conta` para o combobox de conta de débito. Não cobre a fatura de cartão (documento `11`) |
 | 1.1 | 11/09/2026 | Diego dos Santos Cordeiro | Desmembramento de `CARTOES_MANTER` em `CARTOES_INSERIR`, `CARTOES_EDITAR`, `CARTOES_EXCLUIR` e `CARTOES_DESATIVAR`, diretriz mandatória de máscara monetária client-side em tempo real (`pt-BR`, `R$ 0,00`) para o campo Limite e proibição de permissões genéricas com sufixo `MANTER` conforme governança RBAC granular e Observação 28 do Documento 0. |
+| 1.2 | 12/09/2026 | Diego dos Santos Cordeiro | Padronização visual do sistema: explicitação do alinhamento à esquerda para a coluna de Ações no grid de Cartões de Crédito (QUADRO_DESCRITIVO_1). |
 
 ---
 
@@ -217,7 +218,7 @@ Protótipo navegável e wireframes: `prototipo/manter-cartao-credito-prototipo.h
 | <a id="qdd1-11"></a>11 | FECHAMENTO / VENCIMENTO | Tipo: Coluna<br>Ordenação: Não | Exibe "Dia {fechamento} / Dia {vencimento}" de [C1](#c1).diaFechamento e [C1](#c1).diaVencimento; "—" quando ambos nulos. |
 | <a id="qdd1-12"></a>12 | CONTA DE DÉBITO | Tipo: Coluna<br>Ordenação: Sim | Exibe [C1](#c1).contaDescricao; "Não definida" quando nula. |
 | <a id="qdd1-13"></a>13 | SITUAÇÃO | Tipo: Coluna (badge)<br>Ordenação: Sim | "Ativo" (verde) quando `CACR_FL_ATIVO` e sem `audit_data_exclusao`; "Inativo" (cinza) quando `CACR_FL_ATIVO = FALSE`; "Excluído" quando há `audit_data_exclusao`. |
-| <a id="qdd1-14"></a>14 | ÍCONES DE AÇÃO | Tipo: Coluna<br>Editar (ícone: edit, tooltip: Editar cartão) — visível a quem tem [PERM03](#perm03) (`CARTOES_EDITAR`)<br>Excluir (ícone: trash, tooltip: Excluir cartão) — visível a quem tem [PERM04](#perm04) (`CARTOES_EXCLUIR`) | Editar → [RT05](#rt05). Excluir → [RT07](#rt07); oculto quando o cartão já está excluído. |
+| <a id="qdd1-14"></a>14 | ÍCONES DE AÇÃO | Tipo: Coluna (alinhada à esquerda)<br>Editar (ícone: edit, tooltip: Editar cartão) — visível a quem tem [PERM03](#perm03) (`CARTOES_EDITAR`)<br>Excluir (ícone: trash, tooltip: Excluir cartão) — visível a quem tem [PERM04](#perm04) (`CARTOES_EXCLUIR`) | Editar → [RT05](#rt05). Excluir → [RT07](#rt07); oculto quando o cartão já está excluído. |
 
 ### <a id="quadro-descritivo-2"></a>7.2 Modal: Filtrar Cartões — QUADRO_DESCRITIVO_2
 

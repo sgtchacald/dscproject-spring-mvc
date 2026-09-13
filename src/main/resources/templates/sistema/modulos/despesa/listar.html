@@ -130,7 +130,7 @@
                     <th data-col="dataPagamento" class="sortable" role="button" th:text="#{despesa.form.campo.dataPagamento.label}">Data de pagamento</th>
                     <th data-col="rateio" class="sortable text-center" role="button" th:if="${podeRatear}" th:text="#{despesa.col.rateio}">Rateio</th>
                     <th data-col="origem" class="sortable" role="button" th:text="#{despesa.col.origem}">Origem</th>
-                    <th class="w-1" th:text="#{despesa.col.acoes}">Ações</th>
+                    <th class="w-1 col-acoes text-start" th:text="#{despesa.col.acoes}">Ações</th>
                 </tr>
                 </thead>
                 <tbody id="corpoTabelaDespesas"></tbody>

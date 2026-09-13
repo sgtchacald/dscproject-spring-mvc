@@ -3,7 +3,7 @@
 
 **Gerado em:** 08/09/2026  
 **Atualizado em:** 12/09/2026  
-**Versão:** 1.5  
+**Versão:** 1.6  
 **Status:** Analisado  
 **Projeto:** `dscproject-spring-mvc` (geração 2)  
 
@@ -32,6 +32,7 @@
 | 1.3 | 11/09/2026 | Diego dos Santos Cordeiro | Split de `DESPESAS_MANTER` em `DESPESAS_INSERIR`, `DESPESAS_EDITAR`, `DESPESAS_EXCLUIR`, `DESPESAS_PAGAR` e `DESPESAS_IMPORTAR`, com proibição mandatória de permissões agregadas `MANTER`. Resgate da importação de extrato/fatura de cartão de crédito da geração 1 (`dsc-backend`: Excel Itaú, Bradesco, C6 Bank e arquivos OFX via Apache POI e OFX4J) em modal dedicado na listagem com endpoint `POST /despesas/importar-extrato`. Duplicação de despesas individual e em lote (`POST /despesas/duplicar`), edição inline do valor na célula do grid (`PATCH /despesas/{id}/valor`), filtro padrão inicial em `mes_atual - 1` com aceitação irrestrita de competências passadas, totalizador condicional por competência única (`competenciaInicio == competenciaFim`), preservação de filtros ativos e página no grid após mutações e máscara monetária client-side contínua (`pt-BR`, `R$ 0,00`). |
 | 1.4 | 12/09/2026 | Diego dos Santos Cordeiro | Melhorias no grid e inicialização de competência: (1) herança automática da competência ativa no filtro da listagem no modal de nova despesa (garantindo que séries parceladas e despesas recorrentes iniciem na competência selecionada); (2) edição inline da competência diretamente na célula do grid via `PATCH /despesas/{id}/competencia` (novo endpoint EDP15, RF24, RN31, RT20); (3) ordenação determinística do grid com desempate por número de parcela (`nroParcela`), competência e id; (4) ocultação mandatória de despesas excluídas no grid (cláusula `audit_data_exclusao IS NULL` na consulta C1 / EDP02 e filtro client-side). |
 | 1.5 | 12/09/2026 | Diego dos Santos Cordeiro | Correção e estabilização da ordenação da coluna Competência: ajuste na RT21 para que a ordenação por competência dentro do mesmo mês realize desempate cronológico por vencimento, lançamento, nome e id (eliminando ordenação indevida por parcela entre despesas não relacionadas), com inversão bidirecional consistente de id e desempate de parcelas restrito à mesma série parcelada. |
+| 1.6 | 12/09/2026 | Diego dos Santos Cordeiro | Padronização visual do sistema: explicitação do alinhamento à esquerda para a coluna de Ações no grid de Despesas (QUADRO_DESCRITIVO_1). |
 
 ---
 
@@ -321,7 +322,7 @@ Protótipo navegável: `prototipo/manter-despesa-prototipo.html`. Wireframes edi
 | <a id="qdd1-19"></a>19 | DATA DE PAGAMENTO | Tipo: Coluna (data)<br>Ordenação: Sim | Exibe [C1](#c1).dataPagamento; vazio quando não pago. |
 | <a id="qdd1-20"></a>20 | RATEIO | Tipo: Coluna (ícone)<br>Ordenação: Não | Ícone "users" quando [C1](#c1).temRateio; tooltip "Dividida com N pessoa(s)". Visível a quem tem [PERM07](#perm07). |
 | <a id="qdd1-21"></a>21 | ORIGEM | Tipo: Coluna (badge)<br>Ordenação: Sim | "Manual" / "Open Finance" / "Importação", de [C1](#c1).origem. |
-| <a id="qdd1-22"></a>22 | AÇÃO | Tipo: Coluna | Visível a quem tem ao menos uma permissão de mutação. Ícones [ID23](#qdd1-23). |
+| <a id="qdd1-22"></a>22 | AÇÃO | Tipo: Coluna (alinhada à esquerda) | Visível a quem tem ao menos uma permissão de mutação. Ícones [ID23](#qdd1-23). |
 | <a id="qdd1-23"></a>23 | ÍCONES DE AÇÃO | Tipo: Ícones<br>Editar (ícone: edit, tooltip: Editar despesa)<br>Duplicar (ícone: copy, tooltip: Duplicar despesa)<br>Registrar pagamento (ícone: cash-banknote, tooltip: Registrar pagamento)<br>Ratear (ícone: users, tooltip: Dividir despesa)<br>Excluir (ícone: trash, tooltip: Excluir despesa) | Editar → [RT05](#rt05) (visível com [PERM03](#perm03)). Duplicar → [RT16](#rt16) (visível com [PERM02](#perm02)). Registrar pagamento → [RT11](#rt11) (visível com [PERM05](#perm05); oculto quando status ≠ `NAO`). Ratear → [RT10](#rt10) (visível com [PERM07](#perm07)). Excluir → [RT07](#rt07) (visível com [PERM04](#perm04); oculto quando já excluída ou origem ≠ "MANUAL" ([RN08](#rn08))). |
 
 ### <a id="quadro-descritivo-2"></a>7.2 Modal: Filtrar Despesas — QUADRO_DESCRITIVO_2

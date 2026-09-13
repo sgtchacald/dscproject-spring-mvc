@@ -307,7 +307,7 @@ function render() {
                 <td>${badgeSituacao(r)}</td>
                 <td>${r.dataRecebimento ? dataBr(r.dataRecebimento) : '<span class="text-muted">—</span>'}</td>
                 <td>${labelOrigem(r.origem)}</td>
-                <td><div class="d-flex gap-1">${acaoHtml}</div></td>
+                <td class="col-acoes text-start"><div class="d-flex gap-1 justify-content-start">${acaoHtml}</div></td>
             `;
 
             corpo.appendChild(tr);

@@ -144,7 +144,7 @@ function render() {
                 <td>${fechVencHtml}</td>
                 <td>${contaHtml}</td>
                 <td>${situacaoHtml}</td>
-                <td><div class="d-flex gap-1">${acaoHtml(c)}</div></td>
+                <td class="col-acoes text-start"><div class="d-flex gap-1 justify-content-start">${acaoHtml(c)}</div></td>
             `;
 
             corpo.appendChild(tr);

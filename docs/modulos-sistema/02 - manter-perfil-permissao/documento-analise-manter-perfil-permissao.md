@@ -3,7 +3,7 @@
 
 **Gerado em:** 06/09/2026  
 **Atualizado em:** 11/09/2026  
-**Versão:** 1.3  
+**Versão:** 1.4  
 **Status:** Homologado  
 **Projeto:** `dscproject-spring-mvc` (geração 2)  
 
@@ -30,6 +30,7 @@
 | 1.1 | 07/09/2026 | Diego dos Santos Cordeiro | `GERENCIAR_PERFIS` vira três permissões granulares: `PERFIS_LISTAR`, `PERFIS_MANTER`, `PERFIS_SINCRONIZAR_CATALOGO` (convenção domínio-primeiro). Nova Seção 13.1 com a matriz Perfil × Permissão. Anti-lockout e endpoints reescritos em cima das novas permissões. `PERM_MODULO` e `PERM_FL_ORFA` já absorvidos no Documento 0 v1.3 |
 | 1.2 | 07/09/2026 | Diego dos Santos Cordeiro | RN05 (anti-lockout do próprio perfil) passa a retornar `MSG05` tanto na tela quanto no serviço; `MSG06` fica restrita ao anti-lockout global (RN06). RT04 ajustada. Alinhado durante a implementação |
 | 1.3 | 11/09/2026 | Diego dos Santos Cordeiro | Decomposição atômica de permissões: eliminação mandatória do agregador `PERFIS_MANTER`, desmembrado em quatro permissões atômicas — `PERFIS_INSERIR`, `PERFIS_EDITAR`, `PERFIS_EXCLUIR` e `PERFIS_VINCULAR_PERMISSAO`. Ajuste das travas anti-lockout (focadas em `PERFIS_VINCULAR_PERMISSAO`), regras de tela, endpoints e matriz de permissões. |
+| 1.4 | 12/09/2026 | Diego dos Santos Cordeiro | Padronização visual do sistema: explicitação do alinhamento à esquerda para a coluna de Ações no grid de Perfis (QUADRO_DESCRITIVO_1). |
 
 ---
 
@@ -195,7 +196,7 @@ Wireframes gerados de `prototipo/manter-perfil-permissao-prototipo.drawio`. Os n
 | <a id="qdd1-8"></a>8 | Nº DE PERMISSÕES | Coluna (número) | Exibe [C1](#c1).qtdPermissoes. |
 | <a id="qdd1-9"></a>9 | Nº DE USUÁRIOS | Coluna (número) | Exibe [C1](#c1).qtdUsuarios. |
 | <a id="qdd1-10"></a>10 | SITUAÇÃO / TIPO | Coluna (badges) | "Sistema" quando `PERF_FL_SISTEMA`; "Ativo"/"Excluído" pela presença de `audit_data_exclusao`. |
-| <a id="qdd1-11"></a>11 | AÇÃO | Coluna | Visível a quem tem [PERM02](#perm02). Ícone Editar ([RT02](#rt02)); ícone Excluir ([RT05](#rt05)) — oculto quando é perfil de sistema ou tem usuários. |
+| <a id="qdd1-11"></a>11 | AÇÃO | Tipo: Coluna (alinhada à esquerda) | Visível a quem tem [PERM02](#perm02). Ícone Editar ([RT02](#rt02)); ícone Excluir ([RT05](#rt05)) — oculto quando é perfil de sistema ou tem usuários. |
 
 ### <a id="quadro-descritivo-2"></a>7.2 Modal: Cadastro / Edição de Perfil — QUADRO_DESCRITIVO_2
 

@@ -128,7 +128,7 @@ function render() {
                 <td class="text-end">${i.qtdUso}</td>
                 <td class="text-end">${i.qtdProvedores}</td>
                 <td>${situacaoHtml}</td>
-                <td><div class="d-flex gap-1">${acaoHtml}</div></td>
+                <td class="col-acoes text-start"><div class="d-flex gap-1 justify-content-start">${acaoHtml}</div></td>
             `;
 
             corpo.appendChild(tr);

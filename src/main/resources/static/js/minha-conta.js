@@ -127,7 +127,7 @@ async function carregarRedesSociais() {
                     </td>
                     <td>${identEsc}</td>
                     <td class="text-center">${statusBadge}</td>
-                    <td>
+                    <td class="col-acoes text-start">
                         <div class="btn-list flex-nowrap">
                             <button type="button" class="btn btn-sm btn-outline-primary btn-editar-rede" data-id="${r.id}" title="Editar">
                                 <i class="ph ph-pencil" aria-hidden="true"></i>

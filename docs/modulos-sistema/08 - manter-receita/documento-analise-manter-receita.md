@@ -3,7 +3,7 @@
 
 **Gerado em:** 08/09/2026
 **Atualizado em:** 12/09/2026
-**Versão:** 1.2
+**Versão:** 1.3
 **Status:** Desenvolvido
 **Projeto:** `dscproject-spring-mvc` (geração 2)
 
@@ -29,6 +29,7 @@
 | 1.0 | 08/09/2026 | Diego dos Santos Cordeiro | Criação do documento. CRUD das **receitas do próprio usuário** (tela "Finanças > Receitas") para a geração 2 — sucessor do CRUD REST de `Receita` da geração 1 (`dsc-backend`), agora sobre a tabela `RECEITAS` ([QUADRO_DESCRITIVO_9 do Documento 0](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-9)). Introduz o conceito **prevista × recebida** (`RECE_FL_RECEBIDO` + `RECE_DT_RECEBIMENTO`), a competência como `YearMonth`, a origem do lançamento (`RECE_ORIGEM`) e o escopo *row-level* por usuário, derivado da conta. Remove os enums `RECE_TIPO_TRANSACAO` e `RECE_TIPO_RECEITA_DESPESA` da geração 1 (categoria passa a ser `CATE_ID`). Este documento **referencia** o QUADRO_DESCRITIVO do Documento 0 e **não introduz tabela nova** |
 | 1.1 | 11/09/2026 | Diego dos Santos Cordeiro | Desmembramento de `RECEITAS_MANTER` em `RECEITAS_INSERIR`, `RECEITAS_EDITAR`, `RECEITAS_EXCLUIR` e `RECEITAS_REGISTRAR_RECEBIMENTO`, proibição expressa de `MANTER`, definição de filtro inicial padrão em `mes_atual - 1`, aceitação irrestrita de competências passadas, totalizador condicional por competência única (`competenciaInicio == competenciaFim`), duplicação individual e em lote com preservação dos filtros ativos após operações e diretriz de máscara monetária client-side em tempo real (`pt-BR`, `R$ 0,00`). |
 | 1.2 | 12/09/2026 | Diego dos Santos Cordeiro | Ordenação estável e determinística no grid: adição da regra de tela RT17 documentando indicadores visuais de ordenação ativa (`ph-caret-up` e `ph-caret-down`) nos cabeçalhos e desempate determinístico bidirecional por data de lançamento, data de recebimento, nome e id único quando a competência for idêntica (como no filtro padrão de competência única) ou quando outras colunas possuírem valores iguais. |
+| 1.3 | 12/09/2026 | Diego dos Santos Cordeiro | Padronização visual do sistema: explicitação do alinhamento à esquerda para a coluna de Ações no grid de Receitas (QUADRO_DESCRITIVO_1). |
 
 ---
 
@@ -254,7 +255,7 @@ Protótipo navegável e wireframes: `prototipo/manter-receita-prototipo.html` e 
 | <a id="qdd1-13"></a>13 | SITUAÇÃO | Tipo: Coluna (badge)<br>Ordenação: Sim | "Recebida" (verde) quando [C1](#c1).recebido; "Prevista" (cinza) caso contrário. "Excluída" quando há `audit_data_exclusao`. |
 | <a id="qdd1-14"></a>14 | DATA DE RECEBIMENTO | Tipo: Coluna (data)<br>Ordenação: Sim | Exibe [C1](#c1).dataRecebimento; vazio quando prevista. |
 | <a id="qdd1-15"></a>15 | ORIGEM | Tipo: Coluna (badge)<br>Ordenação: Sim | "Manual" / "Open Finance" / "Importação", de [C1](#c1).origem. |
-| <a id="qdd1-16"></a>16 | AÇÃO | Tipo: Coluna | Visível a usuários com permissões de gestão. Ícones [ID17](#qdd1-17). |
+| <a id="qdd1-16"></a>16 | AÇÃO | Tipo: Coluna (alinhada à esquerda) | Visível a usuários com permissões de gestão. Ícones [ID17](#qdd1-17). |
 | <a id="qdd1-17"></a>17 | ÍCONES DE AÇÃO | Tipo: Ícones<br>Editar (ícone: edit, tooltip: Editar receita)<br>Registrar recebimento (ícone: cash-banknote, tooltip: Registrar recebimento)<br>Duplicar (ícone: copy, tooltip: Duplicar receita)<br>Excluir (ícone: trash, tooltip: Excluir receita) | Editar → [RT05](#rt05) (exige [PERM03](#perm03) `RECEITAS_EDITAR`). Registrar recebimento → [RT08](#rt08) (exige [PERM05](#perm05) `RECEITAS_REGISTRAR_RECEBIMENTO`; oculto quando já recebida). Duplicar → [RT15](#rt15) (exige [PERM02](#perm02) `RECEITAS_INSERIR`). Excluir → [RT07](#rt07) (exige [PERM04](#perm04) `RECEITAS_EXCLUIR`; oculto quando excluída ou origem ≠ "MANUAL"). |
 
 ### <a id="quadro-descritivo-2"></a>7.2 Modal: Filtrar Receitas — QUADRO_DESCRITIVO_2

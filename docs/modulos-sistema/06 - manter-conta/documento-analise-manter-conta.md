@@ -2,7 +2,7 @@
 ## Módulo Contas — USER / ADMIN — Manter Conta
 
 **Gerado em:** 08/09/2026
-**Versão:** 1.1
+**Versão:** 1.2
 **Status:** Desenvolvido
 **Projeto:** `dscproject-spring-mvc` (geração 2)
 
@@ -27,6 +27,7 @@
 |---|---|---|---|
 | 1.0 | 08/09/2026 | Diego dos Santos Cordeiro | Criação do documento. CRUD das **contas do usuário** (bancárias, poupança, investimento e carteira) para a geração 2 — sucessor do CRUD de `InstituicaoFinanceiraUsuario` da geração 1, agora sobre a tabela `CONTAS` ([QUADRO_DESCRITIVO_5 do Documento 0](../00%20-%20analise-geral/documento-0-fundacao.md#quadro-descritivo-5)). Introduz o enum `TipoConta`, o tipo de conta, moeda, saldo manual com ajuste dedicado, e o escopo *row-level* por `USU_ID`. Este documento **referencia** o QUADRO_DESCRITIVO do Documento 0 e **não introduz tabela nova** |
 | 1.1 | 11/09/2026 | Diego dos Santos Cordeiro | Desmembramento de `CONTAS_MANTER` em `CONTAS_INSERIR`, `CONTAS_EDITAR`, `CONTAS_EXCLUIR`, `CONTAS_DESATIVAR` e `CONTAS_AJUSTAR_SALDO`, em conformidade com as diretrizes de governança RBAC granular e Observação 28 do Documento 0. Reforço de diretriz de máscara monetária client-side em tempo real (`pt-BR`). |
+| 1.2 | 12/09/2026 | Diego dos Santos Cordeiro | Padronização visual do sistema: explicitação do alinhamento à esquerda para a coluna de Ações no grid de Contas (QUADRO_DESCRITIVO_1). |
 
 ---
 
@@ -230,7 +231,7 @@ Protótipo navegável: `prototipo/manter-conta-prototipo.html`. Wireframes edit�
 | <a id="qdd1-12"></a>12 | CONSIDERA NO SALDO GERAL | Tipo: Coluna (badge)<br>Ordenação: Sim | "Sim" / "Não", de [C1](#c1).consideraSaldo. |
 | <a id="qdd1-13"></a>13 | Nº DE LANÇAMENTOS | Tipo: Coluna (número)<br>Ordenação: Sim | Exibe [C1](#c1).qtdUso — soma de transações, receitas, despesas, investimentos e cartões não excluídos que usam a conta. |
 | <a id="qdd1-14"></a>14 | SITUAÇÃO | Tipo: Coluna (badge)<br>Ordenação: Sim | "Ativa" (verde) quando `CTA_FL_ATIVO` e sem `audit_data_exclusao`; "Inativa" (cinza) quando `CTA_FL_ATIVO = FALSE`; "Excluída" quando há `audit_data_exclusao`. |
-| <a id="qdd1-15"></a>15 | AÇÃO | Tipo: Coluna | Visível a quem tem [PERM03](#perm03), [PERM04](#perm04) ou [PERM06](#perm06). Ícones [ID16](#qdd1-16). |
+| <a id="qdd1-15"></a>15 | AÇÃO | Tipo: Coluna (alinhada à esquerda) | Visível a quem tem [PERM03](#perm03), [PERM04](#perm04) ou [PERM06](#perm06). Ícones [ID16](#qdd1-16). |
 | <a id="qdd1-16"></a>16 | ÍCONES DE AÇÃO | Tipo: Ícones<br>Editar (ícone: edit, tooltip: Editar conta)<br>Ajustar saldo (ícone: adjustments-dollar, tooltip: Ajustar saldo)<br>Excluir (ícone: trash, tooltip: Excluir conta) | Editar (com [PERM03](#perm03)) → [RT05](#rt05). Ajustar saldo (com [PERM06](#perm06)) → [RT08](#rt08). Excluir (com [PERM04](#perm04)) → [RT07](#rt07); ambos ocultos quando a conta já está excluída. |
 
 ### <a id="quadro-descritivo-2"></a>7.2 Modal: Filtrar Contas — QUADRO_DESCRITIVO_2
